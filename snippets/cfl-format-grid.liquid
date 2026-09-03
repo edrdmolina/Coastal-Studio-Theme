@@ -1,0 +1,150 @@
+{% comment %}
+  Renders a "pick your film type" grid for a film-processing collection.
+
+  Products are bucketed by their format tag, so one card appears per format
+  rather than one per product. Unlisting a product in the Shopify admin drops
+  it out of collection.products automatically, which removes its process pill,
+  and removes the whole card once the last product for that format is gone.
+  No template edit is needed when the service list changes.
+
+  Accepts:
+    - grid_collection {Object} Collection to read products from. Required.
+    - heading         {String} Optional heading rendered above the grid.
+    - intro           {String} Optional supporting line under the heading.
+    - heading_tag     {String} Heading element to use. Defaults to 'h2'.
+
+  Expected product tags (already consistent across the processing catalog):
+    - one format tag:  disposable | 35mm | medium format | 110 | aps
+    - one process tag: c41 | bw
+    - the service tag: 'Film Processing' (excludes cameras and film stock)
+
+  Usage:
+    {% render 'cfl-format-grid',
+       grid_collection: collections['develop-and-scan'],
+       heading: 'Pick your film type' %}
+{% endcomment %}
+
+{%- liquid
+  comment
+    Display order and labels for the formats we currently offer. A format tag
+    that is not in this list is skipped rather than guessed at, so adding a new
+    format means adding it here once.
+  endcomment
+  assign format_keys = '35mm,medium format,disposable,110,aps' | split: ','
+  assign format_labels = '35mm,Medium Format,disposable,110 Film,APS Film' | split: ','
+  assign process_keys = 'c41,bw' | split: ','
+  assign process_labels = 'C-41,B&W' | split: ','
+  assign service_tag = 'Film Processing'
+-%}
+
+{%- comment -%} Which of those formats actually have a live product right now. {%- endcomment -%}
+{%- assign present = '' -%}
+{%- for key in format_keys -%}
+  {%- assign format_key = key | strip -%}
+  {%- for product in grid_collection.products -%}
+    {%- if product.tags contains service_tag and product.tags contains format_key -%}
+      {%- assign present = present | append: forloop.parentloop.index0 | append: ',' -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- assign present_indexes = present | split: ',' -%}
+
+{%- if present_indexes.size > 0 -%}
+  <div class="cfl-format-grid-wrapper">
+    {%- if heading != blank -%}
+      {%- assign heading_element = heading_tag | default: 'h2' -%}
+      <{{ heading_element }} class="cfl-section-heading">{{ heading }}</{{ heading_element }}>
+    {%- endif -%}
+
+    {%- if intro != blank -%}
+      <p class="cfl-section-intro">{{ intro }}</p>
+    {%- endif -%}
+
+    <ul class="cfl-format-grid" role="list">
+      {%- for index_string in present_indexes -%}
+        {%- liquid
+          assign i = index_string | plus: 0
+          assign format_key = format_keys[i] | strip
+          assign label = format_labels[i]
+
+          assign min_price = 0
+          assign primary = blank
+        -%}
+
+        {%- comment -%}
+          One pass over the format's products: track the lowest price and pick
+          the card's link target, preferring C-41 when it exists. Assignments
+          made inside a for loop persist after it, so the product object is
+          carried out directly rather than looked up again through
+          all_products, which is capped at 20 lookups per page.
+        {%- endcomment -%}
+        {%- for product in grid_collection.products -%}
+          {%- if product.tags contains service_tag and product.tags contains format_key -%}
+            {%- if min_price == 0 or product.price < min_price -%}
+              {%- assign min_price = product.price -%}
+            {%- endif -%}
+            {%- if primary == blank or product.tags contains 'c41' -%}
+              {%- assign primary = product -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        <li class="cfl-format-card">
+          <a
+            class="cfl-format-card__media{% unless primary.featured_image %} cfl-format-card__media--empty{% endunless %}"
+            href="{{ primary.url }}"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            {%- if primary.featured_image -%}
+              {{
+                primary.featured_image
+                | image_url: width: 600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '300, 400, 600, 800',
+                  sizes: '(min-width: 1200px) 280px, (min-width: 750px) 33vw, 45vw',
+                  alt: ''
+              }}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag }}
+            {%- endif -%}
+          </a>
+
+          <div class="cfl-format-card__body">
+            <h3 class="cfl-format-card__title">
+              <a href="{{ primary.url }}">{{ label }}</a>
+            </h3>
+
+            {%- if min_price > 0 -%}
+              {%- assign min_price_formatted = min_price | money -%}
+              <p class="cfl-format-card__price">
+                {{- 'products.product.price.from_price_html' | t: price: min_price_formatted -}}
+              </p>
+            {%- endif -%}
+
+            <ul class="cfl-format-card__processes" role="list">
+              {%- for process_key in process_keys -%}
+                {%- assign process_label = process_labels[forloop.index0] -%}
+                {%- for product in grid_collection.products -%}
+                  {%- if product.tags contains service_tag
+                      and product.tags contains format_key
+                      and product.tags contains process_key
+                  -%}
+                    <li>
+                      <a class="cfl-process-pill" href="{{ product.url }}">
+                        {{- process_label }} <span class="visually-hidden">{{ label }}</span>
+                      </a>
+                    </li>
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}

@@ -1,0 +1,987 @@
+/*
+  Coastal Film Lab custom components.
+
+  Shared styles for the film-processing snippets:
+    - cfl-format-grid       : tag-driven "pick your film type" grid
+    - cfl-process-switcher  : C-41 / B&W switcher on service product pages
+    - cfl-shipping-options  : the three ways to get film to the lab
+    - cfl-label-nudge       : cart reminder about the prepaid inbound label
+
+  Uses the theme's existing color scheme variables so these blend with
+  whatever scheme the surrounding section is set to.
+*/
+
+/* ------------------------------------------------------------------ *
+ * Shared
+ * ------------------------------------------------------------------ */
+
+:root {
+  /*
+    Darkened seafoam, for borders and any place teal would otherwise carry
+    meaning on a light ground. The brand teal #7CCAB9 measures only 1.86:1 on
+    #FCFCFC — under both the 4.5:1 AA needs for text and the 3:1 for non-text
+    UI boundaries. This measures 5.21:1 and is already in use elsewhere in this
+    store (the inbound-label form's border colour).
+  */
+  --cfl-accent-dark: #00777c;
+}
+
+.cfl-section-heading {
+  text-align: center;
+  margin: 0 0 0.6em;
+}
+
+.cfl-section-intro {
+  text-align: center;
+  max-width: 62ch;
+  margin: 0 auto 4rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Format grid
+ * ------------------------------------------------------------------ */
+
+/*
+  Flexbox rather than grid so a trailing card centres itself instead of being
+  stranded at the left of the last row. With five formats, a 4-up layout leaves
+  a lone card below it, so the column count steps straight from five to two.
+*/
+.cfl-format-grid {
+  --cfl-cols: 5;
+  --cfl-gap: 2.4rem;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3.2rem var(--cfl-gap);
+  max-width: 160rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  list-style: none;
+}
+
+/* Below the width where five cards still read comfortably, go straight to two. */
+@media screen and (max-width: 1300px) {
+  .cfl-format-grid {
+    --cfl-cols: 2;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .cfl-format-grid {
+    --cfl-cols: 1;
+  }
+}
+
+.cfl-format-card {
+  /*
+    flex-basis drives the 5-up layout; max-width only takes effect once the
+    column count drops, keeping two-up and one-up cards from stretching to
+    half the viewport.
+  */
+  flex: 0 1 calc((100% - (var(--cfl-cols) - 1) * var(--cfl-gap)) / var(--cfl-cols));
+  max-width: 44rem;
+  display: flex;
+  flex-direction: column;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.12);
+  border-radius: 0.8rem;
+  background: rgb(var(--color-background));
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cfl-format-card:hover,
+.cfl-format-card:focus-within {
+  transform: translateY(-0.4rem);
+  box-shadow: 0 0.6rem 1.6rem rgba(var(--color-shadow), 0.16);
+}
+
+.cfl-format-card__media {
+  display: block;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+.cfl-format-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.cfl-format-card:hover .cfl-format-card__media img {
+  transform: scale(1.05);
+}
+
+/* Placeholder shown when a product has no featured image. */
+.cfl-format-card__media--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfl-format-card__media--empty svg {
+  width: 40%;
+  height: auto;
+  opacity: 0.25;
+}
+
+.cfl-format-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.6rem 1.8rem 1.8rem;
+  flex-grow: 1;
+}
+
+.cfl-format-card__title {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 2.2rem);
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+}
+
+.cfl-format-card__title a {
+  color: rgb(var(--color-foreground));
+  text-decoration: none;
+}
+
+.cfl-format-card__title a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.cfl-format-card__price {
+  margin: 0;
+  font-size: 1.5rem;
+  opacity: 0.75;
+}
+
+.cfl-format-card__processes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cfl-process-pill {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.3);
+  border-radius: 0.4rem;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  text-decoration: none;
+  color: rgb(var(--color-foreground));
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.cfl-process-pill:hover,
+.cfl-process-pill:focus {
+  background: rgba(var(--color-foreground), 0.08);
+  border-color: rgba(var(--color-foreground), 0.6);
+}
+
+/* ------------------------------------------------------------------ *
+ * Process switcher (product pages)
+ * ------------------------------------------------------------------ */
+
+.cfl-process-switcher {
+  margin: 0 0 1.6rem;
+}
+
+.cfl-process-switcher__label {
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.cfl-process-switcher__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.cfl-process-switcher .cfl-process-pill {
+  padding: 0.8rem 1.6rem;
+  font-size: 1.4rem;
+  border-radius: 0.4rem;
+}
+
+.cfl-process-switcher .cfl-process-pill[aria-current='true'] {
+  background: rgb(var(--color-button));
+  border-color: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+}
+
+/* ------------------------------------------------------------------ *
+ * Shipping options (three ways to get film to the lab)
+ * ------------------------------------------------------------------ */
+
+.cfl-ship-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+  gap: 2.4rem;
+  max-width: 110rem;
+  margin: 0 auto 2rem;
+  padding: 0 1.5rem;
+  list-style: none;
+}
+
+.cfl-ship-option {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2.4rem 2.2rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.14);
+  border-radius: 1rem;
+  background: rgb(var(--color-background));
+}
+
+/* The prepaid label is the route we actively sell, so it carries the accent. */
+.cfl-ship-option--featured {
+  border-color: rgb(var(--color-button));
+  border-width: 0.2rem;
+  box-shadow: 0 0.2rem 0.5rem rgba(var(--color-shadow), 0.1);
+}
+
+.cfl-ship-option__tag {
+  align-self: flex-start;
+  padding: 0.3rem 1rem;
+  border-radius: 0.4rem;
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cfl-ship-option__title {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 2rem);
+  line-height: 1.2;
+}
+
+.cfl-ship-option__body {
+  margin: 0;
+  flex-grow: 1;
+  font-size: 1.5rem;
+  line-height: 1.6;
+}
+
+.cfl-ship-option__body p {
+  margin: 0 0 1rem;
+}
+
+.cfl-ship-option__body p:last-child {
+  margin-bottom: 0;
+}
+
+.cfl-ship-option__action {
+  margin-top: 0.6rem;
+}
+
+.cfl-ship-option__action .button {
+  width: 100%;
+}
+
+.cfl-ship-option__note {
+  margin: 0.8rem 0 0;
+  font-size: 1.3rem;
+  opacity: 0.75;
+}
+
+/* ------------------------------------------------------------------ *
+ * Steps row ("How this works")
+ * ------------------------------------------------------------------ */
+
+.cfl-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 2.4rem;
+  max-width: 124rem;
+  margin: 0 auto 4rem;
+  padding: 0 1.5rem;
+  list-style: none;
+  counter-reset: cfl-step;
+}
+
+.cfl-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2.4rem 1.8rem;
+  border-radius: 1rem;
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+.cfl-step__icon {
+  width: 45%;
+  max-width: 12rem;
+  height: auto;
+}
+
+.cfl-step__title {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.04em;
+}
+
+.cfl-step__body {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ *
+ * Cart label nudge
+ * ------------------------------------------------------------------ */
+
+.cfl-label-nudge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.2rem 1.6rem;
+  margin: 0 0 2rem;
+  padding: 1.6rem 1.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 0.8rem;
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+.cfl-label-nudge[hidden] {
+  display: none !important;
+}
+
+.cfl-label-nudge__text {
+  flex: 1 1 24rem;
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+
+.cfl-label-nudge__text strong {
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.cfl-label-nudge__actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.cfl-label-nudge__dismiss {
+  background: none;
+  border: 0;
+  padding: 0.6rem;
+  cursor: pointer;
+  color: rgb(var(--color-foreground));
+  opacity: 0.6;
+  font-size: 1.3rem;
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.cfl-label-nudge__dismiss:hover {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ *
+ * Label upsell (film-processing product pages)
+ * ------------------------------------------------------------------ */
+
+.cfl-label-upsell {
+  /* max-width: 600px; */
+  margin: 2.4rem 0 0;
+  padding: 2rem 1.8rem;
+  border: 0.2rem solid rgba(var(--color-button), 0.8);
+  border-radius: 0.8rem;
+  background: rgba(var(--color-foreground), 0.03);
+
+  /*
+    Queried by the button grid below. This block sits inside the product info
+    column, which is far narrower than the viewport — at a 1059px viewport the
+    column is only ~240px. A viewport media query would read that as "roomy"
+    and keep two columns, so the space has to be measured here instead.
+  */
+  container-type: inline-size;
+  container-name: cfl-upsell;
+}
+
+.cfl-label-upsell__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.cfl-label-upsell__intro {
+  margin: 0 0 1.6rem;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+
+/*
+  Single column by default. That is the safe layout: the longest spec line
+  ("Up to 2 lb · 11 × 8.5 × 5.5 in") needs roughly 22rem before it stops
+  wrapping, and it also means browsers without container query support get the
+  readable layout rather than the broken one.
+*/
+.cfl-label-upsell__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Only pair them up once two buttons genuinely fit side by side. */
+@container cfl-upsell (min-width: 46rem) {
+  .cfl-label-upsell__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* product-form is a custom element and defaults to inline. */
+.cfl-label-upsell__form {
+  display: block;
+}
+
+.cfl-label-upsell__form .form {
+  margin: 0;
+}
+
+.cfl-label-upsell__button {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 1.2rem 1.4rem;
+  line-height: 1.25;
+  text-align: left;
+}
+
+/* Name and price share a row; the specs sit under them. */
+.cfl-label-upsell__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cfl-label-upsell__size {
+  font-size: 1.4rem;
+}
+
+.cfl-label-upsell__price {
+  font-size: 1.4rem;
+  white-space: nowrap;
+}
+
+.cfl-label-upsell__specs {
+  display: block;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  /* 0.75 over the brown foreground measures 6.91:1; 0.7 would be 5.85:1. */
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.cfl-label-upsell__spec-divider {
+  margin: 0 0.4rem;
+}
+
+.cfl-label-upsell__confirmed {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0 0 1.2rem;
+  font-size: 1.5rem;
+}
+
+.cfl-label-upsell__confirmed svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+}
+
+.cfl-label-upsell__more > summary {
+  cursor: pointer;
+  font-size: 1.4rem;
+  padding: 0.4rem 0;
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.cfl-label-upsell__more[open] > summary {
+  margin-bottom: 1.4rem;
+}
+
+.cfl-label-upsell__note {
+  margin: 1.6rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.55;
+  opacity: 0.8;
+}
+
+.cfl-label-upsell__note-divider {
+  margin: 0 0.5rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Label size comparison
+ * ------------------------------------------------------------------ */
+
+.cfl-sizes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1.6rem;
+  max-width: 110rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-size-card {
+  padding: 1.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  border-radius: 0.8rem;
+  background: rgb(var(--color-background));
+}
+
+.cfl-size-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+.cfl-size-card__name {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+}
+
+.cfl-size-card__price {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.6rem);
+  white-space: nowrap;
+}
+
+.cfl-size-card__specs {
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+}
+
+.cfl-size-card__specs > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cfl-size-card__specs dt {
+  opacity: 0.65;
+}
+
+.cfl-size-card__specs dd {
+  margin: 0;
+  text-align: right;
+}
+
+.cfl-sizes__note {
+  max-width: 76ch;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* ------------------------------------------------------------------ *
+ * Do / don't lists (packing guidance)
+ * ------------------------------------------------------------------ */
+
+.cfl-dodont {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  gap: 2.4rem;
+  max-width: 110rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-dodont__col {
+  padding: 2rem 2.2rem;
+  border-radius: 1rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.14);
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+.cfl-dodont__title {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.03em;
+}
+
+.cfl-dodont__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  font-size: 1.5rem;
+  line-height: 1.55;
+}
+
+.cfl-dodont__list li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+/* Marks are decorative; the column heading carries the meaning. */
+.cfl-dodont__mark {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.cfl-dodont__col--do .cfl-dodont__mark {
+  color: var(--cfl-accent-dark);
+}
+
+.cfl-dodont__col--dont .cfl-dodont__mark {
+  color: #bc5631;
+}
+
+/* ------------------------------------------------------------------ *
+ * Prose block (international guidance, and similar copy sections)
+ * ------------------------------------------------------------------ */
+
+.cfl-prose {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1.65;
+}
+
+.cfl-prose p {
+  margin: 0 0 1.4rem;
+}
+
+.cfl-prose p:last-child {
+  margin-bottom: 0;
+}
+
+/*
+  The list stays left-aligned inside the centred column. Centring bullet text
+  makes every line start at a different x position, which is markedly harder to
+  scan than the ragged-right alternative.
+*/
+.cfl-prose ul {
+  text-align: left;
+  margin: 0 0 1.6rem;
+  padding-left: 2.2rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Address block
+ * ------------------------------------------------------------------ */
+
+.cfl-address {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.4rem;
+  text-align: center;
+  border: 0.2rem solid var(--cfl-accent-dark);
+  border-radius: 1rem;
+  background: rgb(var(--color-background));
+}
+
+.cfl-address__label {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.cfl-address__lines {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.9rem);
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  font-style: normal;
+}
+
+.cfl-address__actions {
+  margin-top: 1.6rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------------ *
+ * Sticky order bar
+ * ------------------------------------------------------------------ */
+
+/*
+  Deliberately not full-bleed. The Shopify Forms "Stay in touch" pill is pinned
+  bottom-left on every page; an edge-to-edge bar would cover it or fight it on
+  z-index. Insetting from the left leaves that corner free on desktop, and on
+  mobile the bar sits above the pill instead.
+*/
+.cfl-order-bar {
+  position: fixed;
+  z-index: 4;
+  left: 1.2rem;
+  right: 1.2rem;
+  /*
+    Sits above the Forms "Stay in touch" pill, which anchors to the bottom-left
+    on phones and would otherwise cover the primary button. Confirmed on a real
+    device — a resized desktop window does not reproduce it, so do not trust
+    emulated widths when changing this value.
+  */
+  bottom: 7rem;
+
+  background: #301e17;
+  color: #fff8ef;
+  border-radius: 1rem;
+  box-shadow: 0 0.6rem 2.4rem rgba(0, 0, 0, 0.28);
+
+  /*
+    The hidden offset is a variable rather than a transform, so the desktop
+    media query below can change the distance without re-declaring `transform`.
+    Re-declaring it there would tie on specificity with `--show` and, being
+    later in the file, would win — pinning the bar off screen on desktop.
+  */
+  --cfl-bar-hidden: translateY(calc(100% + 8rem));
+
+  /* Transform-only reveal, so the bar is never a blank box mid-transition. */
+  transform: var(--cfl-bar-hidden);
+  transition: transform 0.4s cubic-bezier(0.6, 0, 0.2, 1);
+}
+
+@media screen and (min-width: 750px) {
+  .cfl-order-bar {
+    /* Clears the Forms pill, which sits in the bottom-left corner. */
+    left: 20rem;
+    right: 1.6rem;
+    bottom: 1.6rem;
+    --cfl-bar-hidden: translateY(calc(100% + 3rem));
+  }
+}
+
+.cfl-order-bar--show {
+  transform: translateY(0);
+}
+
+.cfl-order-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1.4rem 1.6rem;
+}
+
+.cfl-order-bar__text {
+  min-width: 0;
+}
+
+.cfl-order-bar__heading {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.7rem);
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+}
+
+.cfl-order-bar__sub {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.4;
+  color: rgba(255, 248, 239, 0.72);
+}
+
+.cfl-order-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Mustard carries the notice role in this theme; 8.0:1 on the brown surface. */
+.cfl-order-bar__price {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.5rem);
+  color: #e8af21;
+  white-space: nowrap;
+}
+
+/* Teal marks the primary action. Brown label measures 8.31:1 on it. */
+.cfl-order-bar__cta.button {
+  min-width: 0;
+  min-height: 4.2rem;
+  padding: 0 1.8rem;
+  font-size: 1.4rem;
+  white-space: nowrap;
+  background: #7ccab9;
+  color: #301e17;
+  border-color: #7ccab9;
+  box-shadow: none;
+}
+
+.cfl-order-bar__cta--secondary.button {
+  background: transparent;
+  color: #fff8ef;
+  border-color: rgba(255, 248, 239, 0.55);
+}
+
+.cfl-order-bar__cta--secondary.button:hover {
+  border-color: #fff8ef;
+}
+
+.cfl-order-bar__dismiss {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: #fff8ef;
+  opacity: 0.65;
+}
+
+.cfl-order-bar__dismiss:hover,
+.cfl-order-bar__dismiss:focus-visible {
+  opacity: 1;
+}
+
+.cfl-order-bar__dismiss .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Narrow screens: drop to the essentials and keep tap targets full size. */
+@media screen and (max-width: 749px) {
+  .cfl-order-bar__inner {
+    flex-wrap: wrap;
+    gap: 1rem 1.2rem;
+    padding: 1.2rem 1.2rem 1.4rem;
+  }
+
+  .cfl-order-bar__sub,
+  .cfl-order-bar__price,
+  .cfl-order-bar__cta--secondary {
+    display: none;
+  }
+
+  .cfl-order-bar__actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .cfl-order-bar__cta.button {
+    width: 100%;
+  }
+
+  .cfl-order-bar__dismiss {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Contrast corrections
+ * ------------------------------------------------------------------ */
+
+/*
+  Studio paints secondary button labels in the brand teal, which is 1.86:1 on
+  the near-white card — far under the 4.5:1 AA requires for normal text. The
+  label goes to the dark brown foreground (15.46:1) and the teal identity moves
+  to the border, darkened so it also clears the 3:1 needed for a non-text
+  boundary.
+
+  Scoped to the cfl- components deliberately. The same pairing exists across the
+  rest of the theme; correcting it globally is a brand decision, not a
+  bug fix, so it is left alone here.
+*/
+.cfl-label-upsell__button.button--secondary,
+.cfl-label-nudge .button--secondary,
+.cfl-ship-option__action .button--secondary {
+  color: rgb(var(--color-foreground));
+  border-color: var(--cfl-accent-dark);
+}
+
+/*
+  Primary buttons in these components pair warm white with teal at roughly
+  1.81:1. Dark brown on the same teal is 8.31:1, which is the substitution the
+  theme README recommends for accessibility-sensitive work.
+*/
+.cfl-ship-option__action .button--primary {
+  color: rgb(var(--color-foreground));
+}
+
+/* ------------------------------------------------------------------ *
+ * Reduced motion
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cfl-format-card,
+  .cfl-format-card__media img {
+    transition: none;
+  }
+
+  .cfl-format-card:hover,
+  .cfl-format-card:focus-within {
+    transform: none;
+  }
+
+  .cfl-format-card:hover .cfl-format-card__media img {
+    transform: none;
+  }
+
+  /*
+    The bar still needs to move off screen when hidden — only the animation
+    goes, not the positioning.
+  */
+  .cfl-order-bar {
+    transition: none;
+  }
+}

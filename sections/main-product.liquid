@@ -462,6 +462,13 @@
                   section_id: section.id,
                   show_pickup_availability: true
                 -%}
+                {%- comment -%}
+                  Prepaid inbound label upsell. Renders only on products tagged
+                  'Film Processing'; the snippet handles its own gating.
+                {%- endcomment -%}
+                {%- if section.settings.show_label_upsell -%}
+                  {% render 'cfl-label-upsell', product: product %}
+                {%- endif -%}
               {%- when 'rating' -%}
                 {%- if product.metafields.reviews.rating.value != blank -%}
                   <div class="rating-wrapper">
@@ -2126,6 +2133,13 @@
     }
   ],
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_label_upsell",
+      "default": true,
+      "label": "Show prepaid shipping label upsell",
+      "info": "Appears below Add to Cart on products tagged 'Film Processing'."
+    },
     {
       "type": "checkbox",
       "id": "enable_sticky_info",
