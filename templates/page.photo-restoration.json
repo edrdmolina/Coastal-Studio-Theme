@@ -1,0 +1,219 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "image_banner_QWFJNf": {
+      "type": "image-banner",
+      "blocks": {
+        "heading_CaCg8E": {
+          "type": "heading",
+          "settings": {
+            "heading": "Photograph Restoration",
+            "heading_size": "h1"
+          }
+        },
+        "text_jjJ6DT": {
+          "type": "text",
+          "settings": {
+            "text": "Have your photos restored to perfection - trusted by thousands for safe, reliable and guaranteed results.",
+            "text_style": "body"
+          }
+        },
+        "buttons_jr4UX6": {
+          "type": "buttons",
+          "settings": {
+            "button_label_1": "BOOK A FREE CONSULTATION CALL",
+            "button_link_1": "",
+            "button_style_secondary_1": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_CaCg8E",
+        "text_jjJ6DT",
+        "buttons_jr4UX6"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/Screenshot_2025-01-10_200154.png",
+        "image_overlay_opacity": 0,
+        "image_height": "small",
+        "desktop_content_position": "middle-center",
+        "show_text_box": true,
+        "desktop_content_alignment": "center",
+        "color_scheme": "",
+        "image_behavior": "none",
+        "mobile_content_alignment": "center",
+        "stack_images_on_mobile": true,
+        "show_text_below": true
+      }
+    },
+    "image_with_text_qq4cBH": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_Y9zJJp": {
+          "type": "heading",
+          "settings": {
+            "heading": "Our Service",
+            "heading_size": "h1"
+          }
+        },
+        "text_W8GE47": {
+          "type": "text",
+          "settings": {
+            "text": "<p>At Coastal Film Labs, we understand that photographs hold priceless memories. Our team of photo restoration experts is committed to bringing your cherished images back to life while preserving their original beauty. Using a meticulous and secure process, we ensure each photograph receives the utmost care. From repairing damaged prints to restoring faded colors and cleaning fragile images, we're here to help.<br/><br/>With our expertise in photo restoration and preservation, Coastal Film Labs is the trusted choice for safeguarding your most precious memories.<br/><br/></p>",
+            "text_style": "body"
+          }
+        }
+      },
+      "block_order": [
+        "heading_Y9zJJp",
+        "text_W8GE47"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/Photo_Restore_GIF.gif",
+        "height": "small",
+        "desktop_image_width": "small",
+        "layout": "image_first",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "left",
+        "content_layout": "no-overlap",
+        "section_color_scheme": "",
+        "color_scheme": "",
+        "image_behavior": "none",
+        "mobile_content_alignment": "left",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "multicolumn_gXLkJT": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_MpwqgK": {
+          "type": "column",
+          "settings": {
+            "title": "<strong>Fire And Smoke</strong>",
+            "text": "<p>Our expertise in photo restoration covers residential and commercial fire damage. Restoring photos affected by smoke, soot, and chemicals requires specialized skills and the right tools to clean and repair each image, preserving your precious memories.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_YXmy8X": {
+          "type": "column",
+          "settings": {
+            "title": "<strong>Water</strong>",
+            "text": "<p>Our expertise in photo restoration also covers water damage caused by leaking pipes, appliances, or flooding. Using specialized techniques and advanced equipment, we carefully repair and preserve water-damaged photos, restoring your memories to their original condition.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_CETTyh": {
+          "type": "column",
+          "settings": {
+            "title": "<strong>Mold & Mildew</strong>",
+            "text": "<p>With our expertise in mold damage restoration, we carefully treat photos affected by mold. Using advanced techniques, we remove mold, clean, and repair your photos, restoring them to their pre-damage condition while preserving your cherished memories.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_8NxVKT": {
+          "type": "column",
+          "settings": {
+            "title": "<strong>Vandalism</strong>",
+            "text": "<p>Our expertise in photo restoration covers damage caused by vandalism. Whether defaced, torn, or scratched, we use specialized techniques to restore and preserve your photos, ensuring they return to their original condition and your memories are protected.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_MpwqgK",
+        "column_YXmy8X",
+        "column_CETTyh",
+        "column_8NxVKT"
+      ],
+      "settings": {
+        "title": "Types of Damage We Repair",
+        "heading_size": "h1",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "columns_desktop": 4,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "button_label": "",
+        "button_link": "",
+        "color_scheme": "",
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_Emf9bG": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_LHBBDB": {
+          "type": "heading",
+          "settings": {
+            "heading": "RESTORE YOUR PRECIOUS PHOTOS TODAY!",
+            "heading_size": "h1"
+          }
+        },
+        "text_4waaxE": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Register for a free consultation today and schedule a call with our photo restoration experts.</p>"
+          }
+        },
+        "button_3jfKyF": {
+          "type": "button",
+          "settings": {
+            "button_label": "BOOK A FREE CONSULTATION",
+            "button_link": "",
+            "button_style_secondary": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_LHBBDB",
+        "text_4waaxE",
+        "button_3jfKyF"
+      ],
+      "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "inverse",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "main",
+    "image_banner_QWFJNf",
+    "image_with_text_qq4cBH",
+    "multicolumn_gXLkJT",
+    "rich_text_Emf9bG"
+  ]
+}
