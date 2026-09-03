@@ -1,0 +1,66 @@
+{% comment %}
+  Comparison of the inbound shipping label sizes.
+
+  Reads the same variant metafields the product-page upsell uses
+  (custom.package_dimensions, custom.package_weight_limit), so this table, the
+  quick-add buttons and the product page cannot drift apart. Editing a value in
+  the Shopify admin updates all three.
+
+  Accepts:
+    - heading {String} Optional heading above the table.
+    - intro   {String} Optional supporting line.
+
+  Usage:
+    {% render 'cfl-label-sizes', heading: 'Which size do I need?' %}
+{% endcomment %}
+
+{%- liquid
+  assign label_product = all_products['in-bound-label']
+-%}
+
+{%- if label_product != blank and label_product.available -%}
+  <div class="cfl-sizes-wrapper">
+    {%- if heading != blank -%}
+      <h2 class="cfl-section-heading">{{ heading }}</h2>
+    {%- endif -%}
+    {%- if intro != blank -%}
+      <p class="cfl-section-intro">{{ intro }}</p>
+    {%- endif -%}
+
+    <div class="cfl-sizes">
+      {%- for variant in label_product.variants -%}
+        {%- liquid
+          assign dims = variant.metafields.custom.package_dimensions.value
+          assign weight_limit = variant.metafields.custom.package_weight_limit.value
+        -%}
+        <div class="cfl-size-card">
+          <div class="cfl-size-card__head">
+            <h3 class="cfl-size-card__name">{{ variant.title }}</h3>
+            <span class="cfl-size-card__price">{{ variant.price | money }}</span>
+          </div>
+
+          <dl class="cfl-size-card__specs">
+            {%- if weight_limit != blank -%}
+              <div>
+                <dt>Weight</dt>
+                <dd>{{ weight_limit }}</dd>
+              </div>
+            {%- endif -%}
+            {%- if dims != blank -%}
+              <div>
+                <dt>Size</dt>
+                <dd>{{ dims }}</dd>
+              </div>
+            {%- endif -%}
+          </dl>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <p class="cfl-sizes__note">
+      Between sizes? Size up. A package that comes in over the weight its label covers picks up
+      a carrier adjustment fee after delivery, and that costs more than the next label up.
+      <a href="{{ label_product.url }}">See full label details</a>
+    </p>
+  </div>
+{%- endif -%}

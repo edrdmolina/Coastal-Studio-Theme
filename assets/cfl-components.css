@@ -546,6 +546,388 @@
 }
 
 /* ------------------------------------------------------------------ *
+ * Label size comparison
+ * ------------------------------------------------------------------ */
+
+.cfl-sizes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1.6rem;
+  max-width: 110rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-size-card {
+  padding: 1.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  border-radius: 0.8rem;
+  background: rgb(var(--color-background));
+}
+
+.cfl-size-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+.cfl-size-card__name {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+}
+
+.cfl-size-card__price {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.6rem);
+  white-space: nowrap;
+}
+
+.cfl-size-card__specs {
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+}
+
+.cfl-size-card__specs > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cfl-size-card__specs dt {
+  opacity: 0.65;
+}
+
+.cfl-size-card__specs dd {
+  margin: 0;
+  text-align: right;
+}
+
+.cfl-sizes__note {
+  max-width: 76ch;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* ------------------------------------------------------------------ *
+ * Do / don't lists (packing guidance)
+ * ------------------------------------------------------------------ */
+
+.cfl-dodont {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  gap: 2.4rem;
+  max-width: 110rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-dodont__col {
+  padding: 2rem 2.2rem;
+  border-radius: 1rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.14);
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+.cfl-dodont__title {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.03em;
+}
+
+.cfl-dodont__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  font-size: 1.5rem;
+  line-height: 1.55;
+}
+
+.cfl-dodont__list li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+/* Marks are decorative; the column heading carries the meaning. */
+.cfl-dodont__mark {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.cfl-dodont__col--do .cfl-dodont__mark {
+  color: var(--cfl-accent-dark);
+}
+
+.cfl-dodont__col--dont .cfl-dodont__mark {
+  color: #bc5631;
+}
+
+/* ------------------------------------------------------------------ *
+ * Prose block (international guidance, and similar copy sections)
+ * ------------------------------------------------------------------ */
+
+.cfl-prose {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1.65;
+}
+
+.cfl-prose p {
+  margin: 0 0 1.4rem;
+}
+
+.cfl-prose p:last-child {
+  margin-bottom: 0;
+}
+
+/*
+  The list stays left-aligned inside the centred column. Centring bullet text
+  makes every line start at a different x position, which is markedly harder to
+  scan than the ragged-right alternative.
+*/
+.cfl-prose ul {
+  text-align: left;
+  margin: 0 0 1.6rem;
+  padding-left: 2.2rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Address block
+ * ------------------------------------------------------------------ */
+
+.cfl-address {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2.4rem;
+  text-align: center;
+  border: 0.2rem solid var(--cfl-accent-dark);
+  border-radius: 1rem;
+  background: rgb(var(--color-background));
+}
+
+.cfl-address__label {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.cfl-address__lines {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.9rem);
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  font-style: normal;
+}
+
+.cfl-address__actions {
+  margin-top: 1.6rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------------ *
+ * Sticky order bar
+ * ------------------------------------------------------------------ */
+
+/*
+  Deliberately not full-bleed. The Shopify Forms "Stay in touch" pill is pinned
+  bottom-left on every page; an edge-to-edge bar would cover it or fight it on
+  z-index. Insetting from the left leaves that corner free on desktop, and on
+  mobile the bar sits above the pill instead.
+*/
+.cfl-order-bar {
+  position: fixed;
+  z-index: 4;
+  left: 1.2rem;
+  right: 1.2rem;
+  /*
+    Sits above the Forms "Stay in touch" pill, which anchors to the bottom-left
+    on phones and would otherwise cover the primary button. Confirmed on a real
+    device — a resized desktop window does not reproduce it, so do not trust
+    emulated widths when changing this value.
+  */
+  bottom: 7rem;
+
+  background: #301e17;
+  color: #fff8ef;
+  border-radius: 1rem;
+  box-shadow: 0 0.6rem 2.4rem rgba(0, 0, 0, 0.28);
+
+  /*
+    The hidden offset is a variable rather than a transform, so the desktop
+    media query below can change the distance without re-declaring `transform`.
+    Re-declaring it there would tie on specificity with `--show` and, being
+    later in the file, would win — pinning the bar off screen on desktop.
+  */
+  --cfl-bar-hidden: translateY(calc(100% + 8rem));
+
+  /* Transform-only reveal, so the bar is never a blank box mid-transition. */
+  transform: var(--cfl-bar-hidden);
+  transition: transform 0.4s cubic-bezier(0.6, 0, 0.2, 1);
+}
+
+@media screen and (min-width: 750px) {
+  .cfl-order-bar {
+    /* Clears the Forms pill, which sits in the bottom-left corner. */
+    left: 20rem;
+    right: 1.6rem;
+    bottom: 1.6rem;
+    --cfl-bar-hidden: translateY(calc(100% + 3rem));
+  }
+}
+
+.cfl-order-bar--show {
+  transform: translateY(0);
+}
+
+.cfl-order-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1.4rem 1.6rem;
+}
+
+.cfl-order-bar__text {
+  min-width: 0;
+}
+
+.cfl-order-bar__heading {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.7rem);
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+}
+
+.cfl-order-bar__sub {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.4;
+  color: rgba(255, 248, 239, 0.72);
+}
+
+.cfl-order-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Mustard carries the notice role in this theme; 8.0:1 on the brown surface. */
+.cfl-order-bar__price {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.5rem);
+  color: #e8af21;
+  white-space: nowrap;
+}
+
+/* Teal marks the primary action. Brown label measures 8.31:1 on it. */
+.cfl-order-bar__cta.button {
+  min-width: 0;
+  min-height: 4.2rem;
+  padding: 0 1.8rem;
+  font-size: 1.4rem;
+  white-space: nowrap;
+  background: #7ccab9;
+  color: #301e17;
+  border-color: #7ccab9;
+  box-shadow: none;
+}
+
+.cfl-order-bar__cta--secondary.button {
+  background: transparent;
+  color: #fff8ef;
+  border-color: rgba(255, 248, 239, 0.55);
+}
+
+.cfl-order-bar__cta--secondary.button:hover {
+  border-color: #fff8ef;
+}
+
+.cfl-order-bar__dismiss {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: #fff8ef;
+  opacity: 0.65;
+}
+
+.cfl-order-bar__dismiss:hover,
+.cfl-order-bar__dismiss:focus-visible {
+  opacity: 1;
+}
+
+.cfl-order-bar__dismiss .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Narrow screens: drop to the essentials and keep tap targets full size. */
+@media screen and (max-width: 749px) {
+  .cfl-order-bar__inner {
+    flex-wrap: wrap;
+    gap: 1rem 1.2rem;
+    padding: 1.2rem 1.2rem 1.4rem;
+  }
+
+  .cfl-order-bar__sub,
+  .cfl-order-bar__price,
+  .cfl-order-bar__cta--secondary {
+    display: none;
+  }
+
+  .cfl-order-bar__actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .cfl-order-bar__cta.button {
+    width: 100%;
+  }
+
+  .cfl-order-bar__dismiss {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Contrast corrections
  * ------------------------------------------------------------------ */
 
@@ -593,5 +975,13 @@
 
   .cfl-format-card:hover .cfl-format-card__media img {
     transform: none;
+  }
+
+  /*
+    The bar still needs to move off screen when hidden — only the animation
+    goes, not the positioning.
+  */
+  .cfl-order-bar {
+    transition: none;
   }
 }
