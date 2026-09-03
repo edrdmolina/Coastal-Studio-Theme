@@ -1,0 +1,138 @@
+{% comment %}
+  Sells a prepaid inbound shipping label from a film-processing product page.
+
+  Rendered directly below Add to Cart on every product tagged 'Film Processing'
+  (Develop & Scan, Develop Only, Premium). Gated by tag rather than by template
+  because some service products — Develop and Scan APS, for one — use the
+  default product template, and new services should be covered without a code
+  change.
+
+  Each size gets its own <product-form> so adds go through the theme's existing
+  AJAX path. That matters here: a full page POST would reload the product page
+  and discard the customer's Globo Product Options selections.
+
+  Accepts:
+    - product {Object} The product being viewed. Required.
+
+  Usage, from sections/main-product.liquid after the buy_buttons block:
+    {% render 'cfl-label-upsell', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign label_handle = 'in-bound-label'
+  assign label_product = all_products[label_handle]
+
+  assign show_upsell = false
+  if product.tags contains 'Film Processing'
+    unless product.handle == label_handle
+      if label_product != blank and label_product.available
+        assign show_upsell = true
+      endif
+    endunless
+  endif
+-%}
+
+{%- if show_upsell -%}
+  {%- liquid
+    assign labels_in_cart = 0
+    for item in cart.items
+      if item.product.handle == label_handle
+        assign labels_in_cart = labels_in_cart | plus: item.quantity
+      endif
+    endfor
+  -%}
+
+  {%- comment -%}
+    Captured once so the in-cart and empty-cart states can share it.
+  {%- endcomment -%}
+  {%- capture label_buttons -%}
+    <div class="cfl-label-upsell__grid">
+      {%- for variant in label_product.variants -%}
+        {%- comment -%} Each form needs its own id, so key it off the variant. {%- endcomment -%}
+        {%- assign label_form_id = 'cfl-label-form-' | append: variant.id -%}
+        <product-form class="cfl-label-upsell__form" data-hide-errors="false">
+          <div class="product-form__error-message-wrapper" role="alert" hidden>
+            <span class="product-form__error-message"></span>
+          </div>
+
+          {%- form 'product', label_product, id: label_form_id, class: 'form' -%}
+            <input type="hidden" name="id" value="{{ variant.id }}">
+            {%- liquid
+              assign dims = variant.metafields.custom.package_dimensions.value
+              assign weight_limit = variant.metafields.custom.package_weight_limit.value
+            -%}
+            <button
+              type="submit"
+              name="add"
+              class="button button--secondary cfl-label-upsell__button"
+              {% unless variant.available %}
+                disabled
+              {% endunless %}
+            >
+              <span class="cfl-label-upsell__row">
+                <span class="cfl-label-upsell__size">{{ variant.title }}</span>
+                <span class="cfl-label-upsell__price">
+                  {%- if variant.available -%}
+                    {{ variant.price | money }}
+                  {%- else -%}
+                    {{ 'products.product.sold_out' | t }}
+                  {%- endif -%}
+                </span>
+              </span>
+
+              {%- comment -%}
+                Specs come from variant metafields so they stay in step with the
+                product page. Degrades to size and price if either is unset.
+              {%- endcomment -%}
+              {%- if dims != blank or weight_limit != blank -%}
+                <span class="cfl-label-upsell__specs">
+                  {%- if weight_limit != blank -%}{{ weight_limit }}{%- endif -%}
+                  {%- if dims != blank and weight_limit != blank -%}
+                    <span class="cfl-label-upsell__spec-divider" aria-hidden="true">·</span>
+                  {%- endif -%}
+                  {%- if dims != blank -%}{{ dims }}{%- endif -%}
+                </span>
+              {%- endif -%}
+              {%- render 'loading-spinner' -%}
+            </button>
+          {%- endform -%}
+        </product-form>
+      {%- endfor -%}
+    </div>
+  {%- endcapture -%}
+
+  <div class="cfl-label-upsell">
+    {%- if labels_in_cart > 0 -%}
+      <p class="cfl-label-upsell__confirmed">
+        {% render 'icon-checkmark' %}
+        <span>
+          {{ labels_in_cart }}
+          shipping label{% if labels_in_cart > 1 %}s{% endif %}
+          in your cart
+        </span>
+      </p>
+
+      {%- comment -%}
+        One label covers one package, so a second is a real need rather than a
+        mistake — kept available, just quieter.
+      {%- endcomment -%}
+      <details class="cfl-label-upsell__more">
+        <summary>Sending more than one package? Add another label</summary>
+        {{ label_buttons }}
+      </details>
+    {%- else -%}
+      <h2 class="cfl-label-upsell__title">Need a shipping label?</h2>
+      <p class="cfl-label-upsell__intro">
+        Add one and we'll email you a prepaid label to print after checkout. Pick the size
+        that fits what you're sending.
+      </p>
+      {{ label_buttons }}
+    {%- endif -%}
+
+    <p class="cfl-label-upsell__note">
+      <a href="{{ label_product.url }}">Which size do I need?</a>
+      <span class="cfl-label-upsell__note-divider" aria-hidden="true">·</span>
+      Dropping off, or using your own postage? You won't need one.
+    </p>
+  </div>
+{%- endif -%}

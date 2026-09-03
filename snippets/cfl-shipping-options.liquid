@@ -1,0 +1,123 @@
+{% comment %}
+  The three ways a customer can get film to the lab.
+
+  Route 1 (prepaid label) is the one we sell, so it carries the accent border
+  and a direct add-to-cart on the cheapest variant. The other two routes are
+  given equal descriptive weight so customers who ship their own or drop off
+  are not pushed toward a purchase they do not need.
+
+  Turnaround times are deliberately not stated here. They live in the
+  announcement bar, which is the single place the lab keeps current.
+
+  Accepts:
+    - show_heading {Boolean} Render the "Getting your film to us" heading.
+
+  Usage:
+    {% render 'cfl-shipping-options' %}
+{% endcomment %}
+
+{%- liquid
+  assign label_product = all_products['in-bound-label']
+  assign label_variant = label_product.variants | sort: 'price' | first
+-%}
+
+<div class="cfl-ship-options-wrapper">
+  {%- if show_heading -%}
+    <h2 class="cfl-section-heading">Getting your film to us</h2>
+    <p class="cfl-section-intro">
+      Three ways to do it. Pick whichever suits you — your order is processed the same either way.
+    </p>
+  {%- endif -%}
+
+  <ul class="cfl-ship-options" role="list">
+    {%- comment -%} Route 1: buy a prepaid label from us. {%- endcomment -%}
+    {%- if label_product != blank and label_product.available -%}
+      <li class="cfl-ship-option cfl-ship-option--featured">
+        <span class="cfl-ship-option__tag">Easiest</span>
+        <h3 class="cfl-ship-option__title">Buy a prepaid label</h3>
+        <div class="cfl-ship-option__body">
+          <p>
+            Add a shipping label to your order and we'll email you a private link right after
+            checkout. Fill in your address, pick USPS or UPS, and print the label — or wait for
+            the copy we email you.
+          </p>
+          <p>
+            {{ label_product.variants.size }} package sizes, from a padded mailer up to a
+            large box.
+          </p>
+        </div>
+
+        <div class="cfl-ship-option__action">
+          {%- form 'product', label_product, id: 'cfl-label-quick-add', class: 'cfl-ship-option__form' -%}
+            <input type="hidden" name="id" value="{{ label_variant.id }}">
+            <button
+              type="submit"
+              name="add"
+              class="button button--primary"
+              {% unless label_variant.available %}
+                disabled
+              {% endunless %}
+            >
+              Add a {{ label_variant.title }} label — {{ label_variant.price | money }}
+            </button>
+          {%- endform -%}
+          <p class="cfl-ship-option__note">
+            Sending more than fits a {{ label_variant.title | downcase }}?
+            <a href="{{ label_product.url }}">
+              Compare all {{ label_product.variants.size }} sizes
+            </a>
+          </p>
+        </div>
+      </li>
+    {%- endif -%}
+
+    {%- comment -%} Route 2: customer buys their own postage. {%- endcomment -%}
+    <li class="cfl-ship-option">
+      <h3 class="cfl-ship-option__title">Ship it yourself</h3>
+      <div class="cfl-ship-option__body">
+        <p>
+          Already have postage sorted? Send your film to us with any carrier you like. Use a
+          padded mailer or a small box — not a paper envelope — and hold on to your tracking
+          number.
+        </p>
+        <p>
+          <strong>Coastal Film Lab</strong><br>
+          1704 N Nebraska Ave<br>
+          Tampa, FL 33602
+        </p>
+      </div>
+      <div class="cfl-ship-option__action">
+        <a href="{{ pages['mail-in'].url }}" class="button button--secondary">How to pack your film</a>
+      </div>
+    </li>
+
+    {%- comment -%} Route 3: local drop-off. {%- endcomment -%}
+    <li class="cfl-ship-option">
+      <h3 class="cfl-ship-option__title">Drop it off</h3>
+      <div class="cfl-ship-option__body">
+        <p>
+          In the Tampa Bay area? Bring your film to the shop during opening hours, or use the
+          drop box between our two front doors any time — there's a second one in the back
+          parking lot.
+        </p>
+        <p>No shipping to buy. Just include your name and order number.</p>
+      </div>
+      <div class="cfl-ship-option__action">
+        <a
+          href="https://maps.app.goo.gl/L6UsTYjCe1A6vVocA"
+          class="button button--secondary"
+          target="_blank"
+          rel="noopener"
+        >
+          Get directions
+        </a>
+      </div>
+    </li>
+  </ul>
+
+  <p class="cfl-section-intro cfl-ship-options__footnote">
+    Whichever route you pick, write your name and order number on a slip of paper and put it in
+    with your film. Want your negatives back? Choose a return shipping option at checkout —
+    that's separate from any label you buy to send film to us.
+  </p>
+</div>

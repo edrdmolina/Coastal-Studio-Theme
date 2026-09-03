@@ -1,0 +1,98 @@
+{% comment %}
+  Reminds a customer with film processing in their cart that they can add a
+  prepaid inbound shipping label.
+
+  Deliberately soft: plenty of customers ship their own postage or drop off in
+  person, and they should not be made to feel the order is incomplete. The
+  notice says so explicitly and can be dismissed for the session.
+
+  Shows only when the cart contains a 'Film Processing' item and does not
+  already contain the inbound label product.
+
+  Accepts:
+    - nudge_id {String} Unique suffix, so the cart page and the drawer can both
+                        render one without colliding on element ids.
+
+  Usage:
+    {% render 'cfl-label-nudge', nudge_id: 'cart' %}
+{% endcomment %}
+
+{%- liquid
+  assign has_processing = false
+  assign has_label = false
+
+  for item in cart.items
+    if item.product.tags contains 'Film Processing'
+      assign has_processing = true
+    endif
+    if item.product.handle == 'in-bound-label'
+      assign has_label = true
+    endif
+  endfor
+
+  assign label_product = all_products['in-bound-label']
+-%}
+
+{%- if has_processing and has_label == false and label_product != blank and label_product.available -%}
+  {%- assign nudge_key = nudge_id | default: 'cart' -%}
+  {%- assign cheapest = label_product.variants | sort: 'price' | first -%}
+
+  <div
+    class="cfl-label-nudge"
+    id="cfl-label-nudge-{{ nudge_key }}"
+    data-cfl-label-nudge
+    role="status"
+  >
+    <p class="cfl-label-nudge__text">
+      <strong>Need a shipping label?</strong>
+      Add a prepaid label and we'll email you one to print after checkout. Shipping it yourself
+      or dropping off in Tampa? You're all set — ignore this.
+    </p>
+
+    <div class="cfl-label-nudge__actions">
+      <a href="{{ label_product.url }}" class="button button--secondary">
+        Add a label — from {{ cheapest.price | money }}
+      </a>
+      <button
+        type="button"
+        class="cfl-label-nudge__dismiss"
+        data-cfl-nudge-dismiss
+        aria-controls="cfl-label-nudge-{{ nudge_key }}"
+      >
+        No thanks
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var KEY = 'cfl-label-nudge-dismissed';
+
+      function apply() {
+        var dismissed;
+        try {
+          dismissed = window.sessionStorage.getItem(KEY) === '1';
+        } catch (e) {
+          // Private browsing or blocked storage: just show the notice.
+          dismissed = false;
+        }
+
+        document.querySelectorAll('[data-cfl-label-nudge]').forEach(function (el) {
+          el.hidden = dismissed;
+        });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (!event.target.closest('[data-cfl-nudge-dismiss]')) return;
+        try {
+          window.sessionStorage.setItem(KEY, '1');
+        } catch (e) {
+          // Non-fatal: the notice hides for this render either way.
+        }
+        apply();
+      });
+
+      apply();
+    })();
+  </script>
+{%- endif -%}

@@ -1,0 +1,91 @@
+{% comment %}
+  Processing-type switcher for film service product pages.
+
+  Replaces the hand-written link rows that used to list every process we ever
+  offered. Siblings are derived from tags at render time, so a process that is
+  unlisted in the Shopify admin stops appearing here on its own.
+
+  A product qualifies as a sibling when it shares this product's service tag
+  ('Develop and Scan' or 'Develop Only') and format tag, and carries one of
+  the known process tags.
+
+  Accepts:
+    - product {Object} The product being viewed. Required.
+
+  Usage, from a custom_liquid block in a product template:
+    {% render 'cfl-process-switcher', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign format_keys = 'disposable,35mm,medium format,110,aps' | split: ','
+  assign process_keys = 'c41,bw' | split: ','
+  assign process_labels = 'Color Negative (C-41),Black and White' | split: ','
+
+  comment
+    Work out which collection to search and which format this product is.
+  endcomment
+  assign source_collection = blank
+  if product.tags contains 'Develop and Scan'
+    assign source_collection = collections['develop-and-scan']
+  elsif product.tags contains 'Develop Only'
+    assign source_collection = collections['develop-only']
+  endif
+
+  assign format_key = blank
+  for key in format_keys
+    assign candidate = key | strip
+    if product.tags contains candidate
+      assign format_key = candidate
+      break
+    endif
+  endfor
+-%}
+
+{%- if source_collection != blank and format_key != blank -%}
+  {%- comment -%}
+    Count the siblings first. A single option is not a choice, so the switcher
+    is only worth rendering when there are at least two.
+  {%- endcomment -%}
+  {%- assign sibling_count = 0 -%}
+  {%- for process_key in process_keys -%}
+    {%- for candidate in source_collection.products -%}
+      {%- if candidate.tags contains format_key and candidate.tags contains process_key -%}
+        {%- assign sibling_count = sibling_count | plus: 1 -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}
+
+  {%- if sibling_count > 1 -%}
+    <div class="cfl-process-switcher">
+      <span class="cfl-process-switcher__label form__label" id="cfl-process-label">
+        Processing Type
+      </span>
+      <ul class="cfl-process-switcher__options" role="list" aria-labelledby="cfl-process-label">
+        {%- for process_key in process_keys -%}
+          {%- assign process_label = process_labels[forloop.index0] -%}
+          {%- for candidate in source_collection.products -%}
+            {%- if candidate.tags contains format_key and candidate.tags contains process_key -%}
+              {%- assign is_current = false -%}
+              {%- if candidate.handle == product.handle -%}
+                {%- assign is_current = true -%}
+              {%- endif -%}
+              <li>
+                <a
+                  class="cfl-process-pill"
+                  href="{{ candidate.url }}"
+                  {% if is_current %}
+                    aria-current="true"
+                  {% endif %}
+                >
+                  {{- process_label -}}
+                </a>
+              </li>
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- endif -%}
+{%- endif -%}
