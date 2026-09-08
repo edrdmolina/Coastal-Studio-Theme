@@ -2,10 +2,15 @@
   Sells a prepaid inbound shipping label from a film-processing product page.
 
   Rendered directly below Add to Cart on every product tagged 'Film Processing'
-  (Develop & Scan, Develop Only, Premium). Gated by tag rather than by template
-  because some service products — Develop and Scan APS, for one — use the
-  default product template, and new services should be covered without a code
-  change.
+  (Develop & Scan, Develop Only, Premium) or 'scan only'. Gated by tag rather
+  than by template because some service products — Develop and Scan APS, for
+  one — use the default product template, and new services should be covered
+  without a code change.
+
+  Scan Only sits on its own tag rather than 'Film Processing' because that tag
+  also drives the Film Processing collection and the format grids, and scanning
+  is not processing. Matching both here is cheaper than retagging the catalogue
+  and changing what those other surfaces contain.
 
   Each size gets its own <product-form> so adds go through the theme's existing
   AJAX path. That matters here: a full page POST would reload the product page
@@ -22,8 +27,21 @@
   assign label_handle = 'in-bound-label'
   assign label_product = all_products[label_handle]
 
+  comment
+    Any service the customer has to physically send film in for. Add a tag here
+    to cover a new one; cfl-label-nudge carries the same list for the cart.
+  endcomment
+  assign inbound_tags = 'Film Processing,scan only' | split: ','
+  assign is_inbound_service = false
+  for inbound_tag in inbound_tags
+    if product.tags contains inbound_tag
+      assign is_inbound_service = true
+      break
+    endif
+  endfor
+
   assign show_upsell = false
-  if product.tags contains 'Film Processing'
+  if is_inbound_service
     unless product.handle == label_handle
       if label_product != blank and label_product.available
         assign show_upsell = true

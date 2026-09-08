@@ -21,9 +21,91 @@
     meaning on a light ground. The brand teal #7CCAB9 measures only 1.86:1 on
     #FCFCFC — under both the 4.5:1 AA needs for text and the 3:1 for non-text
     UI boundaries. This measures 5.21:1 and is already in use elsewhere in this
-    store (the inbound-label form's border colour).
+    store (the inbound-label form's border color).
   */
   --cfl-accent-dark: #00777c;
+
+  /*
+    Link colour for body copy. The theme's own --color-link is the brand teal
+    #7CCAB9, which measures 1.86:1 on the paper-white ground and 1.81:1 on the
+    cream one — both far under the 4.5:1 AA needs for text. Worse, it only ever
+    applied inside .rte, so links written in custom-liquid sections fell through
+    to the browser default and rendered blue, which belongs to nothing in this
+    palette.
+
+    The darkened seafoam above is the same brand hue at 5.21:1 and 5.07:1, so it
+    reads as teal without failing. Mustard grounds are handled separately below:
+    nothing in the teal or rust family clears 4.5:1 on #E8AF21, so links there
+    take the reading brown at 8.00:1.
+  */
+  --cfl-link: var(--cfl-accent-dark);
+}
+
+/* ------------------------------------------------------------------ *
+ * Links in body copy
+ * ------------------------------------------------------------------ */
+
+/*
+  Prose containers only. Anything that is already a button, a pill, a card title
+  or a calculator row name carries its own colour and is deliberately absent
+  from this list.
+*/
+.cfl-prose a,
+.cfl-section-intro a,
+.cfl-packing a,
+.cfl-dodont__list a,
+.cfl-step__body a,
+.cfl-ship-option__body a,
+.cfl-ship-option__note a,
+.cfl-sizes__note a,
+.cfl-scan-notice a,
+.cfl-scan-calc__note a,
+.cfl-scan-calc__rates a,
+.cfl-scan-estimator__banner a,
+.cfl-scan-estimator__note a,
+.cfl-scan-estimator__static a,
+.cfl-label-upsell__note a,
+.cfl-label-upsell__more a,
+/* Rich-text areas on the two near-white grounds: FAQ answers, product and
+   collection descriptions. Left alone on inverse and accent-1, which put
+   white links on dark grounds and already work. */
+.color-background-1 .rte a,
+.color-accent-2 .rte a {
+  color: var(--cfl-link);
+  text-underline-offset: 0.3rem;
+  text-decoration-thickness: 0.1rem;
+}
+
+.cfl-prose a:hover,
+.cfl-section-intro a:hover,
+.cfl-packing a:hover,
+.cfl-dodont__list a:hover,
+.cfl-step__body a:hover,
+.cfl-ship-option__body a:hover,
+.cfl-ship-option__note a:hover,
+.cfl-sizes__note a:hover,
+.cfl-scan-notice a:hover,
+.cfl-scan-calc__note a:hover,
+.cfl-scan-calc__rates a:hover,
+.cfl-scan-estimator__banner a:hover,
+.cfl-scan-estimator__note a:hover,
+.cfl-scan-estimator__static a:hover,
+.cfl-label-upsell__note a:hover,
+.cfl-label-upsell__more a:hover,
+.color-background-1 .rte a:hover,
+.color-accent-2 .rte a:hover {
+  text-decoration-thickness: 0.2rem;
+}
+
+/*
+  Mustard ground. Teal drops to 2.69:1 here and rust to 2.35:1, so the reading
+  brown carries the link instead — 8.00:1, and the underline does the work of
+  signalling it is a link.
+*/
+.color-background-2 .rte a,
+.color-background-2 .cfl-prose a,
+.color-background-2 .cfl-section-intro a {
+  color: rgb(var(--color-foreground));
 }
 
 .cfl-section-heading {
@@ -73,6 +155,30 @@
   }
 }
 
+/*
+  Scan Only only. Six formats divide evenly into two rows of three, which the
+  shared flex layout cannot express — it would put five on the first row and
+  strand one below. Kept as a modifier so Develop Only (four formats) and
+  Develop & Scan (five) keep centring their trailing card.
+*/
+.cfl-format-grid--three-up {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 120rem;
+}
+
+@media screen and (max-width: 1100px) {
+  .cfl-format-grid--three-up {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .cfl-format-grid--three-up {
+    grid-template-columns: 1fr;
+  }
+}
+
 .cfl-format-card {
   /*
     flex-basis drives the 5-up layout; max-width only takes effect once the
@@ -88,6 +194,12 @@
   background: rgb(var(--color-background));
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Grid tracks size these; the cap keeps a lone one-up card sane. */
+.cfl-format-grid--three-up .cfl-format-card {
+  width: 100%;
+  margin: 0 auto;
 }
 
 .cfl-format-card:hover,
@@ -625,6 +737,12 @@
  * Do / don't lists (packing guidance)
  * ------------------------------------------------------------------ */
 
+/* Anchor target for the "How to pack your film" button. The offset keeps the
+   heading clear of a sticky header when the page jumps here. */
+.cfl-packing {
+  scroll-margin-top: 10rem;
+}
+
 .cfl-dodont {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
@@ -925,6 +1043,464 @@
     top: 0.4rem;
     right: 0.4rem;
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * Scan Only cost calculator
+ * ------------------------------------------------------------------ */
+
+.cfl-scan-calc {
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-scan-calc__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  border-radius: 0.8rem;
+  background: rgb(var(--color-background));
+  overflow: hidden;
+}
+
+/*
+  Service name and rates on the left, stepper and running subtotal on the
+  right. A row is a row rather than a card: eleven cards was a wall, and the
+  numbers could not be compared down a column.
+*/
+.cfl-scan-calc__row {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1.4rem 1.8rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.1);
+}
+
+.cfl-scan-calc__row:first-child {
+  border-top: 0;
+}
+
+.cfl-scan-calc__row--active {
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+.cfl-scan-calc__service {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/*
+  The theme's default link color is a saturated blue that belongs to nothing
+  else in this palette. Service names read as headings that happen to be
+  clickable, so they take the reading color and earn an underline on hover.
+*/
+.cfl-scan-calc__name {
+  display: inline-block;
+  color: rgb(var(--color-foreground));
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.6rem);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.cfl-scan-calc__name:hover,
+.cfl-scan-calc__name:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.cfl-scan-calc__rates {
+  margin: 0.4rem 0 0;
+  font-size: 1.3rem;
+  opacity: 0.7;
+}
+
+.cfl-scan-calc__qty {
+  display: flex;
+  align-items: stretch;
+  flex: 0 0 auto;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.3);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+/* 4.4rem tap targets on every screen, per README principle 9. */
+.cfl-scan-calc__step {
+  width: 4.4rem;
+  min-height: 4.4rem;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--color-foreground));
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cfl-scan-calc__step:hover {
+  background: rgba(var(--color-foreground), 0.07);
+}
+
+.cfl-scan-calc__input {
+  width: 5.4rem;
+  min-height: 4.4rem;
+  padding: 0 0.4rem;
+  border: 0;
+  border-left: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-right: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  text-align: center;
+  font-size: 1.6rem;
+  -moz-appearance: textfield;
+}
+
+.cfl-scan-calc__input::-webkit-outer-spin-button,
+.cfl-scan-calc__input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.cfl-scan-calc__sub {
+  flex: 0 0 8rem;
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.5rem);
+  white-space: nowrap;
+}
+
+.cfl-scan-calc__summary {
+  margin-top: 1.6rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+
+.cfl-scan-calc__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 1.6rem 1.8rem;
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+/*
+  The deposit split. This is the fact customers miss, so it is two figures side
+  by side rather than a sentence: "you pay today" never moves when quantities go
+  up, and seeing it hold still next to a rising total explains the model faster
+  than any paragraph.
+*/
+.cfl-scan-calc__split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.16);
+}
+
+.cfl-scan-calc__split-part {
+  padding: 1.6rem 1.8rem;
+  text-align: center;
+}
+
+.cfl-scan-calc__split-part + .cfl-scan-calc__split-part {
+  border-left: 0.1rem solid rgba(var(--color-foreground), 0.16);
+}
+
+/* Mustard carries the notice role in this theme. */
+.cfl-scan-calc__split-part--today {
+  background: rgba(232, 175, 33, 0.14);
+  box-shadow: inset 0 0.3rem 0 0 #e8af21;
+}
+
+.cfl-scan-calc__split-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.cfl-scan-calc__split-value {
+  display: block;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 2.4rem);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 599px) {
+  .cfl-scan-calc__split {
+    grid-template-columns: 1fr;
+  }
+
+  .cfl-scan-calc__split-part + .cfl-scan-calc__split-part {
+    border-left: 0;
+    border-top: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  }
+}
+
+.cfl-scan-calc__total-label {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.6rem);
+  letter-spacing: 0.03em;
+}
+
+.cfl-scan-calc__total-value {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 2.2rem);
+  white-space: nowrap;
+}
+
+.cfl-scan-calc__note {
+  max-width: 70ch;
+  margin: 1.6rem auto 0;
+  text-align: center;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* Stack the row once the three columns stop fitting side by side. */
+@media screen and (max-width: 749px) {
+  .cfl-scan-calc__row {
+    flex-wrap: wrap;
+  }
+
+  .cfl-scan-calc__service {
+    flex: 1 0 100%;
+  }
+
+  .cfl-scan-calc__sub {
+    flex: 1 1 auto;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Scan Only estimator and camera-scan notice
+ * ------------------------------------------------------------------ */
+
+.cfl-scan-estimator {
+  /* Anchor target for the "estimator" link in the product description. */
+  scroll-margin-top: 10rem;
+  margin: 2.4rem 0 0;
+  padding: 2rem 2.2rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  border-radius: 0.8rem;
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+/*
+  States the deposit before the customer reaches the arithmetic. Mustard rule
+  and a tinted ground, matching the camera-scan notice, so the two "read this"
+  blocks on the page look like the same kind of thing.
+*/
+.cfl-scan-estimator__banner {
+  margin: 0 0 1.6rem;
+  padding: 1.2rem 1.4rem;
+  border-left: 0.4rem solid #e8af21;
+  border-radius: 0.4rem;
+  background: rgba(232, 175, 33, 0.14);
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+
+.cfl-scan-estimator__banner strong {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.7rem);
+}
+
+.cfl-scan-estimator__title {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.7rem);
+  letter-spacing: 0.03em;
+}
+
+.cfl-scan-estimator__label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-size: 1.4rem;
+}
+
+.cfl-scan-estimator__stepper {
+  display: flex;
+  align-items: stretch;
+  width: fit-content;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.3);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+/*
+  Tap targets stay at 4.4rem square on every screen. Principle 9 in the README:
+  do not shrink controls into desktop proportions on mobile.
+*/
+.cfl-scan-estimator__step {
+  width: 4.4rem;
+  min-height: 4.4rem;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--color-foreground));
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cfl-scan-estimator__step:hover {
+  background: rgba(var(--color-foreground), 0.07);
+}
+
+.cfl-scan-estimator__input {
+  width: 6rem;
+  min-height: 4.4rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-left: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-right: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  text-align: center;
+  font-size: 1.6rem;
+  -moz-appearance: textfield;
+}
+
+.cfl-scan-estimator__input::-webkit-outer-spin-button,
+.cfl-scan-estimator__input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.cfl-scan-estimator__breakdown {
+  margin: 1.8rem 0 0;
+}
+
+.cfl-scan-estimator__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  font-size: 1.4rem;
+}
+
+.cfl-scan-estimator__row dd {
+  margin: 0;
+  text-align: right;
+}
+
+.cfl-scan-estimator__row dt {
+  opacity: 0.75;
+}
+
+.cfl-scan-estimator__row--total {
+  margin-top: 0.4rem;
+  padding-top: 1rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  font-size: 1.6rem;
+}
+
+.cfl-scan-estimator__row--total dt,
+.cfl-scan-estimator__row--total dd {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* What they are actually charged now, given its own weight and colour. */
+.cfl-scan-estimator__row--today {
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  border-left: 0.4rem solid #e8af21;
+  border-radius: 0.4rem;
+  background: rgba(232, 175, 33, 0.14);
+  font-size: 1.6rem;
+}
+
+.cfl-scan-estimator__row--today dt,
+.cfl-scan-estimator__row--today dd {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.cfl-scan-estimator__row--today dd {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+}
+
+/*
+  Same size as the row above it and at full contrast. It carries no highlight,
+  because only one of the two figures is money changing hands today -- but it is
+  the number the customer is being asked to accept on trust, so it should not
+  read like small print.
+*/
+.cfl-scan-estimator__row--later {
+  padding: 0.8rem 1.2rem 0;
+  font-size: 1.6rem;
+}
+
+.cfl-scan-estimator__row--later dt,
+.cfl-scan-estimator__row--later dd {
+  opacity: 1;
+  font-weight: 600;
+}
+
+.cfl-scan-estimator__row--later dd {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+}
+
+/*
+  The static line is the no-JavaScript fallback for the breakdown above, so it
+  is hidden only once the widget is actually working.
+*/
+.cfl-scan-estimator__static {
+  margin: 1.6rem 0 0;
+  font-size: 1.4rem;
+  line-height: 1.6;
+}
+
+html:not(.no-js) .cfl-scan-estimator__static {
+  display: none;
+}
+
+.cfl-scan-estimator__note {
+  margin: 1.4rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/*
+  Camera-scan callout. Mustard carries the notice role in this theme, but only
+  as a left rule and on a tinted ground — the README warns against light text on
+  the brand colors at small sizes, and this block is body copy.
+*/
+.cfl-scan-notice {
+  max-width: 76ch;
+  margin: 0 auto;
+  padding: 2rem 2.2rem;
+  border-left: 0.4rem solid #e8af21;
+  border-radius: 0.4rem;
+  background: rgba(232, 175, 33, 0.1);
+}
+
+.cfl-scan-notice h2,
+.cfl-scan-notice h3 {
+  margin: 0 0 1rem;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.03em;
+}
+
+.cfl-scan-notice p {
+  margin: 0 0 1.2rem;
+  line-height: 1.7;
+}
+
+.cfl-scan-notice p:last-child {
+  margin-bottom: 0;
 }
 
 /* ------------------------------------------------------------------ *

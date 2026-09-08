@@ -1,0 +1,257 @@
+{% comment %}
+  Prices a Scan Only job before the customer orders.
+
+  Scan Only is sold as a deposit: the customer pays the minimum at checkout and
+  the lab invoices the balance once the film is counted in hand. That is fair,
+  but it leaves the customer with no idea what the final number will be, so this
+  block does the arithmetic for them.
+
+  The minimum covers the FIRST unit, then each additional unit is charged at the
+  per-unit rate. Four 35mm strips is 9.99 + (3 x 2.50) = 17.49, not 4 x 2.50.
+
+  Prices are read from the variants rather than written out, so this can never
+  disagree with what the customer is actually charged. Two-variant products put
+  the minimum in variant 0 and the per-unit rate in variant 1; single-variant
+  products (uncut rolls, APS, disc) are flat per unit and get a simpler sum.
+
+  Deliberately does NOT add anything to the cart. Add to cart takes the deposit
+  and only the deposit; anything else would need a second line item that the lab
+  would then have to reconcile against the real count.
+
+  Accepts:
+    - product {Object} The product being viewed. Required.
+
+  Usage, from a custom_liquid block in a scan-only product template:
+    {% render 'cfl-scan-estimator', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign is_scan_only = false
+  if product.tags contains 'scan only'
+    assign is_scan_only = true
+  endif
+-%}
+
+{%- if is_scan_only -%}
+  {%- liquid
+    assign minimum_variant = product.variants | first
+    assign tiered = false
+    if product.variants.size > 1
+      assign per_variant = product.variants[1]
+      assign tiered = true
+    endif
+
+    comment
+      What the customer is counting. Derived from the title because these
+      products carry no tag that says it, and the wording matters: "how many
+      frames" and "how many rolls" are very different questions.
+    endcomment
+    assign title_check = product.title | downcase
+    assign unit = 'item'
+    assign unit_plural = 'items'
+    if title_check contains 'uncut roll' or title_check contains 'full roll'
+      assign unit = 'roll'
+      assign unit_plural = 'rolls'
+    elsif title_check contains 'strip'
+      assign unit = 'strip'
+      assign unit_plural = 'strips'
+    elsif title_check contains 'mounted slide'
+      assign unit = 'slide'
+      assign unit_plural = 'slides'
+    elsif title_check contains 'large format'
+      assign unit = 'sheet'
+      assign unit_plural = 'sheets'
+    elsif title_check contains 'disc'
+      assign unit = 'disc'
+      assign unit_plural = 'discs'
+    elsif title_check contains 'frame'
+      assign unit = 'frame'
+      assign unit_plural = 'frames'
+    endif
+
+    comment
+      A fixed id, not a product-scoped one: the product descriptions link to
+      "#scan-estimator" and that href has to be the same on every Scan Only
+      product. Only one estimator renders per page, so there is nothing to
+      collide with.
+    endcomment
+    assign estimator_id = 'scan-estimator'
+  -%}
+
+  <div
+    class="cfl-scan-estimator"
+    id="{{ estimator_id }}"
+    data-minimum="{{ minimum_variant.price }}"
+    {% if tiered %}data-per-unit="{{ per_variant.price }}"{% endif %}
+    data-unit="{{ unit }}"
+    data-unit-plural="{{ unit_plural }}"
+  >
+    <p class="cfl-scan-estimator__banner">
+      You pay <strong>{{ minimum_variant.price | money }}</strong> today. The rest is invoiced
+      once we count your film.
+    </p>
+
+    <h3 class="cfl-scan-estimator__title">Estimate your total</h3>
+
+    <div class="cfl-scan-estimator__control">
+      <label class="cfl-scan-estimator__label" for="{{ estimator_id }}-qty">
+        How many {{ unit_plural }} are you sending?
+      </label>
+      <div class="cfl-scan-estimator__stepper no-js-hidden">
+        <button
+          type="button"
+          class="cfl-scan-estimator__step"
+          data-step="-1"
+          aria-label="Decrease {{ unit }} count"
+        >
+          &minus;
+        </button>
+        <input
+          class="cfl-scan-estimator__input"
+          id="{{ estimator_id }}-qty"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          step="1"
+          value="1"
+        >
+        <button
+          type="button"
+          class="cfl-scan-estimator__step"
+          data-step="1"
+          aria-label="Increase {{ unit }} count"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    {%- comment -%}
+      Filled in by script. The static figures below it are what a customer
+      without JavaScript sees, so the pricing is never hidden behind the widget.
+    {%- endcomment -%}
+    <dl class="cfl-scan-estimator__breakdown no-js-hidden" aria-live="polite">
+      <div class="cfl-scan-estimator__row">
+        <dt data-role="first-label">First {{ unit }}</dt>
+        <dd data-role="first-value">{{ minimum_variant.price | money }}</dd>
+      </div>
+      {%- if tiered -%}
+        <div class="cfl-scan-estimator__row" data-role="additional-row" hidden>
+          <dt data-role="additional-label"></dt>
+          <dd data-role="additional-value"></dd>
+        </div>
+      {%- endif -%}
+      <div class="cfl-scan-estimator__row cfl-scan-estimator__row--total">
+        <dt>Estimated total</dt>
+        <dd data-role="total">{{ minimum_variant.price | money }}</dd>
+      </div>
+
+      <div class="cfl-scan-estimator__row cfl-scan-estimator__row--today">
+        <dt>You pay today</dt>
+        <dd data-role="today">{{ minimum_variant.price | money }}</dd>
+      </div>
+
+      <div class="cfl-scan-estimator__row cfl-scan-estimator__row--later">
+        <dt>Invoiced later</dt>
+        <dd data-role="later">{{ 0 | money }}</dd>
+      </div>
+    </dl>
+
+    <p class="cfl-scan-estimator__static">
+      {%- if tiered -%}
+        <strong>{{ minimum_variant.price | money }} today</strong>, which covers your first
+        {{ unit }}. Each additional {{ unit }} is {{ per_variant.price | money }}, invoiced once
+        we count your film.
+      {%- else -%}
+        <strong>{{ minimum_variant.price | money }} today</strong>, which covers your first
+        {{ unit }}. Each additional {{ unit }} is invoiced once we count your film.
+      {%- endif -%}
+    </p>
+
+    <p class="cfl-scan-estimator__note">
+      We count what actually arrives and invoice the balance before we deliver your scans, so
+      you are never charged for film you did not send.
+    </p>
+
+    <p class="cfl-scan-estimator__note">
+      Film that can't go through our normal scanner has to be camera-scanned, which carries a
+      <strong>$30 minimum</strong> in place of the one above. We check when your film arrives and
+      quote you before starting.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.getElementById('{{ estimator_id }}');
+      if (!root) return;
+
+      var minimum = parseInt(root.dataset.minimum, 10);
+      var perUnit = root.dataset.perUnit ? parseInt(root.dataset.perUnit, 10) : null;
+      var unit = root.dataset.unit;
+      var unitPlural = root.dataset.unitPlural;
+
+      var input = root.querySelector('.cfl-scan-estimator__input');
+      var additionalRow = root.querySelector('[data-role="additional-row"]');
+
+      // Store is USD; prices arrive from Liquid already in cents.
+      function money(cents) {
+        return '$' + (cents / 100).toFixed(2);
+      }
+
+      function set(role, text) {
+        var node = root.querySelector('[data-role="' + role + '"]');
+        if (node) node.textContent = text;
+      }
+
+      function update() {
+        var qty = parseInt(input.value, 10);
+        if (isNaN(qty) || qty < 1) qty = 1;
+
+        var total;
+
+        if (perUnit === null) {
+          // Flat per-unit pricing: no first/additional split to show.
+          total = minimum * qty;
+          set('first-label', qty === 1 ? 'One ' + unit : qty + ' ' + unitPlural + ' × ' + money(minimum));
+          set('first-value', money(total));
+        } else {
+          var extra = qty - 1;
+          total = minimum + extra * perUnit;
+          set('first-label', 'First ' + unit);
+          set('first-value', money(minimum));
+
+          if (additionalRow) {
+            if (extra > 0) {
+              additionalRow.hidden = false;
+              set(
+                'additional-label',
+                extra + ' more × ' + money(perUnit)
+              );
+              set('additional-value', money(extra * perUnit));
+            } else {
+              additionalRow.hidden = true;
+            }
+          }
+        }
+
+        set('total', money(total));
+
+        // The deposit never changes with quantity -- that is the point, and the
+        // reason it gets its own row rather than a sentence.
+        set('today', money(minimum));
+        set('later', money(total - minimum));
+      }
+
+      root.querySelectorAll('.cfl-scan-estimator__step').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var next = (parseInt(input.value, 10) || 1) + parseInt(button.dataset.step, 10);
+          input.value = next < 1 ? 1 : next;
+          update();
+        });
+      });
+
+      input.addEventListener('input', update);
+      update();
+    })();
+  </script>
+{%- endif -%}

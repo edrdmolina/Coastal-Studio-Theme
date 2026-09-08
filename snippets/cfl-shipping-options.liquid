@@ -11,14 +11,24 @@
 
   Accepts:
     - show_heading {Boolean} Render the "Getting your film to us" heading.
+    - pack_link {String} Where the "How to pack your film" button points. The
+      mail-in page passes its own in-page anchor so the button scrolls down to
+      the packing section instead of reloading the page the customer is on.
+      Defaults to the packing section on the mail-in page.
 
   Usage:
     {% render 'cfl-shipping-options' %}
+    {% render 'cfl-shipping-options', pack_link: '#cfl-packing' %}
 {% endcomment %}
 
 {%- liquid
   assign label_product = all_products['in-bound-label']
   assign label_variant = label_product.variants | sort: 'price' | first
+
+  assign packing_url = pack_link
+  unless packing_url
+    assign packing_url = pages['mail-in'].url | append: '#cfl-packing'
+  endunless
 -%}
 
 <div class="cfl-ship-options-wrapper">
@@ -87,7 +97,7 @@
         </p>
       </div>
       <div class="cfl-ship-option__action">
-        <a href="{{ pages['mail-in'].url }}" class="button button--secondary">How to pack your film</a>
+        <a href="{{ packing_url }}" class="button button--secondary">How to pack your film</a>
       </div>
     </li>
 

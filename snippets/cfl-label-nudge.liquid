@@ -6,8 +6,10 @@
   person, and they should not be made to feel the order is incomplete. The
   notice says so explicitly and can be dismissed for the session.
 
-  Shows only when the cart contains a 'Film Processing' item and does not
-  already contain the inbound label product.
+  Shows only when the cart contains an item the customer has to mail film in
+  for — tagged 'Film Processing' or 'scan only' — and does not already contain
+  the inbound label product. The tag list matches cfl-label-upsell, so a cart
+  that triggered the upsell also triggers the reminder.
 
   Accepts:
     - nudge_id {String} Unique suffix, so the cart page and the drawer can both
@@ -18,13 +20,17 @@
 {% endcomment %}
 
 {%- liquid
+  assign inbound_tags = 'Film Processing,scan only' | split: ','
   assign has_processing = false
   assign has_label = false
 
   for item in cart.items
-    if item.product.tags contains 'Film Processing'
-      assign has_processing = true
-    endif
+    for inbound_tag in inbound_tags
+      if item.product.tags contains inbound_tag
+        assign has_processing = true
+        break
+      endif
+    endfor
     if item.product.handle == 'in-bound-label'
       assign has_label = true
     endif

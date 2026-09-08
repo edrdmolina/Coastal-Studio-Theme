@@ -1,0 +1,166 @@
+{% comment %}
+  Renders a "pick your film type" grid for the Scan Only collection.
+
+  This is the sibling of cfl-format-grid, not a reuse of it. That snippet
+  buckets on a format tag plus a c41/bw process tag plus the 'Film Processing'
+  service tag; Scan Only products carry none of those — only a 'scan only' tag —
+  and they divide by format x physical unit (uncut roll / strip / loose frame)
+  rather than format x process. It emits the same markup, so it inherits the
+  same CSS.
+
+  Buckets are matched against the product TITLE, since there is no tag to read.
+  A format that is not in the list below is skipped rather than guessed at.
+
+  The card price is deliberately the MINIMUM (variant 0), never product.price.
+  Shopify's own card renders "from" off the cheapest variant, which on these
+  products is the per-unit rate — so the stock grid advertises "From $2.50" for
+  a service that cannot be bought for less than $9.99. Showing the floor is the
+  entire reason this snippet exists.
+
+  Accepts:
+    - grid_collection {Object} Collection to read products from. Required.
+    - heading         {String} Optional heading rendered above the grid.
+    - intro           {String} Optional supporting line under the heading.
+    - heading_tag     {String} Heading element to use. Defaults to 'h2'.
+
+  Usage:
+    {% render 'cfl-scan-grid',
+       grid_collection: collection,
+       heading: 'Pick your film type' %}
+{% endcomment %}
+
+{%- liquid
+  assign format_keys = '35mm,120,110,aps,large format,disc' | split: ','
+  assign format_labels = '35mm,Medium Format,110 Film,APS Film,Large Format,Disc Film' | split: ','
+
+  comment
+    Unit types, in the order a customer is most likely to want them. Keys are
+    matched against the downcased title; 'full roll' is APS's wording for the
+    same thing 'uncut roll' means everywhere else.
+  endcomment
+  assign unit_keys = 'uncut roll,full roll,strip,loose,mounted slide,per frame' | split: ','
+  assign unit_labels = 'Uncut roll,Uncut roll,Strip,Loose frame,Mounted slide,Per frame' | split: ','
+-%}
+
+{%- comment -%} Which formats actually have a live product right now. {%- endcomment -%}
+{%- assign present = '' -%}
+{%- for key in format_keys -%}
+  {%- assign format_key = key | strip -%}
+  {%- for product in grid_collection.products -%}
+    {%- assign product_title = product.title | downcase -%}
+    {%- if product_title contains format_key -%}
+      {%- assign present = present | append: forloop.parentloop.index0 | append: ',' -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- assign present_indexes = present | split: ',' -%}
+
+{%- if present_indexes.size > 0 -%}
+  <div class="cfl-format-grid-wrapper">
+    {%- if heading != blank -%}
+      {%- assign heading_element = heading_tag | default: 'h2' -%}
+      <{{ heading_element }} class="cfl-section-heading">{{ heading }}</{{ heading_element }}>
+    {%- endif -%}
+
+    {%- if intro != blank -%}
+      <p class="cfl-section-intro">{{ intro }}</p>
+    {%- endif -%}
+
+    {%- comment -%}
+      The --three-up modifier is this page only: six formats divide evenly into
+      two rows of three. The shared flex layout stays as it is for Develop Only
+      and Develop & Scan, which have four and five formats and want their
+      trailing card centred.
+    {%- endcomment -%}
+    <ul class="cfl-format-grid cfl-format-grid--three-up" role="list">
+      {%- for index_string in present_indexes -%}
+        {%- liquid
+          assign i = index_string | plus: 0
+          assign format_key = format_keys[i] | strip
+          assign label = format_labels[i]
+
+          assign min_price = 0
+          assign primary = blank
+        -%}
+
+        {%- comment -%}
+          One pass over the format's products: track the lowest MINIMUM and pick
+          the card's link target, preferring the uncut roll because it is the
+          most common order. Assignments made inside a for loop persist after
+          it, so the product object is carried out directly rather than looked
+          up again through all_products, which is capped at 20 lookups per page.
+        {%- endcomment -%}
+        {%- for product in grid_collection.products -%}
+          {%- assign product_title = product.title | downcase -%}
+          {%- if product_title contains format_key -%}
+            {%- assign minimum_price = product.variants.first.price -%}
+            {%- if min_price == 0 or minimum_price < min_price -%}
+              {%- assign min_price = minimum_price -%}
+            {%- endif -%}
+            {%- if primary == blank
+                or product_title contains 'uncut roll'
+                or product_title contains 'full roll'
+            -%}
+              {%- assign primary = product -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        <li class="cfl-format-card">
+          <a
+            class="cfl-format-card__media{% unless primary.featured_image %} cfl-format-card__media--empty{% endunless %}"
+            href="{{ primary.url }}"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            {%- if primary.featured_image -%}
+              {{
+                primary.featured_image
+                | image_url: width: 600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '300, 400, 600, 800',
+                  sizes: '(min-width: 1200px) 280px, (min-width: 750px) 33vw, 45vw',
+                  alt: ''
+              }}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag }}
+            {%- endif -%}
+          </a>
+
+          <div class="cfl-format-card__body">
+            <h3 class="cfl-format-card__title">
+              <a href="{{ primary.url }}">{{ label }}</a>
+            </h3>
+
+            {%- if min_price > 0 -%}
+              {%- assign min_price_formatted = min_price | money -%}
+              <p class="cfl-format-card__price">
+                {{- 'products.product.price.from_price_html' | t: price: min_price_formatted -}}
+              </p>
+            {%- endif -%}
+
+            <ul class="cfl-format-card__processes" role="list">
+              {%- for unit_key_raw in unit_keys -%}
+                {%- assign unit_key = unit_key_raw | strip -%}
+                {%- assign unit_label = unit_labels[forloop.index0] -%}
+                {%- for product in grid_collection.products -%}
+                  {%- assign product_title = product.title | downcase -%}
+                  {%- if product_title contains format_key and product_title contains unit_key -%}
+                    <li>
+                      <a class="cfl-process-pill" href="{{ product.url }}">
+                        {{- unit_label }} <span class="visually-hidden">{{ label }}</span>
+                      </a>
+                    </li>
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}

@@ -1,0 +1,205 @@
+{% comment %}
+  Scan Only price list, as a working calculator.
+
+  A flat table of minimums and per-unit rates is accurate but it makes the
+  customer do the arithmetic, and this service prices in a way that is easy to
+  get wrong: the minimum covers the FIRST unit, then each one after it is
+  charged at the per-unit rate. A real job usually spans more than one service
+  too — a couple of uncut rolls plus a handful of loose frames — and every
+  service carries its own minimum, so the total is not something you can
+  eyeball.
+
+  So the rows take quantities and add themselves up. Nothing here touches the
+  cart; the customer still checks out on the product page paying the minimum,
+  and the lab invoices the balance once the film is counted.
+
+  Prices are read from the variants, never written out. Two hardcoded price
+  tables for this service already exist elsewhere in the theme
+  (page.archiving.json and page.archival-and-digitization.json) and both have
+  gone stale — one still lists 126 and 127 formats that no longer have products.
+
+  Two-variant products put the minimum in variant 0 and the per-unit rate in
+  variant 1. Single-variant products are flat per unit.
+
+  Accepts:
+    - pricing_collection {Object} Collection to read products from. Required.
+    - heading            {String} Optional heading above the calculator.
+    - intro              {String} Optional supporting line.
+
+  Usage:
+    {% render 'cfl-scan-pricing',
+       pricing_collection: collection,
+       heading: 'What it costs' %}
+{% endcomment %}
+
+{%- if pricing_collection.products.size > 0 -%}
+  <div class="cfl-scan-calc" id="cfl-scan-calc">
+    {%- if heading != blank -%}
+      <h2 class="cfl-section-heading">{{ heading }}</h2>
+    {%- endif -%}
+    {%- if intro != blank -%}
+      <p class="cfl-section-intro">{{ intro }}</p>
+    {%- endif -%}
+
+    <ul class="cfl-scan-calc__rows" role="list">
+      {%- for product in pricing_collection.products -%}
+        {%- liquid
+          assign minimum_variant = product.variants | first
+          assign per_price = minimum_variant.price
+          if product.variants.size > 1
+            assign per_price = product.variants[1].price
+          endif
+
+          comment
+            The title already carries the format and the unit; "Scan Only" in
+            the middle of every row is noise in a list that is entirely about
+            scanning.
+          endcomment
+          assign row_name = product.title
+          assign row_name = row_name | replace: ' Scan Only -', ''
+          assign row_name = row_name | replace: 'Scan only ', ''
+          assign row_name = row_name | replace: ' of Film', ''
+        -%}
+        <li
+          class="cfl-scan-calc__row"
+          data-minimum="{{ minimum_variant.price }}"
+          data-per-unit="{{ per_price }}"
+        >
+          <div class="cfl-scan-calc__service">
+            <a class="cfl-scan-calc__name" href="{{ product.url }}">{{ row_name }}</a>
+            <p class="cfl-scan-calc__rates">
+              {{ minimum_variant.price | money }} minimum, then {{ per_price | money }} each
+            </p>
+          </div>
+
+          <div class="cfl-scan-calc__qty no-js-hidden">
+            <button
+              type="button"
+              class="cfl-scan-calc__step"
+              data-step="-1"
+              aria-label="Fewer: {{ row_name | escape }}"
+            >
+              &minus;
+            </button>
+            <input
+              class="cfl-scan-calc__input"
+              type="number"
+              inputmode="numeric"
+              min="0"
+              step="1"
+              value="0"
+              aria-label="How many: {{ row_name | escape }}"
+            >
+            <button
+              type="button"
+              class="cfl-scan-calc__step"
+              data-step="1"
+              aria-label="More: {{ row_name | escape }}"
+            >
+              +
+            </button>
+          </div>
+
+          <p class="cfl-scan-calc__sub no-js-hidden" data-role="sub">&mdash;</p>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    <div class="cfl-scan-calc__summary no-js-hidden" aria-live="polite">
+      <div class="cfl-scan-calc__total">
+        <span class="cfl-scan-calc__total-label">Estimated total</span>
+        <strong class="cfl-scan-calc__total-value" data-role="grand">{{ 0 | money }}</strong>
+      </div>
+
+      {%- comment -%}
+        The split is the thing customers miss, so it gets figures of its own
+        rather than a sentence underneath. "Today" is one minimum per service
+        selected, and it does not move when quantities go up.
+      {%- endcomment -%}
+      <div class="cfl-scan-calc__split">
+        <div class="cfl-scan-calc__split-part cfl-scan-calc__split-part--today">
+          <span class="cfl-scan-calc__split-label">You pay today</span>
+          <strong class="cfl-scan-calc__split-value" data-role="today">{{ 0 | money }}</strong>
+        </div>
+        <div class="cfl-scan-calc__split-part">
+          <span class="cfl-scan-calc__split-label">Invoiced later</span>
+          <strong class="cfl-scan-calc__split-value" data-role="later">{{ 0 | money }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <p class="cfl-scan-calc__note">
+      <strong>You only pay the minimum at checkout</strong> — one per service you order. We
+      confirm the real number once your film is here and counted, then invoice the balance
+      before we deliver your scans. You are never charged for film you did not send.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.getElementById('cfl-scan-calc');
+      if (!root) return;
+
+      var rows = Array.prototype.slice.call(root.querySelectorAll('.cfl-scan-calc__row'));
+
+      function node(role) {
+        return root.querySelector('[data-role="' + role + '"]');
+      }
+
+      // Store is USD; prices arrive from Liquid already in cents.
+      function money(cents) {
+        return '$' + (cents / 100).toFixed(2);
+      }
+
+      function recalculate() {
+        var total = 0;
+        var today = 0;
+
+        rows.forEach(function (row) {
+          var input = row.querySelector('.cfl-scan-calc__input');
+          var sub = row.querySelector('[data-role="sub"]');
+          var qty = parseInt(input.value, 10);
+          if (isNaN(qty) || qty < 0) qty = 0;
+
+          if (qty === 0) {
+            sub.textContent = '—';
+            row.classList.remove('cfl-scan-calc__row--active');
+            return;
+          }
+
+          // The minimum buys the first one; the rest are charged per unit.
+          var minimum = parseInt(row.dataset.minimum, 10);
+          var perUnit = parseInt(row.dataset.perUnit, 10);
+          var lineTotal = minimum + (qty - 1) * perUnit;
+
+          sub.textContent = money(lineTotal);
+          row.classList.add('cfl-scan-calc__row--active');
+          total += lineTotal;
+
+          // One minimum per service ordered, however many units of it.
+          today += minimum;
+        });
+
+        node('grand').textContent = money(total);
+        node('today').textContent = money(today);
+        node('later').textContent = money(total - today);
+      }
+
+      rows.forEach(function (row) {
+        var input = row.querySelector('.cfl-scan-calc__input');
+
+        row.querySelectorAll('.cfl-scan-calc__step').forEach(function (button) {
+          button.addEventListener('click', function () {
+            var next = (parseInt(input.value, 10) || 0) + parseInt(button.dataset.step, 10);
+            input.value = next < 0 ? 0 : next;
+            recalculate();
+          });
+        });
+
+        input.addEventListener('input', recalculate);
+      });
+
+      recalculate();
+    })();
+  </script>
+{%- endif -%}
