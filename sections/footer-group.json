@@ -76,7 +76,13 @@
         "reveal_at": 45,
         "primary_label": "Start an order",
         "secondary_label": "Other film types",
-        "secondary_link": "shopify://collections/develop-and-scan"
+        "secondary_link": "shopify://collections/develop-and-scan",
+        "premium_product": "premium-develop-and-scan-35mm-c-41",
+        "premium_heading": "Ready to order Premium?",
+        "premium_subheading": "Extra large scans, hand-edited to your color profile.",
+        "premium_primary_label": "Order Premium",
+        "premium_secondary_label": "All Premium formats",
+        "premium_secondary_link": "shopify://collections/premium-film-service"
       }
     }
   },

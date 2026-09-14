@@ -10,7 +10,17 @@
   announcement bar, which is the single place the lab keeps current.
 
   Accepts:
-    - show_heading {Boolean} Render the "Getting your film to us" heading.
+    - show_heading {Boolean} Render the heading and intro above the options.
+    - heading {String} Overrides the default heading. The home page introduces
+      these same three routes to a visitor who has not yet decided to order, so
+      it needs to lead with the question rather than the answer.
+    - intro {String} Overrides the default supporting line.
+
+      Both exist so a caller can retitle the block without wrapping it in its
+      own container. A wrapper is what broke this on the home page once: the
+      prose block caps at 72rem while the options grid below runs to 110rem, so
+      the introduction ended up in a visibly narrower column than the cards it
+      was introducing.
     - pack_link {String} Where the "How to pack your film" button points. The
       mail-in page passes its own in-page anchor so the button scrolls down to
       the packing section instead of reloading the page the customer is on.
@@ -33,9 +43,9 @@
 
 <div class="cfl-ship-options-wrapper">
   {%- if show_heading -%}
-    <h2 class="cfl-section-heading">Getting your film to us</h2>
+    <h2 class="cfl-section-heading">{{ heading | default: 'Getting your film to us' }}</h2>
     <p class="cfl-section-intro">
-      Three ways to do it. Pick whichever suits you — your order is processed the same either way.
+      {{- intro | default: 'Three ways to do it. Pick whichever suits you — your order is processed the same either way.' -}}
     </p>
   {%- endif -%}
 
@@ -106,9 +116,10 @@
       <h3 class="cfl-ship-option__title">Drop it off</h3>
       <div class="cfl-ship-option__body">
         <p>
-          In the Tampa Bay area? Bring your film to the shop during opening hours, or use the
-          drop box between our two front doors any time — there's a second one in the back
-          parking lot.
+          In the Tampa Bay area? The counter is open Monday, Tuesday, Thursday and Friday
+          10am–6pm, and Saturday 10am–3pm. Outside those hours use the drop box between our two
+          front doors — there's a second one in the back parking lot. We develop film every day,
+          including the days the shop is closed to walk-ins.
         </p>
         <p>No shipping to buy. Just include your name and order number.</p>
       </div>

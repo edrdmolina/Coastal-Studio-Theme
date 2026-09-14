@@ -1,0 +1,201 @@
+{% comment %}
+  The lab's services, as cards.
+
+  Replaces the hand-written block that used to live inline in index.json. That
+  version hardcoded absolute https://www.coastalfilmlab.com URLs and opened
+  every one of them in a new tab, which piled up tabs for the visitor, split
+  the analytics, and broke entirely on preview and development themes where
+  the domain is not the live one.
+
+  Every link here is resolved through the pages and collections drops instead,
+  so it stays relative, follows the theme it is rendered on, and cannot rot
+  into a 404 if a handle is edited — a missing page yields a blank url rather
+  than a confident link to nowhere.
+
+  Two tiers. The primary four keep the images and copy the old block used. The
+  secondary row is text only: those services are real but low volume, and
+  giving them cards of their own would flatten the difference between "most of
+  our business" and "we also do this".
+
+  Accepts:
+    - heading {String} Optional heading above the primary row.
+
+  Usage:
+    {% render 'cfl-home-services', heading: 'What we do' %}
+{% endcomment %}
+
+{%- liquid
+  assign film_dev = pages['film-development']
+  assign buy_film = pages['buy-film']
+  assign repair = pages['camera-repair']
+  assign cameras = pages['cameras']
+-%}
+
+<div class="cfl-services">
+  {%- if heading != blank -%}
+    <h2 class="cfl-section-heading">{{ heading }}</h2>
+  {%- endif -%}
+
+  <ul class="cfl-services__grid scroll-trigger animate--slide-in" role="list">
+    <li class="cfl-service-card">
+      <a class="cfl-service-card__media" href="{{ film_dev.url }}" tabindex="-1" aria-hidden="true">
+        <img
+          src="https://cdn.shopify.com/s/files/1/0585/6093/8038/files/StandardC41Develop_Scan001_-_2x3_3acc9e36-f0ad-4e44-84a1-758d0913f1db.jpg?v=1726952872"
+          alt=""
+          loading="lazy"
+          width="600"
+          height="900"
+        >
+      </a>
+      <div class="cfl-service-card__body">
+        <h3 class="cfl-service-card__title"><a href="{{ film_dev.url }}">Film Processing</a></h3>
+        <p class="cfl-service-card__desc">
+          We develop film daily and deliver your scans over Google Drive. C-41 and black &amp;
+          white, 35mm through large format.
+        </p>
+        <a class="button button--primary cfl-service-card__cta" href="{{ film_dev.url }}">
+          Start an order
+        </a>
+      </div>
+    </li>
+
+    <li class="cfl-service-card">
+      <a class="cfl-service-card__media" href="{{ buy_film.url }}" tabindex="-1" aria-hidden="true">
+        <img
+          src="https://cdn.shopify.com/s/files/1/0585/6093/8038/files/Buy_Film_4x6-01.jpg?v=1708547923"
+          alt=""
+          loading="lazy"
+          width="600"
+          height="900"
+        >
+      </a>
+      <div class="cfl-service-card__body">
+        <h3 class="cfl-service-card__title"><a href="{{ buy_film.url }}">Buy Film</a></h3>
+        <p class="cfl-service-card__desc">
+          Kodak, Ilford, CineStill, Lomography and more. 35mm, 110, medium format and large
+          format, all in stock.
+        </p>
+        <a class="button button--primary cfl-service-card__cta" href="{{ buy_film.url }}">
+          Shop film
+        </a>
+      </div>
+    </li>
+
+    <li class="cfl-service-card">
+      <a class="cfl-service-card__media" href="{{ repair.url }}" tabindex="-1" aria-hidden="true">
+        <img
+          src="https://cdn.shopify.com/s/files/1/0585/6093/8038/files/Camera_Repair002.jpg?v=1715982783"
+          alt=""
+          loading="lazy"
+          width="600"
+          height="900"
+        >
+      </a>
+      <div class="cfl-service-card__body">
+        <h3 class="cfl-service-card__title"><a href="{{ repair.url }}">Camera Care</a></h3>
+        <p class="cfl-service-card__desc">
+          Light seals, cleanings and troubleshooting. We'll tell you honestly whether a repair is
+          worth doing before you spend anything.
+        </p>
+        <a class="button button--primary cfl-service-card__cta" href="{{ repair.url }}">
+          Learn more
+        </a>
+      </div>
+    </li>
+
+    <li class="cfl-service-card">
+      <a class="cfl-service-card__media" href="{{ cameras.url }}" tabindex="-1" aria-hidden="true">
+        <img
+          src="https://cdn.shopify.com/s/files/1/0585/6093/8038/files/Camera_LensesCover.jpg?v=1718398139"
+          alt=""
+          loading="lazy"
+          width="600"
+          height="900"
+        >
+      </a>
+      <div class="cfl-service-card__body">
+        <h3 class="cfl-service-card__title"><a href="{{ cameras.url }}">Camera Store</a></h3>
+        <p class="cfl-service-card__desc">
+          Film and digital cameras, lenses and accessories, every one of them tested and graded
+          before it goes on the shelf.
+        </p>
+        <a class="button button--primary cfl-service-card__cta" href="{{ cameras.url }}">
+          Shop cameras
+        </a>
+      </div>
+    </li>
+  </ul>
+
+  {%- comment -%}
+    Secondary services. Each entry is skipped if its page or collection is
+    missing, so an unpublished page drops out rather than rendering a link to
+    nothing. Photo Restoration is deliberately absent: the page exists in the
+    admin but is unpublished.
+
+    The whole card is the anchor rather than the title alone. That gives a much
+    larger hit target, and it keeps the description out of link styling — an
+    earlier version underlined the titles in browser-default blue, which is the
+    exact trap the link rules at the top of cfl-components.css describe: the
+    theme only colours links inside a listed set of prose containers, and
+    anything written in a custom-liquid section outside that set falls through
+    to the browser default.
+  {%- endcomment -%}
+  <div class="cfl-services__more">
+    <h3 class="cfl-services__more-title">Also from the lab</h3>
+    <ul class="cfl-services__more-list" role="list">
+      {%- if pages['premium-processing'] != blank -%}
+        <li>
+          <a class="cfl-more-card" href="{{ pages['premium-processing'].url }}">
+            <span class="cfl-more-card__title">Premium Processing</span>
+            <span class="cfl-more-card__desc">Hand-edited scans, matched to your color profile</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- if collections['scan-only'] != blank -%}
+        <li>
+          <a class="cfl-more-card" href="{{ collections['scan-only'].url }}">
+            <span class="cfl-more-card__title">Scan Only</span>
+            <span class="cfl-more-card__desc">Already developed? We'll digitize your negatives</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- if collections['develop-only'] != blank -%}
+        <li>
+          <a class="cfl-more-card" href="{{ collections['develop-only'].url }}">
+            <span class="cfl-more-card__title">Develop Only</span>
+            <span class="cfl-more-card__desc">Negatives back, no scans, for your own setup</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- if pages['archiving'] != blank -%}
+        <li>
+          <a class="cfl-more-card" href="{{ pages['archiving'].url }}">
+            <span class="cfl-more-card__title">Archival &amp; Digitization</span>
+            <span class="cfl-more-card__desc">Old family film, prints, slides, tape and video</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- if pages['studio-rental'] != blank -%}
+        <li>
+          <a class="cfl-more-card" href="{{ pages['studio-rental'].url }}">
+            <span class="cfl-more-card__title">Studio Rental</span>
+            <span class="cfl-more-card__desc">Book our Tampa studio by the hour</span>
+          </a>
+        </li>
+      {%- endif -%}
+
+      {%- if pages['order-status'] != blank -%}
+        <li>
+          <a class="cfl-more-card" href="{{ pages['order-status'].url }}">
+            <span class="cfl-more-card__title">Order Status</span>
+            <span class="cfl-more-card__desc">Check where your film is right now</span>
+          </a>
+        </li>
+      {%- endif -%}
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,158 @@
+{% comment %}
+  Side-by-side comparison of Develop & Scan against Premium.
+
+  This is the page's main persuasion tool and its main disqualifier. Premium is
+  a niche service the lab deliberately keeps small, so the table is written to
+  let the wrong customer rule themselves out as fast as the right one rules
+  themselves in. The rows where the two tiers are identical (development,
+  scanner, scan storage) are shown rather than hidden — the honest answer to
+  "what am I paying for" is a short list, and burying the shared rows would
+  make the paid-for rows look thinner than they are.
+
+  Prices are read from the live products rather than typed in, so a price
+  change in the Shopify admin never leaves stale numbers on the page.
+
+  Accepts:
+    - show_heading {Boolean} Render the section heading and intro.
+
+  Usage:
+    {% render 'cfl-premium-compare', show_heading: true %}
+{% endcomment %}
+
+{%- liquid
+  assign std_35_c41 = all_products['develop-and-scan-35mm-c41']
+  assign prm_35_c41 = all_products['premium-develop-and-scan-35mm-c-41']
+  assign std_mf_c41 = all_products['develop-and-scan-120-c41']
+  assign prm_mf_c41 = all_products['premium-develop-and-scan-120-c-41']
+-%}
+
+<div class="cfl-compare" id="cfl-premium-compare">
+  {%- if show_heading -%}
+    <h2 class="cfl-section-heading">Premium against our standard service</h2>
+    <p class="cfl-section-intro">
+      The developing is the same. What changes is the scan size, the editing, and how your
+      negatives come back.
+    </p>
+  {%- endif -%}
+
+  <div class="cfl-compare__scroll" tabindex="0" role="region" aria-label="Service comparison table">
+    <table class="cfl-compare__table">
+      <thead>
+        <tr>
+          <th scope="col" class="cfl-compare__rowhead">&nbsp;</th>
+          <th scope="col">Develop &amp; Scan</th>
+          <th scope="col" class="cfl-compare__col--premium">Premium</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Development</th>
+          <td>C-41 and black &amp; white, processed daily</td>
+          <td class="cfl-compare__col--premium">Identical — same chemistry, same line</td>
+        </tr>
+        <tr>
+          <th scope="row">Scanner</th>
+          <td>Noritsu / Frontier</td>
+          <td class="cfl-compare__col--premium">Identical — same scanners</td>
+        </tr>
+        <tr>
+          <th scope="row">Scan size</th>
+          <td>Standard resolution</td>
+          <td class="cfl-compare__col--premium">
+            <strong>Extra large</strong> — 18 to 30 megapixels depending on format
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Color correction</th>
+          <td>In-scanner corrections for brightness, contrast, tint and temperature</td>
+          <td class="cfl-compare__col--premium">
+            In-scanner corrections, then <strong>every frame corrected by hand in
+            Photoshop</strong>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Consistency</th>
+          <td>Corrected roll by roll</td>
+          <td class="cfl-compare__col--premium">
+            Matched to <strong>your client profile</strong>, so orders look the same as each
+            other months apart
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Dust &amp; scratch removal</th>
+          <td>Not included</td>
+          <td class="cfl-compare__col--premium">Included, done by hand</td>
+        </tr>
+        <tr>
+          <th scope="row">Negatives cut &amp; sleeved</th>
+          <td>Available as an add-on</td>
+          <td class="cfl-compare__col--premium">
+            Included, in Print File archival sleeves
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">File naming</th>
+          <td>Standard lab naming</td>
+          <td class="cfl-compare__col--premium">
+            Named to your convention — by shoot, client, or anything you set in your profile
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">File format</th>
+          <td>JPEG, 16-bit TIFF available as an add-on</td>
+          <td class="cfl-compare__col--premium">JPEG, 16-bit TIFF available as an add-on</td>
+        </tr>
+        <tr>
+          <th scope="row">Scan storage</th>
+          <td>1 year in Google Drive</td>
+          <td class="cfl-compare__col--premium">1 year in Google Drive</td>
+        </tr>
+        <tr>
+          <th scope="row">Turnaround</th>
+          <td>Posted in the banner at the top of this page</td>
+          <td class="cfl-compare__col--premium">
+            About two business days longer — the hand editing takes 10 to 15 minutes a roll
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">1-Day &amp; 3-Day rush</th>
+          <td>Available</td>
+          <td class="cfl-compare__col--premium">Available</td>
+        </tr>
+        <tr>
+          <th scope="row">Formats accepted</th>
+          <td>35mm, medium format, 110, APS, disposables, large format</td>
+          <td class="cfl-compare__col--premium">
+            <strong>35mm and medium format only</strong>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Consult required</th>
+          <td>No</td>
+          <td class="cfl-compare__col--premium">
+            <strong>Yes</strong> — a one-time color profile consult
+          </td>
+        </tr>
+        {%- if std_35_c41 != blank and prm_35_c41 != blank -%}
+          <tr>
+            <th scope="row">35mm C-41, per roll</th>
+            <td>{{ std_35_c41.price | money }}</td>
+            <td class="cfl-compare__col--premium">{{ prm_35_c41.price | money }}</td>
+          </tr>
+        {%- endif -%}
+        {%- if std_mf_c41 != blank and prm_mf_c41 != blank -%}
+          <tr>
+            <th scope="row">Medium format C-41, per roll</th>
+            <td>{{ std_mf_c41.price | money }}</td>
+            <td class="cfl-compare__col--premium">{{ prm_mf_c41.price | money }}</td>
+          </tr>
+        {%- endif -%}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="cfl-compare__note">
+    Shooting 110, APS, a disposable, or large format? Those formats are standard service only —
+    head to <a href="{{ pages['film-development'].url }}">film development</a> to send those in.
+  </p>
+</div>

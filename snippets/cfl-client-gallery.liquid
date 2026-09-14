@@ -1,0 +1,69 @@
+{% comment %}
+  Client work as the top of the home page.
+
+  Built ahead of the images existing. Each slot needs both a URL and a credit
+  before it renders, and if fewer than three are complete the whole gallery
+  renders nothing — a photo lab's home page showing two photographs and a gap
+  looks worse than one showing none, so the failure mode is absence.
+
+  TO FILL THIS IN
+  Upload the frames in Shopify admin under Content > Files, copy each CDN URL,
+  and paste them below with the photographer's name. Get permission first and
+  credit every frame — this section exists to show off their work as much as
+  our scanning, and an uncredited client photograph is not a good look for a
+  lab that wants more of them. Then enable the "Client work" section on the
+  home page in the theme editor.
+
+  Usage:
+    {% render 'cfl-client-gallery' %}
+{% endcomment %}
+
+{%- liquid
+  assign img_1 = ''
+  assign credit_1 = ''
+  assign img_2 = ''
+  assign credit_2 = ''
+  assign img_3 = ''
+  assign credit_3 = ''
+  assign img_4 = ''
+  assign credit_4 = ''
+  assign img_5 = ''
+  assign credit_5 = ''
+
+  assign urls = img_1 | append: '~' | append: img_2 | append: '~' | append: img_3 | append: '~' | append: img_4 | append: '~' | append: img_5 | split: '~'
+  assign credits = credit_1 | append: '~' | append: credit_2 | append: '~' | append: credit_3 | append: '~' | append: credit_4 | append: '~' | append: credit_5 | split: '~'
+
+  assign ready = 0
+  for u in urls
+    assign c = credits[forloop.index0]
+    if u != blank and c != blank
+      assign ready = ready | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if ready >= 3 -%}
+  <section class="cfl-client-gallery" aria-labelledby="cfl-client-gallery-title">
+    <div class="cfl-client-gallery__intro">
+      <h2 class="cfl-section-heading" id="cfl-client-gallery-title">Shot on film, scanned by us</h2>
+      <p class="cfl-section-intro">
+        Work from photographers who send us their film. Every frame below came back from our
+        scanners exactly as you see it.
+      </p>
+    </div>
+
+    <ul class="cfl-client-gallery__grid" role="list">
+      {%- for url in urls -%}
+        {%- assign credit = credits[forloop.index0] -%}
+        {%- if url != blank and credit != blank -%}
+          <li class="cfl-client-frame">
+            <figure>
+              <img src="{{ url }}" alt="Photograph by {{ credit }}" loading="lazy" width="800" height="1200">
+              <figcaption class="cfl-client-frame__credit">{{ credit }}</figcaption>
+            </figure>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </section>
+{%- endif -%}

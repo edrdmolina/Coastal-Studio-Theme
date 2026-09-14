@@ -6,6 +6,15 @@
     - cfl-process-switcher  : C-41 / B&W switcher on service product pages
     - cfl-shipping-options  : the three ways to get film to the lab
     - cfl-label-nudge       : cart reminder about the prepaid inbound label
+    - cfl-premium-steps     : consult-first sequence on the Premium page
+    - cfl-premium-compare   : Premium against standard Develop & Scan
+    - cfl-premium-order     : Premium buy grid and its consult gate
+    - cfl-premium-samples   : before / after pairs, standard vs Premium
+    - cfl-premium-quickorder: fast path to ordering for existing clients
+    - cfl-home-services     : the lab's services, as cards, on the home page
+    - cfl-trust-band        : four reassurances for a first-time visitor
+    - cfl-client-gallery    : client work at the top of the home page
+    - cfl-local-business    : LocalBusiness JSON-LD for the Tampa lab
 
   Uses the theme's existing color scheme variables so these blend with
   whatever scheme the surrounding section is set to.
@@ -1504,6 +1513,752 @@ html:not(.no-js) .cfl-scan-estimator__static {
 }
 
 /* ------------------------------------------------------------------ *
+ * Premium: consult-first step list
+ * ------------------------------------------------------------------ */
+
+/*
+  Deliberately not the same treatment as .cfl-steps on the film-processing
+  page. That one is a four-across row of icon cards for a service anyone can
+  buy immediately; this one is a vertical, numbered sequence because the order
+  of the steps is the actual message — the consult is not optional and not
+  reorderable. Reading down a numbered column enforces that in a way a row of
+  equal-weight cards cannot.
+*/
+
+.cfl-premium-steps {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 78rem;
+}
+
+.cfl-premium-step {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0 2.4rem;
+  align-items: start;
+  padding: 3.2rem 0;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+.cfl-premium-step:last-child {
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+/*
+  Outlined rather than filled. A row of four solid teal discs reads as a
+  checklist of things already done; the outline keeps the numerals quiet enough
+  to sit under the step titles in the reading order.
+*/
+.cfl-premium-step__num {
+  font-family: var(--font-heading-family);
+  font-size: 2.6rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.6rem;
+  height: 5.6rem;
+  border: 0.1rem solid var(--cfl-accent-dark);
+  border-radius: 50%;
+  color: var(--cfl-accent-dark);
+}
+
+.cfl-premium-step__title {
+  margin: 0 0 0.8rem;
+  font-size: calc(var(--font-heading-scale) * 2rem);
+}
+
+.cfl-premium-step__body {
+  margin: 0;
+  max-width: 62ch;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-premium-step {
+    grid-template-columns: 4.4rem 1fr;
+    gap: 0 1.6rem;
+    padding: 2.4rem 0;
+  }
+
+  .cfl-premium-step__num {
+    width: 4.4rem;
+    height: 4.4rem;
+    font-size: 2rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Premium: comparison table
+ * ------------------------------------------------------------------ */
+
+/* Anchor targets for the in-page buttons. The offset keeps each heading clear
+   of the sticky header when the page jumps to it, matching .cfl-packing. */
+.cfl-compare,
+.cfl-premium-order {
+  scroll-margin-top: 10rem;
+}
+
+.cfl-compare {
+  max-width: 96rem;
+  margin: 0 auto;
+}
+
+/*
+  The table has a hard floor on width — below about 62rem the three columns
+  stop being readable and wrapping turns every cell into a word column. So it
+  scrolls sideways inside its own container rather than compressing, and the
+  container is focusable so the scroll is reachable from the keyboard.
+*/
+.cfl-compare__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cfl-compare__scroll:focus-visible {
+  outline: 0.2rem solid var(--cfl-accent-dark);
+  outline-offset: 0.4rem;
+}
+
+.cfl-compare__table {
+  width: 100%;
+  min-width: 62rem;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 1.5rem;
+}
+
+.cfl-compare__table th,
+.cfl-compare__table td {
+  padding: 1.6rem 1.8rem;
+  vertical-align: top;
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+.cfl-compare__table thead th {
+  font-size: 1.6rem;
+  border-bottom-width: 0.2rem;
+  border-bottom-color: rgba(var(--color-foreground), 0.28);
+}
+
+/*
+  Row headers stay put while the table scrolls, otherwise a sideways scroll on
+  a phone leaves you looking at two price columns with no idea which row you
+  are on. Needs an opaque background to cover the cells passing underneath.
+*/
+.cfl-compare__table tbody th[scope='row'] {
+  position: sticky;
+  left: 0;
+  background: rgb(var(--color-background));
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/*
+  The premium column is marked with rails and a faint wash rather than a filled
+  block. At three percent the tint survives on both the paper-white and cream
+  grounds this page can be set to, and it never gets dark enough to threaten
+  the contrast of the text sitting on it.
+*/
+.cfl-compare__col--premium {
+  background: rgba(var(--color-foreground), 0.03);
+  border-left: 0.1rem solid var(--cfl-accent-dark);
+  border-right: 0.1rem solid var(--cfl-accent-dark);
+}
+
+.cfl-compare__table thead .cfl-compare__col--premium {
+  border-top: 0.2rem solid var(--cfl-accent-dark);
+  color: var(--cfl-accent-dark);
+}
+
+.cfl-compare__table tbody tr:last-child .cfl-compare__col--premium {
+  border-bottom: 0.2rem solid var(--cfl-accent-dark);
+}
+
+.cfl-compare__note {
+  margin: 2rem auto 0;
+  max-width: 70ch;
+  text-align: center;
+  font-size: 1.4rem;
+  opacity: 0.85;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-compare__table th,
+  .cfl-compare__table td {
+    padding: 1.2rem 1.4rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Premium: consult gate
+ * ------------------------------------------------------------------ */
+
+/*
+  Shown directly above the buy grid in soft-gate mode, and in place of it when
+  the hard gate is on. Styled as a standing condition of the service rather
+  than an error or a warning — no red, no alert iconography — because in the
+  common case it is being read by an existing client who has already met the
+  requirement.
+*/
+.cfl-premium-gate {
+  max-width: 70rem;
+  margin: 0 auto 3.6rem;
+  padding: 2.4rem 2.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.12);
+  border-left: 0.3rem solid var(--cfl-accent-dark);
+  border-radius: 0.4rem;
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+.cfl-premium-gate p {
+  margin: 0 0 1rem;
+}
+
+.cfl-premium-gate p:last-child {
+  margin-bottom: 0;
+}
+
+.cfl-premium-gate__lead {
+  font-size: 1.7rem;
+}
+
+.cfl-premium-gate__quiet {
+  font-size: 1.4rem;
+  opacity: 0.85;
+}
+
+.cfl-premium-gate--locked {
+  text-align: center;
+  border-left-width: 0.1rem;
+  border-top: 0.3rem solid var(--cfl-accent-dark);
+}
+
+.cfl-premium-gate--locked .button {
+  margin: 1.6rem 0 1.2rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Premium: before / after samples
+ * ------------------------------------------------------------------ */
+
+.cfl-premium-samples__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.cfl-premium-sample__figure {
+  margin: 0;
+}
+
+.cfl-premium-sample__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.cfl-premium-sample__side {
+  position: relative;
+  margin: 0;
+}
+
+.cfl-premium-sample__side img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.4rem;
+}
+
+/*
+  Labels sit on the image because these two frames are the same photograph and
+  a caption underneath would leave a beat where the reader is looking at an
+  unlabelled pair. Dark plate at 0.72 keeps white text well clear of AA over
+  any photograph, including a blown-out sky.
+*/
+.cfl-premium-sample__tag {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+  padding: 0.4rem 1rem;
+  border-radius: 0.3rem;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 1.2rem;
+  letter-spacing: 0.06rem;
+  text-transform: uppercase;
+}
+
+.cfl-premium-sample__tag--after {
+  background: var(--cfl-accent-dark);
+}
+
+.cfl-premium-sample__caption {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 1.4rem;
+  opacity: 0.85;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-premium-sample__pair {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Premium: returning-client quick order strip
+ * ------------------------------------------------------------------ */
+
+/*
+  Sits immediately under the hero. Deliberately quiet — a rule and a wash
+  rather than a filled banner — because a first-time reader should be able to
+  skim straight past it into the explanation, while the client it is aimed at
+  is already scanning for a price and will find one.
+*/
+
+.cfl-quickorder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem 3.2rem;
+  max-width: 96rem;
+  margin: 0 auto;
+  padding: 2rem 2.4rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.12);
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.12);
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+.cfl-quickorder__intro {
+  flex: 0 1 auto;
+}
+
+.cfl-quickorder__title {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.6rem);
+  line-height: 1.3;
+}
+
+.cfl-quickorder__sub {
+  margin: 0.2rem 0 0;
+  font-size: 1.4rem;
+  opacity: 0.85;
+}
+
+.cfl-quickorder__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+/*
+  Each pill is one product page. Format and process are stacked against the
+  price so the three are readable at a glance without the pill growing wide
+  enough to force a second row on a phone.
+*/
+.cfl-quickorder__pill {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.8rem 1.4rem;
+  border: 0.1rem solid var(--cfl-accent-dark);
+  border-radius: 2.4rem;
+  color: rgb(var(--color-foreground));
+  text-decoration: none;
+  font-size: 1.4rem;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.cfl-quickorder__pill:hover,
+.cfl-quickorder__pill:focus-visible {
+  background: rgba(var(--color-foreground), 0.06);
+  text-decoration: none;
+}
+
+.cfl-quickorder__fmt {
+  font-weight: 600;
+}
+
+.cfl-quickorder__proc {
+  opacity: 0.85;
+}
+
+.cfl-quickorder__price {
+  color: var(--cfl-accent-dark);
+  font-weight: 600;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-quickorder {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+    padding: 1.8rem 1.5rem;
+  }
+
+  .cfl-quickorder__list {
+    width: 100%;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Page hero (carries the h1)
+ * ------------------------------------------------------------------ */
+
+/*
+  Dawn's rich-text section hardcodes <h2> for its heading block — heading_size
+  is only a CSS class, not the tag — so a page built from rich-text and
+  custom-liquid sections renders no <h1> at all. Every landing page on this site
+  was in that state. This block exists to carry the real h1, with the visual
+  weight the old rich-text hero had.
+*/
+
+.cfl-hero {
+  max-width: 82rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.cfl-hero__title {
+  margin: 0 0 1.4rem;
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 3.6rem);
+  line-height: 1.15;
+}
+
+.cfl-hero__sub {
+  margin: 0 auto 2.4rem;
+  max-width: 62ch;
+  font-size: 1.7rem;
+  line-height: 1.6;
+}
+
+.cfl-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  justify-content: center;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-hero__title {
+    font-size: calc(var(--font-heading-scale) * 2.6rem);
+  }
+
+  .cfl-hero__sub {
+    font-size: 1.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Home: service cards
+ * ------------------------------------------------------------------ */
+
+/*
+  Replaces the inline <style> that used to ship inside index.json. Living here
+  means the home page gets the same link colours, focus rings and reduced-motion
+  handling as every other cfl- component, instead of a private copy that drifts.
+*/
+
+.cfl-services {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-services__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  gap: 2.4rem;
+}
+
+.cfl-service-card {
+  display: flex;
+  flex-direction: column;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.12);
+  border-radius: 0.8rem;
+  background: rgb(var(--color-background));
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cfl-service-card:hover,
+.cfl-service-card:focus-within {
+  transform: translateY(-0.3rem);
+  box-shadow: 0 0.6rem 1.8rem rgba(var(--color-shadow), 0.12);
+}
+
+.cfl-service-card__media {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+}
+
+.cfl-service-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.cfl-service-card:hover .cfl-service-card__media img {
+  transform: scale(1.05);
+}
+
+/*
+  The body is a column with the button pushed to the bottom, so a card with two
+  lines of description lines its button up with a card that has four.
+*/
+.cfl-service-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 1.8rem 1.8rem 2rem;
+}
+
+.cfl-service-card__title {
+  margin: 0 0 0.8rem;
+  font-size: calc(var(--font-heading-scale) * 1.9rem);
+}
+
+.cfl-service-card__title a {
+  color: rgb(var(--color-foreground));
+  text-decoration: none;
+}
+
+.cfl-service-card__title a:hover {
+  text-decoration: underline;
+}
+
+.cfl-service-card__desc {
+  margin: 0 0 1.8rem;
+  font-size: 1.5rem;
+  line-height: 1.55;
+}
+
+.cfl-service-card__cta {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* --- secondary services, as cards --- */
+
+.cfl-services__more {
+  margin-top: 4rem;
+  padding-top: 2.8rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+.cfl-services__more-title {
+  margin: 0 0 2rem;
+  font-size: calc(var(--font-heading-scale) * 1.6rem);
+  text-align: center;
+}
+
+/*
+  Three across, explicitly. auto-fit packed four onto the first row and left two
+  stranded on the second, which read as a mistake rather than a layout. With six
+  services a fixed three-column grid gives two even rows, and the breakpoints
+  step it down to two and then one rather than letting the count float.
+*/
+.cfl-services__more-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6rem;
+}
+
+/*
+  The entire card is the anchor, so the hit target is the whole box and the
+  description never picks up link styling. Colours are set explicitly here
+  because a custom-liquid section sits outside the prose containers the link
+  rules at the top of this file cover — left alone these render browser blue.
+*/
+.cfl-more-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  height: 100%;
+  padding: 1.6rem 1.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.14);
+  border-left: 0.3rem solid var(--cfl-accent-dark);
+  border-radius: 0.6rem;
+  background: rgba(var(--color-foreground), 0.02);
+  color: rgb(var(--color-foreground));
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cfl-more-card:hover,
+.cfl-more-card:focus-visible {
+  background: rgba(var(--color-foreground), 0.05);
+  transform: translateY(-0.2rem);
+  box-shadow: 0 0.4rem 1.2rem rgba(var(--color-shadow), 0.1);
+  text-decoration: none;
+}
+
+/*
+  The arrow is a pseudo-element on the title so it cannot be selected or read
+  out, and it nudges on hover to signal the whole card is clickable.
+*/
+.cfl-more-card__title {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.5rem);
+  letter-spacing: 0.02em;
+  color: var(--cfl-accent-dark);
+}
+
+.cfl-more-card__title::after {
+  content: "\2192";
+  display: inline-block;
+  margin-left: 0.6rem;
+  transition: transform 0.2s ease;
+}
+
+.cfl-more-card:hover .cfl-more-card__title::after,
+.cfl-more-card:focus-visible .cfl-more-card__title::after {
+  transform: translateX(0.3rem);
+}
+
+.cfl-more-card__desc {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+@media screen and (max-width: 989px) {
+  .cfl-services__more-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 599px) {
+  .cfl-services__more-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Home: trust band
+ * ------------------------------------------------------------------ */
+
+/*
+  Text only, no icons. Four generic pictograms would add weight without adding
+  information, and the labels are already short enough to scan.
+*/
+.cfl-trust {
+  list-style: none;
+  margin: 0 auto;
+  padding: 2.8rem 1.5rem;
+  max-width: 120rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 2.4rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.12);
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.12);
+}
+
+.cfl-trust__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cfl-trust__label {
+  font-family: var(--font-heading-family);
+  font-size: calc(var(--font-heading-scale) * 1.5rem);
+  color: var(--cfl-accent-dark);
+}
+
+.cfl-trust__body {
+  font-size: 1.4rem;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ *
+ * Home: client work gallery
+ * ------------------------------------------------------------------ */
+
+.cfl-client-gallery {
+  max-width: 132rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cfl-client-gallery__intro {
+  max-width: 70rem;
+  margin: 0 auto 2.8rem;
+  text-align: center;
+}
+
+/*
+  Auto-fit rather than a fixed count: the gallery renders whatever number of
+  frames are filled in, from three upward, and should not leave a hole when
+  that number is not divisible by the column count.
+*/
+.cfl-client-gallery__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+  gap: 1.6rem;
+}
+
+.cfl-client-frame figure {
+  margin: 0;
+}
+
+.cfl-client-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.4rem;
+}
+
+/*
+  The credit is the point of the section as much as the photograph, so it stays
+  legible rather than being tucked into a hover state or dropped onto the image.
+*/
+.cfl-client-frame__credit {
+  margin-top: 0.8rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.04rem;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-services__grid {
+    gap: 1.6rem;
+  }
+
+  .cfl-trust {
+    gap: 1.8rem;
+    padding: 2.2rem 1.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Contrast corrections
  * ------------------------------------------------------------------ */
 
@@ -1520,6 +2275,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
 */
 .cfl-label-upsell__button.button--secondary,
 .cfl-label-nudge .button--secondary,
+.cfl-premium-gate .button--secondary,
 .cfl-ship-option__action .button--secondary {
   color: rgb(var(--color-foreground));
   border-color: var(--cfl-accent-dark);
@@ -1530,7 +2286,8 @@ html:not(.no-js) .cfl-scan-estimator__static {
   1.81:1. Dark brown on the same teal is 8.31:1, which is the substitution the
   theme README recommends for accessibility-sensitive work.
 */
-.cfl-ship-option__action .button--primary {
+.cfl-ship-option__action .button--primary,
+.cfl-premium-gate .button--primary {
   color: rgb(var(--color-foreground));
 }
 
@@ -1550,6 +2307,36 @@ html:not(.no-js) .cfl-scan-estimator__static {
   }
 
   .cfl-format-card:hover .cfl-format-card__media img {
+    transform: none;
+  }
+
+  .cfl-quickorder__pill,
+  .cfl-service-card,
+  .cfl-service-card__media img {
+    transition: none;
+  }
+
+  .cfl-service-card:hover,
+  .cfl-service-card:focus-within {
+    transform: none;
+  }
+
+  .cfl-service-card:hover .cfl-service-card__media img {
+    transform: none;
+  }
+
+  .cfl-more-card,
+  .cfl-more-card__title::after {
+    transition: none;
+  }
+
+  .cfl-more-card:hover,
+  .cfl-more-card:focus-visible {
+    transform: none;
+  }
+
+  .cfl-more-card:hover .cfl-more-card__title::after,
+  .cfl-more-card:focus-visible .cfl-more-card__title::after {
     transform: none;
   }
 

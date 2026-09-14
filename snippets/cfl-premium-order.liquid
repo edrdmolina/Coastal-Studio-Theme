@@ -1,0 +1,109 @@
+{% comment %}
+  The Premium ordering block, with the consult requirement attached.
+
+  Two modes, switched by `enforce_consult` below:
+
+    Soft gate (current)  — the requirement is stated plainly and the products
+                           stay purchasable. Nobody with a profile already on
+                           file gets locked out, and nobody has to be logged in
+                           to order. The lab catches the rare stranger at order
+                           review, which is cheaper than losing a real sale to a
+                           gate that fired wrongly.
+
+    Hard gate            — buy options render only for a logged-in customer
+                           carrying the premium tag. Everyone else is sent to
+                           the consult. Turn this on once premium clients are
+                           actually being tagged in the Shopify admin; until
+                           they are, this would lock out every existing client.
+
+  Switching modes is the one `assign` on the next line. No markup below needs
+  to change.
+
+  The grid itself is cfl-format-grid, the same tag-driven component the standard
+  film-processing page uses, pointed at the premium collection. Premium products
+  carry the same format and process tags as the rest of the processing catalog,
+  so formats appear and disappear here purely by what is live in the admin.
+
+  Accepts:
+    - show_heading {Boolean} Render the section heading.
+
+  Usage:
+    {% render 'cfl-premium-order', show_heading: true %}
+{% endcomment %}
+
+{%- liquid
+  assign enforce_consult = false
+  assign premium_tag = 'premium-client'
+
+  assign consult = all_products['premium-client-color-profile']
+  assign premium_collection = collections['premium-film-service']
+
+  assign unlocked = true
+  if enforce_consult
+    assign unlocked = false
+    if customer and customer.tags contains premium_tag
+      assign unlocked = true
+    endif
+  endif
+-%}
+
+<div class="cfl-premium-order" id="cfl-premium-order">
+  {%- if show_heading -%}
+    <h2 class="cfl-section-heading">Order Premium</h2>
+  {%- endif -%}
+
+  {%- if unlocked -%}
+    <div class="cfl-premium-gate cfl-premium-gate--notice">
+      <p class="cfl-premium-gate__lead">
+        <strong>Premium orders need a color profile on file.</strong>
+      </p>
+      <p>
+        If you have not sat down with us yet, start with the consult — without a profile there
+        is nothing for us to match your scans to.
+        {%- if consult != blank %}
+          <a href="{{ consult.url }}">Book your color profile consult</a>.
+        {%- endif -%}
+      </p>
+      <p class="cfl-premium-gate__quiet">
+        Not sure whether yours is on file? <a href="{{ pages['contact-us'].url }}">Ask us</a> before
+        you order.
+      </p>
+    </div>
+
+    {%- if premium_collection != blank and premium_collection.products.size > 0 -%}
+      {% render 'cfl-format-grid',
+         grid_collection: premium_collection,
+         heading: 'Pick your film type',
+         intro: 'Premium covers 35mm and medium format. Prices are per roll.',
+         heading_tag: 'h3' %}
+    {%- endif -%}
+
+  {%- else -%}
+    <div class="cfl-premium-gate cfl-premium-gate--locked">
+      <p class="cfl-premium-gate__lead">
+        <strong>Premium is by consultation.</strong>
+      </p>
+      <p>
+        Every Premium order is edited against a color profile we build with you in person or over
+        video. Book that session and ordering opens up straight afterward.
+      </p>
+
+      {%- if consult != blank -%}
+        <a class="button button--primary" href="{{ consult.url }}">
+          Book your color profile consult — {{ consult.price | money }}
+        </a>
+      {%- endif -%}
+
+      {%- unless customer -%}
+        <p class="cfl-premium-gate__quiet">
+          Already a Premium client? <a href="{{ routes.account_login_url }}">Log in</a> to order.
+        </p>
+      {%- else -%}
+        <p class="cfl-premium-gate__quiet">
+          Already had your consult but still seeing this?
+          <a href="{{ pages['contact-us'].url }}">Let us know</a> and we'll open your account up.
+        </p>
+      {%- endunless -%}
+    </div>
+  {%- endif -%}
+</div>

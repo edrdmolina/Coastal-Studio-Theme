@@ -1,0 +1,70 @@
+{% comment %}
+  Fast path to ordering for clients who already have a profile on file.
+
+  The Premium page has to do two jobs at once: sell a niche service to someone
+  who has never heard of it, and get out of the way of a returning client who
+  just wants to send in four rolls. Those pull in opposite directions — the
+  explaining has to come first for one and not at all for the other.
+
+  This strip resolves that. It sits directly under the hero, addresses the
+  returning client by name, and links straight to the product pages. Everything
+  below it is for the first-time reader, who can ignore this and carry on.
+
+  It links rather than adding to cart, for the same reason the sticky order bar
+  does: Globo puts required options on the service products (Negative
+  Condition, Scan Size, Rush), so the product page is a mandatory stop and an
+  add-to-cart here would skip fields the lab needs.
+
+  Products come from the premium collection and are bucketed by the same format
+  and process tags the rest of the processing catalog uses, so a format that is
+  unlisted in the admin disappears from here on its own.
+
+  Usage:
+    {% render 'cfl-premium-quickorder' %}
+{% endcomment %}
+
+{%- liquid
+  assign premium_collection = collections['premium-film-service']
+  assign service_tag = 'Film Processing'
+  assign format_keys = '35mm,medium format' | split: ','
+  assign format_labels = '35mm,Medium Format' | split: ','
+  assign process_keys = 'c41,bw' | split: ','
+  assign process_labels = 'C-41,B&W' | split: ','
+-%}
+
+{%- if premium_collection != blank and premium_collection.products.size > 0 -%}
+  <aside class="cfl-quickorder" aria-labelledby="cfl-quickorder-title">
+    <div class="cfl-quickorder__intro">
+      <p class="cfl-quickorder__title" id="cfl-quickorder-title">Already a Premium client?</p>
+      <p class="cfl-quickorder__sub">
+        Your profile is on file — order straight away.
+      </p>
+    </div>
+
+    <ul class="cfl-quickorder__list" role="list">
+      {%- for format_key in format_keys -%}
+        {%- assign format_label = format_labels[forloop.index0] -%}
+        {%- for process_key in process_keys -%}
+          {%- assign process_label = process_labels[forloop.index0] -%}
+
+          {%- for product in premium_collection.products -%}
+            {%- if product.tags contains service_tag
+                and product.tags contains format_key
+                and product.tags contains process_key
+            -%}
+              <li>
+                <a class="cfl-quickorder__pill" href="{{ product.url }}">
+                  <span class="cfl-quickorder__fmt">{{ format_label }}</span>
+                  <span class="cfl-quickorder__proc">{{ process_label }}</span>
+                  <span class="cfl-quickorder__price">{{ product.price | money }}</span>
+                </a>
+              </li>
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+        {%- endfor -%}
+      {%- endfor -%}
+    </ul>
+  </aside>
+{%- endif -%}

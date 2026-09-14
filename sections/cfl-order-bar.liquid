@@ -12,6 +12,13 @@
   It links rather than adds to cart on purpose: Globo puts three required
   options on the service products (Negative Condition, Scan Size, Rush), so the
   product page is a mandatory stop.
+
+  On the Premium page it swaps to the premium service. Living in footer-group
+  means one set of settings covers every template, and the standard 35mm
+  product it normally promotes is both cheaper and a different service — left
+  alone it spends the whole premium page pulling visitors back down a tier.
+  Keyed on the template suffix rather than the page handle so renaming the page
+  in the admin does not quietly switch the bar back.
 {%- endcomment -%}
 
 {%- liquid
@@ -27,6 +34,24 @@
   endunless
 
   assign bar_product = section.settings.product
+  assign bar_heading = section.settings.heading
+  assign bar_sub = section.settings.subheading
+  assign bar_primary_label = section.settings.primary_label
+  assign bar_secondary_label = section.settings.secondary_label
+  assign bar_secondary_link = section.settings.secondary_link
+
+  if page.template_suffix == 'premium-page'
+    assign bar_heading = section.settings.premium_heading
+    assign bar_sub = section.settings.premium_subheading
+    assign bar_primary_label = section.settings.premium_primary_label
+    assign bar_secondary_label = section.settings.premium_secondary_label
+    assign bar_secondary_link = section.settings.premium_secondary_link
+
+    if section.settings.premium_product != blank
+      assign bar_product = section.settings.premium_product
+    endif
+  endif
+
   if bar_product == blank
     assign show_bar = false
   endif
@@ -38,13 +63,13 @@
     id="CflOrderBar"
     data-cfl-order-bar
     data-reveal-at="{{ section.settings.reveal_at }}"
-    aria-label="{{ section.settings.heading | default: 'Order film developing' | escape }}"
+    aria-label="{{ bar_heading | default: 'Order film developing' | escape }}"
   >
     <div class="cfl-order-bar__inner">
       <div class="cfl-order-bar__text">
-        <p class="cfl-order-bar__heading">{{ section.settings.heading }}</p>
-        {%- if section.settings.subheading != blank -%}
-          <p class="cfl-order-bar__sub">{{ section.settings.subheading }}</p>
+        <p class="cfl-order-bar__heading">{{ bar_heading }}</p>
+        {%- if bar_sub != blank -%}
+          <p class="cfl-order-bar__sub">{{ bar_sub }}</p>
         {%- endif -%}
       </div>
 
@@ -57,15 +82,15 @@
         {%- endif -%}
 
         <a href="{{ bar_product.url }}" class="button cfl-order-bar__cta">
-          {{ section.settings.primary_label }}
+          {{ bar_primary_label }}
         </a>
 
-        {%- if section.settings.secondary_label != blank and section.settings.secondary_link != blank -%}
+        {%- if bar_secondary_label != blank and bar_secondary_link != blank -%}
           <a
-            href="{{ section.settings.secondary_link }}"
+            href="{{ bar_secondary_link }}"
             class="button cfl-order-bar__cta cfl-order-bar__cta--secondary"
           >
-            {{ section.settings.secondary_label }}
+            {{ bar_secondary_label }}
           </a>
         {%- endif -%}
       </div>
@@ -158,21 +183,36 @@
       "type": "paragraph",
       "content": "Appears on every page except product and cart pages, once the visitor scrolls past the hero."
     },
-    { "type": "checkbox", "id": "enabled", "label": "Enable", "default": true },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable",
+      "default": true
+    },
     {
       "type": "product",
       "id": "product",
       "label": "Product to promote",
       "info": "The price shown is pulled from this product."
     },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Ready to develop your film?" },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Ready to develop your film?"
+    },
     {
       "type": "text",
       "id": "subheading",
       "label": "Subheading",
       "default": "35mm C-41 developed and scanned, delivered over Google Drive."
     },
-    { "type": "checkbox", "id": "show_price", "label": "Show price", "default": true },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
     {
       "type": "range",
       "id": "reveal_at",
@@ -184,15 +224,71 @@
       "unit": "%",
       "default": 45
     },
-    { "type": "text", "id": "primary_label", "label": "Primary button label", "default": "Start an order" },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "Primary button label",
+      "default": "Start an order"
+    },
     {
       "type": "text",
       "id": "secondary_label",
       "label": "Secondary button label",
       "default": "Other film types"
     },
-    { "type": "url", "id": "secondary_link", "label": "Secondary button link" }
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Premium Processing page"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used only on the Premium Processing page, which sells a different, higher tier. Without these the bar promotes the standard service there."
+    },
+    {
+      "type": "product",
+      "id": "premium_product",
+      "label": "Premium product to promote",
+      "info": "The price shown on the Premium page is pulled from this product."
+    },
+    {
+      "type": "text",
+      "id": "premium_heading",
+      "label": "Premium heading",
+      "default": "Ready to order Premium?"
+    },
+    {
+      "type": "text",
+      "id": "premium_subheading",
+      "label": "Premium subheading",
+      "default": "Extra large scans, hand-edited to your color profile."
+    },
+    {
+      "type": "text",
+      "id": "premium_primary_label",
+      "label": "Premium primary button label",
+      "default": "Order Premium"
+    },
+    {
+      "type": "text",
+      "id": "premium_secondary_label",
+      "label": "Premium secondary button label",
+      "default": "All Premium formats"
+    },
+    {
+      "type": "url",
+      "id": "premium_secondary_link",
+      "label": "Premium secondary button link"
+    }
   ],
-  "enabled_on": { "groups": ["footer"] }
+  "enabled_on": {
+    "groups": [
+      "footer"
+    ]
+  }
 }
 {% endschema %}

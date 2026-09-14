@@ -306,6 +306,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     })(window, document, "clarity", "script", "o9h0weoslm");
 </script>
   
+    {%- comment -%}
+      Physical-lab markup. Organization and WebSite come from header.liquid;
+      neither carries an address, so this is what puts the Tampa lab on the map.
+    {%- endcomment -%}
+    {% render 'cfl-local-business' %}
+
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">

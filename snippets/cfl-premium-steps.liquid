@@ -1,0 +1,81 @@
+{% comment %}
+  The Premium path, consult first.
+
+  Premium is not a product you can meaningfully buy cold — the whole service is
+  built on a color profile that does not exist until the consult happens. So the
+  consult is step one here rather than an upsell tucked in at the end, and the
+  numbering exists to make the order non-negotiable at a glance.
+
+  The consult price is read from the product so it cannot drift from what the
+  customer is actually charged at checkout.
+
+  Accepts:
+    - show_heading {Boolean} Render the section heading.
+
+  Usage:
+    {% render 'cfl-premium-steps', show_heading: true %}
+{% endcomment %}
+
+{%- liquid
+  assign consult = all_products['premium-client-color-profile']
+-%}
+
+<div class="cfl-premium-steps-wrapper">
+  {%- if show_heading -%}
+    <h2 class="cfl-section-heading">How Premium works</h2>
+    <p class="cfl-section-intro">
+      Premium starts with a conversation, not a checkout. Once your profile exists, ordering is
+      as quick as any other service we run.
+    </p>
+  {%- endif -%}
+
+  <ol class="cfl-premium-steps" role="list">
+    <li class="cfl-premium-step">
+      <span class="cfl-premium-step__num" aria-hidden="true">1</span>
+      <div class="cfl-premium-step__content">
+        <h3 class="cfl-premium-step__title">Book your color profile consult</h3>
+        <p class="cfl-premium-step__body">
+          A one-time session{% if consult != blank %}, {{ consult.price | money }}{% endif %}, in
+          person at the Tampa lab or over video. This is required before your first Premium
+          order — it is the only way we learn what your work is supposed to look like.
+        </p>
+      </div>
+    </li>
+
+    <li class="cfl-premium-step">
+      <span class="cfl-premium-step__num" aria-hidden="true">2</span>
+      <div class="cfl-premium-step__content">
+        <h3 class="cfl-premium-step__title">Bring examples of what you like</h3>
+        <p class="cfl-premium-step__body">
+          Images you would be happy to hand a client, and ideally a few you would not. Vague
+          direction produces a vague profile, so the more specific you can be about what you mean
+          by warm, flat, punchy, or clean, the closer your first order lands.
+        </p>
+      </div>
+    </li>
+
+    <li class="cfl-premium-step">
+      <span class="cfl-premium-step__num" aria-hidden="true">3</span>
+      <div class="cfl-premium-step__content">
+        <h3 class="cfl-premium-step__title">We build and keep your profile</h3>
+        <p class="cfl-premium-step__body">
+          We write up your color, contrast and file-naming preferences and keep them on file at
+          the lab. There is nothing for you to store or send us again — every future Premium
+          order is matched against it automatically.
+        </p>
+      </div>
+    </li>
+
+    <li class="cfl-premium-step">
+      <span class="cfl-premium-step__num" aria-hidden="true">4</span>
+      <div class="cfl-premium-step__content">
+        <h3 class="cfl-premium-step__title">Send film in, get finished scans back</h3>
+        <p class="cfl-premium-step__body">
+          Same drop-off and shipping as every other order. Your scans come back extra large,
+          corrected frame by frame, dust and scratches cleaned, named your way, and your
+          negatives cut and sleeved — ready to deliver without opening Lightroom.
+        </p>
+      </div>
+    </li>
+  </ol>
+</div>

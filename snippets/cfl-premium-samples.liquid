@@ -1,0 +1,94 @@
+{% comment %}
+  Before / after pairs: the standard scan against the Premium edit.
+
+  Built ahead of the images existing. Every pair is skipped unless BOTH of its
+  URLs are filled in, and if no pair is complete the snippet renders nothing at
+  all — so the section can be switched on early without ever putting a broken
+  image or an empty heading in front of a customer.
+
+  TO ADD SAMPLES
+  Upload the images in Shopify admin under Content > Files, copy each CDN URL,
+  and paste them into the pairs below. Use the same frame for both sides of a
+  pair — the point is the editing, and a different frame proves nothing. Then
+  enable the "Sample work" section on the Premium Processing page in the theme
+  editor.
+
+  Usage:
+    {% render 'cfl-premium-samples' %}
+{% endcomment %}
+
+{%- liquid
+  assign before_1 = ''
+  assign after_1 = ''
+  assign caption_1 = ''
+
+  assign before_2 = ''
+  assign after_2 = ''
+  assign caption_2 = ''
+
+  assign before_3 = ''
+  assign after_3 = ''
+  assign caption_3 = ''
+
+  assign befores = before_1 | append: '~' | append: before_2 | append: '~' | append: before_3 | split: '~'
+  assign afters = after_1 | append: '~' | append: after_2 | append: '~' | append: after_3 | split: '~'
+  assign captions = caption_1 | append: '~' | append: caption_2 | append: '~' | append: caption_3 | split: '~'
+
+  assign pair_count = 0
+  for b in befores
+    assign a = afters[forloop.index0]
+    if b != blank and a != blank
+      assign pair_count = pair_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if pair_count > 0 -%}
+  <div class="cfl-premium-samples">
+    <h2 class="cfl-section-heading">The same frame, both ways</h2>
+    <p class="cfl-section-intro">
+      Left is the scan as it comes off the Noritsu with in-scanner corrections. Right is the same
+      frame after hand editing against a client profile.
+    </p>
+
+    <ul class="cfl-premium-samples__list" role="list">
+      {%- for before_url in befores -%}
+        {%- liquid
+          assign after_url = afters[forloop.index0]
+          assign caption = captions[forloop.index0]
+        -%}
+        {%- if before_url != blank and after_url != blank -%}
+          <li class="cfl-premium-sample">
+            <figure class="cfl-premium-sample__figure">
+              <div class="cfl-premium-sample__pair">
+                <div class="cfl-premium-sample__side">
+                  <span class="cfl-premium-sample__tag">Standard</span>
+                  <img
+                    src="{{ before_url }}"
+                    alt="Standard develop and scan result{% if caption != blank %}, {{ caption }}{% endif %}"
+                    loading="lazy"
+                    width="800"
+                    height="533"
+                  >
+                </div>
+                <div class="cfl-premium-sample__side cfl-premium-sample__side--after">
+                  <span class="cfl-premium-sample__tag cfl-premium-sample__tag--after">Premium</span>
+                  <img
+                    src="{{ after_url }}"
+                    alt="Premium hand-edited result{% if caption != blank %}, {{ caption }}{% endif %}"
+                    loading="lazy"
+                    width="800"
+                    height="533"
+                  >
+                </div>
+              </div>
+              {%- if caption != blank -%}
+                <figcaption class="cfl-premium-sample__caption">{{ caption }}</figcaption>
+              {%- endif -%}
+            </figure>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}
