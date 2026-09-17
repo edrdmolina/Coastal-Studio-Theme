@@ -14,7 +14,10 @@
 
   STRIPS
   Frames are cut into strips of "Frames per strip", the way negatives come
-  back in a sleeve, and a new strip starts whenever one fills. Adding
+  back in a sleeve, and a new strip starts whenever one fills. The default is
+  12, not the 6 frames a real 35mm strip holds: at 6, the eight photographs
+  the home page launched with already split across two strips, when the
+  intent is one strip until the gallery has genuinely outgrown it. Adding
   photographs therefore makes the sheet taller rather than one strip ever
   longer. All strips live inside a single scroll container so they move
   together — see .cfl-ticker__sheet in cfl-components.css for why.
@@ -278,11 +281,11 @@
       "type": "range",
       "id": "frames_per_strip",
       "label": "Frames per strip",
-      "info": "When a strip is full, the next photograph starts a new strip below it. Real 35mm negatives come back cut into strips of 6.",
+      "info": "All photographs stay on one strip until it holds this many; the next one starts a new strip below it.",
       "min": 3,
-      "max": 12,
+      "max": 24,
       "step": 1,
-      "default": 6
+      "default": 12
     },
     {
       "type": "range",
