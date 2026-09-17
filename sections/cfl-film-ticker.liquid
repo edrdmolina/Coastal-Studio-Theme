@@ -41,6 +41,13 @@
   final strip, and the button would disable while the top strip still had
   photographs off screen.
 
+  KEYBOARD
+  The scrollport carries a tabindex, so the arrow keys move the film once it
+  has focus. cfl-film-ticker.js extends that to the whole document while the
+  strip is on screen, since people reach for the arrow keys without clicking
+  the strip first. The guards that keep it from stealing keys from search
+  fields and drawers are documented in that file.
+
   HOW IT SCALES
   Entirely in CSS, off a single height variable, using multipliers measured
   from the strip artwork. See the cfl-film-ticker block in cfl-components.css
@@ -49,6 +56,7 @@
 {% endcomment %}
 
 {{ 'cfl-components.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cfl-film-ticker.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .section-{{ section.id }}-padding {
