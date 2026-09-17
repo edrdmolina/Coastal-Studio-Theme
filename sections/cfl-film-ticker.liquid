@@ -1,0 +1,385 @@
+{% comment %}
+  A sleeve of film the visitor scrolls through, frame by frame.
+
+  The photographs sit in the black band of 35mm strips and the two scanner
+  buttons advance them one frame at a time. Nothing else on the site looks
+  like this, which is the point — it is the lab showing work the way the lab
+  sees it, on the light table.
+
+  ADDING PHOTOGRAPHS
+  Everything is managed in the theme editor. Each Frame block is one
+  photograph, with the photographer's name and a link — usually to their
+  Instagram or website, so the credit goes somewhere. Blocks without an image
+  are skipped, so a half-filled block never shows as a gap.
+
+  STRIPS
+  Frames are cut into strips of "Frames per strip", the way negatives come
+  back in a sleeve, and a new strip starts whenever one fills. Adding
+  photographs therefore makes the sheet taller rather than one strip ever
+  longer. All strips live inside a single scroll container so they move
+  together — see .cfl-ticker__sheet in cfl-components.css for why.
+
+  HOW IT SCROLLS
+  This is the theme's own <slider-component> (assets/global.js), not a bespoke
+  scroller. It tracks position, watches for resize, disables the buttons at
+  each end and moves exactly one frame per click; underneath it is a native
+  overflow-x container, so trackpad, touch swipe and arrow keys all work
+  without any code here.
+
+  The contract with <slider-component> is naming: the scroll container's id
+  must start with "Slider-", frames it measures must have ids starting
+  "Slide-", and the buttons must be name="previous" and name="next". Rename
+  any of those and the film silently stops responding.
+
+  Only frames in the FIRST strip get a Slide- id. The component decides when
+  to disable the next button by checking whether the last Slide- is visible,
+  and the first strip is always the longest — it fills before a second one
+  starts. Numbering every frame would make the last one a frame in a short
+  final strip, and the button would disable while the top strip still had
+  photographs off screen.
+
+  HOW IT SCALES
+  Entirely in CSS, off a single height variable, using multipliers measured
+  from the strip artwork. See the cfl-film-ticker block in cfl-components.css
+  — the geometry is explained there, and it is the only place those numbers
+  should be edited.
+{% endcomment %}
+
+{{ 'cfl-components.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign per_strip = section.settings.frames_per_strip
+
+  assign photo_count = 0
+  for block in section.blocks
+    if block.type == 'frame' and block.settings.image != blank
+      assign photo_count = photo_count | plus: 1
+    endif
+  endfor
+
+  comment
+    A strip with one photograph on it is not a strip, and slider-component
+    needs two frames before it will measure a step at all — below two it
+    returns without binding the buttons, leaving them inert. So below two this
+    renders nothing rather than something broken.
+  endcomment
+-%}
+
+{%- if photo_count >= 2 -%}
+  {%- comment -%}
+    Deliberately not .page-width. The strips are meant to run off both edges of
+    the screen; boxing them into the content column would put a hard cut end on
+    film that is supposed to continue past the frame.
+  {%- endcomment -%}
+  <div class="cfl-ticker-section color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="cfl-section-heading {{ section.settings.heading_size }}">
+        {{- section.settings.heading | escape -}}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.settings.intro != blank -%}
+      <p class="cfl-section-intro cfl-ticker-section__intro">{{ section.settings.intro | escape }}</p>
+    {%- endif -%}
+
+    <slider-component
+      class="cfl-ticker"
+      style="--cfl-ticker-max-h: {{ section.settings.strip_height }}rem;"
+    >
+      <div
+        id="Slider-{{ section.id }}"
+        class="cfl-ticker__viewport"
+        tabindex="0"
+        role="group"
+        aria-label="{{ section.settings.heading | default: 'Film gallery' | escape }}, scrollable film strips"
+      >
+        <div class="cfl-ticker__sheet">
+          {%- assign n = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'frame' and block.settings.image != blank -%}
+              {%- liquid
+                assign position_in_strip = n | modulo: per_strip
+
+                assign credit = block.settings.photographer | strip
+                assign link = block.settings.link
+
+                assign alt = block.settings.alt | strip
+                if alt == blank and credit != blank
+                  assign alt = 'Photograph by ' | append: credit
+                endif
+
+                comment
+                  Links typed as a full address are someone else's site — the
+                  photographer's — and open in a new tab so the visitor does not
+                  lose the store. Links picked from the store's own pages come
+                  through as relative paths and open in place.
+                endcomment
+                assign external = false
+                if link contains '://'
+                  assign external = true
+                endif
+              -%}
+
+              {%- if position_in_strip == 0 -%}
+                <ul class="cfl-ticker__film" role="list">
+              {%- endif -%}
+
+              <li
+                {% if n < per_strip %}
+                  id="Slide-{{ section.id }}-{{ n | plus: 1 }}"
+                {% endif %}
+                class="cfl-ticker__frame"
+                {{ block.shopify_attributes }}
+              >
+                {%- if link != blank -%}
+                  <a
+                    class="cfl-ticker__photo"
+                    href="{{ link }}"
+                    {% if external %}
+                      target="_blank" rel="noopener"
+                    {% endif %}
+                    {% if alt == blank %}
+                      aria-label="View photograph"
+                    {% endif %}
+                  >
+                {%- else -%}
+                  <div class="cfl-ticker__photo">
+                {%- endif -%}
+
+                {{
+                  block.settings.image
+                  | image_url: width: 900
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '300, 450, 600, 900',
+                    sizes: '38rem',
+                    alt: alt
+                }}
+
+                {%- if credit != blank -%}
+                  <span class="cfl-ticker__credit">
+                    {%- comment -%}
+                      Hidden from screen readers: the image's alt text already
+                      names the photographer, and reading it twice in a row is
+                      noise.
+                    {%- endcomment -%}
+                    <span aria-hidden="true">Photo by {{ credit | escape }}{% if external %} ↗{% endif %}</span>
+                  </span>
+                {%- endif -%}
+
+                {%- if link != blank -%}
+                  {%- if external -%}
+                    <span class="visually-hidden">(opens in a new tab)</span>
+                  {%- endif -%}
+                  </a>
+                {%- else -%}
+                  </div>
+                {%- endif -%}
+              </li>
+
+              {%- assign n = n | plus: 1 -%}
+              {%- assign strip_filled = n | modulo: per_strip -%}
+              {%- if strip_filled == 0 or n == photo_count -%}
+                </ul>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <div class="cfl-ticker__controls">
+        <button
+          type="button"
+          name="previous"
+          class="cfl-ticker__button"
+          aria-controls="Slider-{{ section.id }}"
+          aria-label="Previous frame"
+        >
+          <img
+            src="{{ section.settings.button_left | default: 'https://cdn.shopify.com/s/files/1/0585/6093/8038/files/ScannerButtonLeft.png?v=1754933785' }}"
+            alt=""
+            width="500"
+            height="500"
+            loading="lazy"
+          >
+        </button>
+
+        <button
+          type="button"
+          name="next"
+          class="cfl-ticker__button"
+          aria-controls="Slider-{{ section.id }}"
+          aria-label="Next frame"
+        >
+          <img
+            src="{{ section.settings.button_right | default: 'https://cdn.shopify.com/s/files/1/0585/6093/8038/files/ScannerButtonRight.png?v=1754933786' }}"
+            alt=""
+            width="500"
+            height="500"
+            loading="lazy"
+          >
+        </button>
+      </div>
+    </slider-component>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Film ticker",
+  "class": "section",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Photographs laid into 35mm film strips, scrolled with the two scanner buttons. Add a Frame block for each photograph. Needs at least two frames with images before it appears."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Landscapes in Emulsion"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "text",
+      "id": "intro",
+      "label": "Intro line",
+      "info": "Optional. A line of context under the heading."
+    },
+    {
+      "type": "range",
+      "id": "frames_per_strip",
+      "label": "Frames per strip",
+      "info": "When a strip is full, the next photograph starts a new strip below it. Real 35mm negatives come back cut into strips of 6.",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "strip_height",
+      "label": "Strip height on desktop",
+      "info": "The whole component scales from this — frame size and spacing follow it. Phones size themselves to the screen.",
+      "min": 24,
+      "max": 48,
+      "step": 1,
+      "unit": "rem",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "paragraph",
+      "content": "Leave blank to use the scanner buttons already on the store's CDN."
+    },
+    {
+      "type": "url",
+      "id": "button_left",
+      "label": "Left button image URL"
+    },
+    {
+      "type": "url",
+      "id": "button_right",
+      "label": "Right button image URL"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "frame",
+      "name": "Frame",
+      "limit": 50,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Photograph"
+        },
+        {
+          "type": "text",
+          "id": "photographer",
+          "label": "Photographer",
+          "info": "Shown on the photograph as \"Photo by …\". Leave blank to show no credit."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Where the photograph goes when clicked — the photographer's Instagram or website. Links to other sites open in a new tab."
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Description",
+          "info": "For screen readers and search. Name what is in the frame. If blank, \"Photograph by\" and the photographer's name is used."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Film ticker"
+    }
+  ]
+}
+{% endschema %}
