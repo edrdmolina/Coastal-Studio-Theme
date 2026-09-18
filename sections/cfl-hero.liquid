@@ -1,0 +1,222 @@
+{% comment %}
+  The home page hero: what the lab does, and proof of how it comes back.
+
+  Two columns on a desktop — the offer on the left, one photograph mounted in a
+  frame of 35mm film on the right. Below 750px it becomes one column with the
+  text first, so a phone shows the h1, the sentence and both buttons before
+  anything has to be scrolled.
+
+  WHY A SECTION AND NOT CUSTOM LIQUID
+  This replaces a custom_liquid block that carried the hero's markup inside
+  templates/index.json. That file is rewritten by the theme editor, so the
+  hero's wording lived somewhere it could be clobbered and could not be edited
+  without touching code. Everything here is a setting.
+
+  THE FILM FRAME
+  The photograph sits in a single frame of the same strip the film ticker runs
+  on, using the shared --cfl-film-ratio-* values in cfl-components.css. The
+  artwork is already downloaded for the ticker further down the page, so the
+  frame adds no bytes of its own.
+
+  SPEED
+  The photograph is almost certainly the page's largest contentful paint, so it
+  loads eagerly at high priority — the opposite of the ticker's frames, which
+  are lazy because they are below the fold. Keep it that way: making this lazy
+  would delay the one image that decides the page's LCP score.
+
+  If no image is chosen the hero renders as text alone rather than leaving an
+  empty frame, dropping the --split modifier so it falls back to the centred
+  column the Premium page still uses.
+{% endcomment %}
+
+{{ 'cfl-components.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="cfl-hero{% if section.settings.image != blank %} cfl-hero--split{% endif %}">
+    <div class="cfl-hero__text">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="cfl-hero__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- comment -%}
+        An h1, and the only one on the page. It carries the local-intent
+        wording the home page ranks on, so it stays text rather than becoming
+        part of the photograph.
+      {%- endcomment -%}
+      <h1 class="cfl-hero__title">{{ section.settings.heading | escape }}</h1>
+
+      {%- if section.settings.subheading != blank -%}
+        <p class="cfl-hero__sub">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.primary_label != blank or section.settings.secondary_label != blank -%}
+        <div class="cfl-hero__actions">
+          {%- if section.settings.primary_label != blank -%}
+            <a
+              class="button button--primary"
+              href="{{ section.settings.primary_link | default: routes.all_products_collection_url }}"
+            >
+              {{- section.settings.primary_label | escape -}}
+            </a>
+          {%- endif -%}
+
+          {%- if section.settings.secondary_label != blank -%}
+            <a
+              class="button button--secondary"
+              href="{{ section.settings.secondary_link | default: routes.all_products_collection_url }}"
+            >
+              {{- section.settings.secondary_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.image != blank -%}
+      <div class="cfl-hero__media">
+        <div class="cfl-hero__film">
+          {{
+            section.settings.image
+            | image_url: width: 1400
+            | image_tag:
+              loading: 'eager',
+              fetchpriority: 'high',
+              widths: '400, 600, 800, 1100, 1400',
+              sizes: '(min-width: 750px) 46vw, 92vw',
+              alt: section.settings.image_alt
+          }}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Film hero",
+  "class": "section",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The top of the home page: the offer on the left, one photograph mounted in film on the right. On phones the text comes first."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "info": "Optional small line above the headline."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Headline",
+      "info": "This is the page's main heading, and what search engines weight most. Keep the words people search for in it.",
+      "default": "Film Developing & Scanning in Tampa, Florida"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Supporting sentence",
+      "default": "C-41 and black & white film developed daily, with high-resolution scans delivered over Google Drive. Drop your film off in Tampa or mail it in from anywhere in the country — plus film, cameras and repairs from a lab that actually shoots."
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "Primary button",
+      "default": "Develop my film"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "Secondary button",
+      "default": "Buy film"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Photograph"
+    },
+    {
+      "type": "paragraph",
+      "content": "Shown in a frame of 35mm film. A landscape scan works best. Leave empty and the hero falls back to text only."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Photograph"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Description",
+      "info": "For screen readers and image search. Describe what is in the frame, not the file."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "Film hero"
+    }
+  ]
+}
+{% endschema %}
