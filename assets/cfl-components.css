@@ -2348,3 +2348,398 @@ html:not(.no-js) .cfl-scan-estimator__static {
     transition: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * cfl-film-ticker
+ * ------------------------------------------------------------------ */
+
+/*
+  A strip of 35mm film the visitor scrolls through frame by frame.
+
+  THE ONE RULE: every dimension here is a multiple of --cfl-ticker-h, the
+  height of the strip. Nothing is a fixed pixel size and nothing is a magic
+  number. Change that one value and the sprocket holes, the photographs and
+  the spacing between frames all resize together and stay in register.
+
+  The multipliers come from real 35mm, measured off the strip artwork, which is
+  1800 x 370 and repeats exactly every 1800px (measured, not guessed — the two
+  halves of the 3600px file are identical, so background-repeat: repeat-x tiles
+  it with no visible seam).
+
+  In the artwork, sprocket holes sit every 51px. A 35mm frame is 8 perforations
+  long, so the frame pitch is 8 x 51 = 408px — which is the 38mm pitch of real
+  film, and checks out against the frame numbers printed along the top edge of
+  the artwork, which fall 408px apart. Of that 38mm, 36mm is exposed image and
+  2mm is the unexposed gap between frames:
+
+      frame pitch    408 / 370 = 1.10270    38mm, 8 perforations
+      image width    386 / 370 = 1.04466    36mm
+      image height   258 / 370 = 0.69644    24mm
+
+  36 x 24mm is 3:2 — the shape a 35mm camera actually exposes, and the shape
+  most of what comes back from our scanners already is. That is the whole
+  reason the photographs sit in the strip without looking cropped.
+
+  A first pass at this used a 450px pitch, read off by eye from the artwork.
+  It was wrong by 42px per frame, which is why the photographs drifted out of
+  step with the printed frame numbers, and it made frames 5:3 so every 3:2 scan
+  lost a slice off its long edge. If the artwork is ever replaced, re-measure
+  the sprocket pitch and everything else follows from it.
+*/
+
+.cfl-ticker {
+  /*
+    The desktop size, and the only thing the theme editor sets. The floor is a
+    proportion of it rather than a fixed value so the component still scales
+    sensibly whatever the editor picks.
+  */
+  --cfl-ticker-max-h: 36rem;
+  --cfl-ticker-h: clamp(calc(var(--cfl-ticker-max-h) * 0.78), 24rem + 8vw, var(--cfl-ticker-max-h));
+
+  --cfl-ticker-pitch: calc(var(--cfl-ticker-h) * 1.1027);
+  --cfl-ticker-frame-w: calc(var(--cfl-ticker-h) * 1.04466);
+  --cfl-ticker-frame-h: calc(var(--cfl-ticker-h) * 0.69644);
+
+  /*
+    Blank film before the first photograph and after the last, so the strip
+    runs off both edges of the screen instead of stopping at a cut end.
+
+    Capped against the viewport as well as the strip, because the two need
+    different things. A leader of a whole frame looks right on a desktop and
+    swallows a phone: at 390px it filled the screen, so the component opened on
+    blank film with one photograph just off the right edge. The vw term keeps
+    the first frame on screen at small sizes; the strip-relative term stops the
+    leader growing without limit on a wide monitor.
+  */
+  --cfl-ticker-leader: min(calc(var(--cfl-ticker-h) * 0.35), 8vw);
+
+  /* Portra 800 strip, 1800 x 370 tile. See the measurements above. */
+  --cfl-ticker-strip: url('https://cdn.shopify.com/s/files/1/0585/6093/8038/files/filmstrip-ticker.png?v=1745420345');
+
+  display: block;
+  position: relative;
+
+  /*
+    Makes cqw inside this component mean "the width of the film's window". The
+    phone layout below centres frames with arithmetic on that width, and
+    neither of the obvious alternatives measures it: 100vw includes the page's
+    vertical scrollbar, and a percentage on the film's padding resolves against
+    the sheet of strips — which is as wide as the longest strip, not the screen.
+  */
+  container-type: inline-size;
+}
+
+/*
+  Phones view one frame at a time, centred.
+
+  On a wide screen several frames are visible at once, so aligning each one to
+  the left of the scrollport reads correctly — the strip is a strip, and you
+  are looking along it. A phone fits barely one frame, and there that same
+  alignment puts the photograph hard against the leader with its right-hand
+  side off the edge of the screen: you never see a whole picture.
+
+  Two changes fix it, and the second falls out of the first.
+
+  The height is driven by the viewport instead of the type scale, sized so a
+  frame is 90vw across. That leaves a sliver of the neighbouring frames showing
+  at each edge, which is what tells you the strip scrolls at all. It is capped
+  at the desktop height so this does not turn into a very tall strip on a
+  large phone or a small tablet.
+
+  The leader then becomes exactly the margin needed to centre a frame. Because
+  snapping measures from the leader, setting it to half the difference between
+  the screen and one frame pitch centres every frame in turn — including the
+  first, which still rests at scroll position zero, and the last, which lands
+  exactly at the end of the scroll range. Frames still advance one pitch at a
+  time; only where they come to rest has changed.
+*/
+@media screen and (max-width: 749px) {
+  .cfl-ticker {
+    /* 90cqw / 1.04466 — the height that makes a frame 90% of the window. */
+    --cfl-ticker-h: min(86.152cqw, var(--cfl-ticker-max-h));
+
+    /*
+      cqw, not vw or a percentage — see container-type on .cfl-ticker. An
+      earlier vw version put frames a scrollbar's width too far right, enough
+      to push the edge of the first frame out of view so the back button never
+      disabled.
+
+      Floored at zero so a frame wider than the window degrades to flush left
+      instead of a negative margin.
+    */
+    --cfl-ticker-leader: max(0px, calc((100cqw - var(--cfl-ticker-pitch)) / 2));
+  }
+}
+
+/*
+  The intro sits closer to the strip than the shared rule allows. The 4rem it
+  carries elsewhere is sized for a grid of cards below it; against a band of
+  film it reads as the heading having come loose from the thing it names.
+*/
+.cfl-ticker-section__intro {
+  margin-bottom: 2.4rem;
+}
+
+/* The window the film moves behind. */
+.cfl-ticker__viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /*
+    The film is the interface; a scrollbar under it reads as a browser artifact
+    stuck to the artwork. Scrolling stays available by every other means —
+    wheel, trackpad, swipe, arrow keys, and the two buttons.
+  */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  /*
+    Proximity rather than mandatory. Mandatory would make the blank leader
+    unreachable — the browser would refuse to rest anywhere that is not a
+    frame, so the film could never be seen running off the left edge. The
+    buttons scroll by exactly one pitch regardless, so frames stay aligned
+    whether or not the browser snaps.
+  */
+  scroll-snap-type: x proximity;
+
+  /*
+    Snapping measures from here, not from the edge of the scroller, which puts
+    the leader outside the snap grid instead of inside it. Without this the
+    browser snapped straight past the leader on load — the strip opened already
+    scrolled by one leader's width, so the blank film was never visible and the
+    back button could never reach the zero position that disables it.
+
+    With it, frame 0 snaps at 0 and frame i at exactly i x pitch.
+  */
+  scroll-padding-inline-start: var(--cfl-ticker-leader);
+
+  /*
+    A horizontal swipe here is for the film, not for the browser's back
+    gesture, which is otherwise easy to trigger by accident on a trackpad.
+  */
+  overscroll-behavior-x: contain;
+}
+
+.cfl-ticker__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+  The negative sleeve: every strip, stacked, inside ONE scroll container.
+
+  That single container is the design decision the multi-strip layout rests
+  on. Because all strips share one scroll position they move as a sheet — a
+  swipe on any strip, the buttons, and the keyboard all advance every strip
+  together, frame columns stay lined up, and <slider-component> keeps working
+  unmodified. Separate scrollers per strip would each need their own buttons,
+  or custom code to keep them in sync, and would drift apart the first time
+  someone swiped just one.
+
+  Width is the longest strip; the shorter last strip is stretched to match, so
+  it carries on as blank film past its final photograph, exactly as a part-used
+  row does on a real sleeve.
+*/
+.cfl-ticker__sheet {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 100%;
+  row-gap: calc(var(--cfl-ticker-h) * 0.06);
+}
+
+/*
+  The film itself. This, not the viewport, carries the strip artwork: a scroll
+  container's background is painted against its own box and would sit still
+  while the frames moved over it. On the content it scrolls with the frames,
+  which is the whole illusion.
+*/
+.cfl-ticker__film {
+  display: flex;
+  align-items: stretch;
+  margin: 0;
+  padding-inline: var(--cfl-ticker-leader);
+  padding-block: 0;
+  list-style: none;
+
+  height: var(--cfl-ticker-h);
+  background-image: var(--cfl-ticker-strip);
+  background-repeat: repeat-x;
+  background-position: left center;
+
+  /*
+    Height-locked, width-free: the tile keeps its aspect ratio and repeats for
+    however long the strip happens to be. Stretching it to a set width would
+    squash the sprocket holes by a different amount for every image count.
+  */
+  background-size: auto 100%;
+}
+
+.cfl-ticker__frame {
+  flex: 0 0 var(--cfl-ticker-pitch);
+  width: var(--cfl-ticker-pitch);
+
+  /*
+    Start, not centre. Snap positions then fall on exact multiples of the
+    pitch, so a click, a swipe and a keyboard scroll all come to rest on the
+    same grid and the frames cannot drift out of step with each other. Centring
+    puts every stop at a constant offset from that grid instead, which survives
+    one click and then compounds.
+  */
+  scroll-snap-align: start;
+
+  /*
+    Centring the photograph in its pitch is what produces the unexposed gap
+    between frames: the image is 36mm inside a 38mm cell, so 1mm of bare film
+    falls either side on its own. The vertical centring lands it in the black
+    band, because the band is centred on the strip in the artwork too.
+  */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfl-ticker__photo {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: var(--cfl-ticker-frame-w);
+  height: var(--cfl-ticker-frame-h);
+  color: #fff;
+  text-decoration: none;
+}
+
+.cfl-ticker__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  /*
+    Both dimensions are set explicitly, and object-fit does the cropping. An
+    earlier version left width auto and let the intrinsic ratio decide, which
+    quietly made every frame a different width as soon as the photographs were
+    not all the same shape — a 3:2 scan filled its cell and a 4:3 one left a
+    black wedge down the side of the frame.
+  */
+  object-fit: cover;
+  transition: filter 0.2s ease;
+}
+
+a.cfl-ticker__photo:hover img {
+  filter: brightness(1.08);
+}
+
+a.cfl-ticker__photo:focus-visible {
+  outline: 0.2rem solid #fff;
+  outline-offset: -0.4rem;
+}
+
+/*
+  The photographer's credit, laid on the photograph rather than under it.
+  Everything under a frame is sprocket holes and edge printing, and a caption
+  that only appeared on hover would never be seen on a phone, which is where
+  most people meet this. Always visible, small, and on a scrim so it reads over
+  a bright sky as well as a dark one.
+*/
+.cfl-ticker__credit {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  max-width: calc(100% - 1.2rem);
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.3rem;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+  Inline-flex so the arrow sits on the text's optical centre rather than its
+  baseline, which is where a glyph would have sat.
+*/
+.cfl-ticker__credit > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+/*
+  Sized in em and stroked in currentColor, so it tracks the credit's size and
+  colour the way the character it replaced was supposed to.
+*/
+.cfl-ticker__arrow {
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- Controls ---- */
+
+.cfl-ticker__controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  margin-top: 1.6rem;
+}
+
+.cfl-ticker__button {
+  background: none;
+  border: 0;
+  padding: 1.2rem;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.cfl-ticker__button img {
+  display: block;
+  width: clamp(5.4rem, 7vw, 8.5rem);
+  height: auto;
+  transition: transform 0.1s ease;
+}
+
+.cfl-ticker__button:active img {
+  transform: scale(0.88);
+}
+
+/*
+  Dimmed rather than hidden at the ends of the strip. The pair of buttons is
+  the only affordance this component has; removing one of them mid-interaction
+  would move the other and leave the visitor clicking empty space.
+*/
+.cfl-ticker__button[disabled] {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.cfl-ticker__button[disabled]:active img {
+  transform: none;
+}
+
+.cfl-ticker__button:focus-visible {
+  outline: 0.2rem solid rgb(var(--color-foreground));
+  outline-offset: 0.2rem;
+  border-radius: 0.4rem;
+}
+
+@media (prefers-reduced-motion) {
+  .cfl-ticker__viewport {
+    scroll-behavior: auto;
+  }
+
+  .cfl-ticker__button img,
+  .cfl-ticker__photo img {
+    transition: none;
+  }
+}
