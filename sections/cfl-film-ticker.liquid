@@ -188,7 +188,21 @@
                       names the photographer, and reading it twice in a row is
                       noise.
                     {%- endcomment -%}
-                    <span aria-hidden="true">Photo by {{ credit | escape }}{% if external %} ↗{% endif %}</span>
+                    <span aria-hidden="true">
+                      Photo by {{ credit | escape }}
+                      {%- if external -%}
+                        {%- comment -%}
+                          Drawn, not typed. The obvious character for this,
+                          U+2197, is emoji-capable: iOS renders it as a blue
+                          glossy emoji tile rather than a thin arrow, ignoring
+                          the caption's colour and weight. An inline SVG looks
+                          the same on every device and inherits both.
+                        {%- endcomment -%}
+                        <svg class="cfl-ticker__arrow" viewBox="0 0 10 10" focusable="false" aria-hidden="true">
+                          <path d="M2.4 7.6 7.4 2.6M3.7 2.6H7.4V6.3" />
+                        </svg>
+                      {%- endif -%}
+                    </span>
                   </span>
                 {%- endif -%}
 

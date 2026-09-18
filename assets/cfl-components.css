@@ -2659,6 +2659,31 @@ a.cfl-ticker__photo:focus-visible {
   text-overflow: ellipsis;
 }
 
+/*
+  Inline-flex so the arrow sits on the text's optical centre rather than its
+  baseline, which is where a glyph would have sat.
+*/
+.cfl-ticker__credit > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+/*
+  Sized in em and stroked in currentColor, so it tracks the credit's size and
+  colour the way the character it replaced was supposed to.
+*/
+.cfl-ticker__arrow {
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* ---- Controls ---- */
 
 .cfl-ticker__controls {
