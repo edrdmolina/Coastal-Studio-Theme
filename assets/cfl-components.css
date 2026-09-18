@@ -48,6 +48,17 @@
     take the reading brown at 8.00:1.
   */
   --cfl-link: var(--cfl-accent-dark);
+
+  /*
+    35mm geometry, shared by the film ticker and the hero's film frame so the
+    two cannot drift apart. Measured from the strip artwork: sprocket holes
+    every 51px, a frame 8 perforations long, of which 36mm of 38mm is exposed
+    image. The long comment above the cfl-film-ticker block explains how.
+  */
+  --cfl-film-ratio-pitch: 1.1027;
+  --cfl-film-ratio-frame-w: 1.04466;
+  --cfl-film-ratio-frame-h: 0.69644;
+  --cfl-film-strip: url('https://cdn.shopify.com/s/files/1/0585/6093/8038/files/filmstrip-ticker.png?v=1745420345');
 }
 
 /* ------------------------------------------------------------------ *
@@ -1925,6 +1936,14 @@ html:not(.no-js) .cfl-scan-estimator__static {
   weight the old rich-text hero had.
 */
 
+/*
+  Shared by two heroes with different shapes: the home page's split layout, and
+  the Premium page, which is still a centred column of text written inline in
+  its template. Anything two-column below is behind the --split modifier for
+  that reason — applied without it, the grid would deal the Premium page's
+  heading, paragraph and buttons into columns, and widen its measure past
+  comfortable reading.
+*/
 .cfl-hero {
   max-width: 82rem;
   margin: 0 auto;
@@ -1932,17 +1951,44 @@ html:not(.no-js) .cfl-scan-estimator__static {
   text-align: center;
 }
 
+.cfl-hero--split {
+  max-width: 124rem;
+  display: grid;
+  gap: clamp(2.8rem, 4vw, 5.6rem);
+}
+
+/*
+  Two columns once there is room. Below that the text stays first in the source
+  and on the screen, so the h1 and the offer are what a phone shows before
+  anything is scrolled — the photograph follows as proof.
+*/
+@media screen and (min-width: 750px) {
+  .cfl-hero--split {
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+    align-items: center;
+    text-align: left;
+  }
+}
+
+.cfl-hero__eyebrow {
+  margin: 0 0 1.2rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cfl-accent-dark);
+}
+
 .cfl-hero__title {
-  margin: 0 0 1.4rem;
+  margin: 0 0 1.6rem;
   font-family: var(--font-heading-family);
-  font-size: calc(var(--font-heading-scale) * 3.6rem);
-  line-height: 1.15;
+  font-size: clamp(3.4rem, 1.2rem + 3.4vw, 5.6rem);
+  line-height: 1.08;
 }
 
 .cfl-hero__sub {
-  margin: 0 auto 2.4rem;
-  max-width: 62ch;
-  font-size: 1.7rem;
+  margin: 0 auto 2.8rem;
+  max-width: 48ch;
+  font-size: clamp(1.6rem, 1.45rem + 0.3vw, 1.9rem);
   line-height: 1.6;
 }
 
@@ -1953,14 +1999,53 @@ html:not(.no-js) .cfl-scan-estimator__static {
   justify-content: center;
 }
 
-@media screen and (max-width: 749px) {
-  .cfl-hero__title {
-    font-size: calc(var(--font-heading-scale) * 2.6rem);
+@media screen and (min-width: 750px) {
+  .cfl-hero--split .cfl-hero__sub {
+    margin-inline: 0;
   }
 
-  .cfl-hero__sub {
-    font-size: 1.5rem;
+  .cfl-hero--split .cfl-hero__actions {
+    justify-content: flex-start;
   }
+}
+
+/*
+  The photograph, mounted in a single frame of the same film the ticker runs
+  on. It reuses the strip artwork already loaded further down the page, so the
+  frame costs no bytes of its own, and the shared ratios keep it identical to
+  a ticker frame.
+*/
+.cfl-hero__media {
+  max-width: 54rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cfl-hero__film {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* One frame pitch wide by one strip height tall. */
+  aspect-ratio: var(--cfl-film-ratio-pitch);
+
+  background-image: var(--cfl-film-strip);
+  background-repeat: repeat-x;
+  background-position: left center;
+  background-size: auto 100%;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.16);
+}
+
+.cfl-hero__film img {
+  display: block;
+
+  /*
+    Percentages of the frame rather than of the strip height: 36mm of the
+    38mm pitch across, and the exposed band down.
+  */
+  width: calc(var(--cfl-film-ratio-frame-w) / var(--cfl-film-ratio-pitch) * 100%);
+  height: calc(var(--cfl-film-ratio-frame-h) * 100%);
+  object-fit: cover;
 }
 
 /* ------------------------------------------------------------------ *
@@ -2396,9 +2481,9 @@ html:not(.no-js) .cfl-scan-estimator__static {
   --cfl-ticker-max-h: 36rem;
   --cfl-ticker-h: clamp(calc(var(--cfl-ticker-max-h) * 0.78), 24rem + 8vw, var(--cfl-ticker-max-h));
 
-  --cfl-ticker-pitch: calc(var(--cfl-ticker-h) * 1.1027);
-  --cfl-ticker-frame-w: calc(var(--cfl-ticker-h) * 1.04466);
-  --cfl-ticker-frame-h: calc(var(--cfl-ticker-h) * 0.69644);
+  --cfl-ticker-pitch: calc(var(--cfl-ticker-h) * var(--cfl-film-ratio-pitch));
+  --cfl-ticker-frame-w: calc(var(--cfl-ticker-h) * var(--cfl-film-ratio-frame-w));
+  --cfl-ticker-frame-h: calc(var(--cfl-ticker-h) * var(--cfl-film-ratio-frame-h));
 
   /*
     Blank film before the first photograph and after the last, so the strip
@@ -2414,7 +2499,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
   --cfl-ticker-leader: min(calc(var(--cfl-ticker-h) * 0.35), 8vw);
 
   /* Portra 800 strip, 1800 x 370 tile. See the measurements above. */
-  --cfl-ticker-strip: url('https://cdn.shopify.com/s/files/1/0585/6093/8038/files/filmstrip-ticker.png?v=1745420345');
+  --cfl-ticker-strip: var(--cfl-film-strip);
 
   display: block;
   position: relative;
