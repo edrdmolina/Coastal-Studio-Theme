@@ -76,12 +76,30 @@
             "alt": ""
           }
         },
+        "frame_RyxFyJ": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/005.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
         "frame_2": {
           "type": "frame",
           "settings": {
             "image": "shopify://shop_images/000128890007_Large_db8c8ff1-65b8-41ba-9046-bdb8f25527fa.jpg",
             "photographer": "Eddy Molina",
             "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_L7aEDK": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/003.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
             "alt": ""
           }
         },
@@ -94,12 +112,30 @@
             "alt": ""
           }
         },
+        "frame_qnAkKt": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/002_1.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
         "frame_NBk47V": {
           "type": "frame",
           "settings": {
             "image": "shopify://shop_images/YellowstoneRiver.jpg",
             "photographer": "Eddy Molina",
             "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_yWRq6W": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/006.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
             "alt": ""
           }
         },
@@ -112,12 +148,30 @@
             "alt": ""
           }
         },
+        "frame_86i3N8": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/002.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
         "frame_RDBiLn": {
           "type": "frame",
           "settings": {
             "image": "shopify://shop_images/YellowstoneBison.jpg",
             "photographer": "Eddy Molina",
             "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_aRw8ni": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/004.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
             "alt": ""
           }
         },
@@ -133,18 +187,24 @@
       },
       "block_order": [
         "frame_1",
+        "frame_RyxFyJ",
         "frame_2",
+        "frame_L7aEDK",
         "frame_4",
+        "frame_qnAkKt",
         "frame_NBk47V",
+        "frame_yWRq6W",
         "frame_HmQTMQ",
+        "frame_86i3N8",
         "frame_RDBiLn",
+        "frame_aRw8ni",
         "frame_EWz49B"
       ],
       "settings": {
         "heading": "Landscapes on film",
         "heading_size": "h1",
         "intro": "",
-        "frames_per_strip": 12,
+        "frames_per_strip": 24,
         "strip_height": 36,
         "button_left": "",
         "button_right": "",
