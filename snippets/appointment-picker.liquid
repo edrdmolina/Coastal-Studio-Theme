@@ -1,0 +1,96 @@
+{% comment %}
+  Day and time picker for bookable services (replaces the BookEasy widget).
+
+  The customer picks a day, then a time, then uses the normal Add to cart
+  button. The choice rides along as line item properties, so it shows in the
+  cart, at checkout and on the order:
+    - Appointment          "Thu, Oct 30, 2026 at 11:30 AM" (visible)
+    - _appointment_start   ISO time with offset, e.g. 2026-10-30T11:30:00-04:00
+    - _appointment_end     same, start + slot length
+    - _calendar_id         which Google Calendar the booking belongs in
+  Nothing touches the calendar here. The Shopify Flow "Order paid" workflow
+  sends paid orders to the Apps Script in booking/apps-script, which creates
+  the event. Unpaid carts never hold a slot.
+
+  Open times come from the block settings. Busy times come from the Apps
+  Script (`settings.booking_script_url`), fetched once when the picker nears
+  the viewport. If that URL is blank or the request fails, the picker still
+  offers the times from the block's hours and says it couldn't check them, so
+  a Google outage doesn't stop Take-5 sales. A clash is caught when the order
+  is paid: the script flags the event and emails the owner.
+
+  Only rendered by sections/main-product.liquid for products in the block's
+  product list, so the CSS and JS below load on those pages and nowhere else.
+
+  Accepts:
+    - block {Object} The appointment_picker block. Required.
+    - product {Object} The product being viewed. Required.
+    - product_form_id {String} id of the product form the inputs belong to.
+
+  Usage:
+    {% render 'appointment-picker', block: block, product: product, product_form_id: product_form_id %}
+{% endcomment %}
+
+{{ 'component-appointment-picker.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'appointment-picker.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign bs = block.settings
+  assign day_keys = 'sun,mon,tue,wed,thu,fri,sat' | split: ','
+  assign picker_id = 'AppointmentPicker-' | append: block.id
+  assign timezone = settings.booking_timezone | strip | default: 'America/New_York'
+-%}
+
+<appointment-picker
+  id="{{ picker_id }}"
+  class="appointment-picker"
+  data-form-id="{{ product_form_id }}"
+  {{ block.shopify_attributes }}
+>
+  <script type="application/json" data-appointment-config>
+    {
+      "timezone": {{ timezone | json }},
+      "scriptUrl": {{ settings.booking_script_url | strip | json }},
+      "calendarId": {{ bs.calendar_id | strip | json }},
+      "slotMinutes": {{ bs.slot_minutes | json }},
+      "bufferMinutes": {{ bs.buffer_minutes | json }},
+      "daysAhead": {{ bs.days_ahead | json }},
+      "noticeHours": {{ bs.notice_hours | json }},
+      "hours": [
+        {%- for key in day_keys -%}
+          {%- assign open_id = key | append: '_open' -%}
+          {%- assign close_id = key | append: '_close' -%}
+          [{{ bs[open_id] | json }}, {{ bs[close_id] | json }}]{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+
+  <fieldset class="appointment-picker__fieldset">
+    <legend class="form__label appointment-picker__legend">
+      {{- bs.heading | default: 'Choose a day and time' | escape -}}
+    </legend>
+
+    <div class="appointment-picker__days" role="group" aria-label="Day" data-days></div>
+    <div class="appointment-picker__slots" role="group" aria-label="Time" data-slots>
+      <noscript>
+        <p class="appointment-picker__message">Please turn on JavaScript to pick an appointment time.</p>
+      </noscript>
+    </div>
+  </fieldset>
+
+  <p class="appointment-picker__summary" aria-live="polite" data-summary></p>
+  <p class="appointment-picker__message" role="status" data-message hidden></p>
+  {%- if bs.note != blank -%}
+    <p class="appointment-picker__note caption-large">{{ bs.note | escape }}</p>
+  {%- endif -%}
+
+  {%- comment -%}
+    Disabled until a time is chosen, so the form can't submit half a booking.
+    `form=` ties them to the product form even though they sit outside it.
+  {%- endcomment -%}
+  <input type="hidden" name="properties[Appointment]" form="{{ product_form_id }}" data-prop="label" disabled>
+  <input type="hidden" name="properties[_appointment_start]" form="{{ product_form_id }}" data-prop="start" disabled>
+  <input type="hidden" name="properties[_appointment_end]" form="{{ product_form_id }}" data-prop="end" disabled>
+  <input type="hidden" name="properties[_calendar_id]" form="{{ product_form_id }}" data-prop="calendar" disabled>
+</appointment-picker>

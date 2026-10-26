@@ -1465,5 +1465,27 @@
         "default": "scheme-1"
       }
     ]
+  },
+  {
+    "name": "Appointment booking",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Shared by every Appointment picker block on product pages. Setup guide: booking/README.md in the theme's GitHub repo."
+      },
+      {
+        "type": "url",
+        "id": "booking_script_url",
+        "label": "Apps Script web app URL",
+        "info": "The Web app URL from Deploy → Manage deployments in Apps Script. It ends in /exec. Leave blank to offer times from the booking hours without checking the calendar."
+      },
+      {
+        "type": "text",
+        "id": "booking_timezone",
+        "label": "Store time zone",
+        "default": "America/New_York",
+        "info": "Appointment times are shown and saved in this time zone. Use the same zone as Settings → General in Shopify admin."
+      }
+    ]
   }
 ]

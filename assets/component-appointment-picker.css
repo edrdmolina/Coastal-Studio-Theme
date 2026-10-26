@@ -1,0 +1,127 @@
+/* Appointment picker (snippets/appointment-picker.liquid). Borrows the variant pill look. */
+.appointment-picker {
+  display: block;
+  margin: 1.5rem 0 1rem;
+}
+
+.appointment-picker__fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.appointment-picker__legend {
+  padding: 0;
+  margin-bottom: 0.8rem;
+}
+
+.appointment-picker__days {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 0.2rem 0.2rem 0.8rem;
+  margin: 0 -0.2rem;
+  scrollbar-width: thin;
+}
+
+.appointment-picker__day,
+.appointment-picker__slot {
+  font-family: inherit;
+  color: rgb(var(--color-foreground));
+  background-color: rgb(var(--color-background));
+  border: var(--variant-pills-border-width) solid rgba(var(--color-foreground), var(--variant-pills-border-opacity));
+  border-radius: var(--variant-pills-radius);
+  cursor: pointer;
+  transition: border-color var(--duration-short) ease, background-color var(--duration-short) ease;
+}
+
+.appointment-picker__day {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 6.4rem;
+  padding: 0.8rem 0.6rem;
+  line-height: 1.1;
+}
+
+.appointment-picker__weekday,
+.appointment-picker__month {
+  font-size: 1.2rem;
+  letter-spacing: 0.06rem;
+  text-transform: uppercase;
+}
+
+.appointment-picker__date {
+  font-family: var(--font-heading-family);
+  font-size: 2.4rem;
+}
+
+.appointment-picker__slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.6rem, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+}
+
+.appointment-picker__slot {
+  min-height: 4.4rem;
+  padding: 0.8rem;
+  font-size: 1.4rem;
+  letter-spacing: 0.04rem;
+}
+
+.appointment-picker__day:hover,
+.appointment-picker__slot:hover {
+  border-color: rgb(var(--color-foreground));
+}
+
+.appointment-picker__day[aria-pressed='true'],
+.appointment-picker__slot[aria-pressed='true'] {
+  color: rgb(var(--color-background));
+  background-color: rgb(var(--color-foreground));
+  border-color: rgb(var(--color-foreground));
+}
+
+.appointment-picker__day:disabled {
+  cursor: default;
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.appointment-picker__day:focus-visible,
+.appointment-picker__slot:focus-visible {
+  outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
+  outline-offset: 0.2rem;
+  box-shadow: 0 0 0 0.3rem rgb(var(--color-background));
+}
+
+.appointment-picker__slots .appointment-picker__message {
+  grid-column: 1 / -1;
+}
+
+.appointment-picker__message,
+.appointment-picker__note {
+  margin: 0.8rem 0 0;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: rgba(var(--color-foreground), 0.8);
+}
+
+.appointment-picker__summary {
+  margin: 1.2rem 0 0;
+  font-size: 1.6rem;
+}
+
+.appointment-picker__summary:empty {
+  display: none;
+}
+
+/* BookEasy's own button, if its embed still injects one, on a product this picker has taken over. */
+.bookeasy-btn {
+  display: none !important;
+}
