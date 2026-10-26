@@ -24,6 +24,17 @@
   are lazy because they are below the fold. Keep it that way: making this lazy
   would delay the one image that decides the page's LCP score.
 
+  The sizes attribute is worked out from cfl-components.css, so change it if
+  the hero's widths change. Remember that 1rem is 13px here (body scale 130%).
+  The photo fills 36/38ths (~94.7%) of the film frame, and the frame is capped
+  at 54rem, so the photo never draws wider than ~665px. Below 750px the frame
+  spans the viewport less 1.5rem of padding each side: 95vw - 37px. From 750px
+  it is the right-hand grid column, (viewport - padding - 4vw gap) / 2.04,
+  which comes to about 44.6vw - 18px until the cap at ~1532px. The earlier
+  46vw/92vw overstated every width, so phones and wide screens fetched a
+  bigger file than they drew. The 550 and 700 widths exist so a ~1.75x phone
+  (PageSpeed's test device draws it ~620px wide) gets a 700 rather than an 800.
+
   If no image is chosen the hero renders as text alone rather than leaving an
   empty frame, dropping the --split modifier so it falls back to the centred
   column the Premium page still uses.
@@ -95,8 +106,8 @@
             | image_tag:
               loading: 'eager',
               fetchpriority: 'high',
-              widths: '400, 600, 800, 1100, 1400',
-              sizes: '(min-width: 750px) 46vw, 92vw',
+              widths: '400, 550, 700, 900, 1100, 1400',
+              sizes: '(min-width: 1532px) 665px, (min-width: 750px) calc(44.6vw - 18px), calc(95vw - 37px)',
               alt: section.settings.image_alt
           }}
         </div>

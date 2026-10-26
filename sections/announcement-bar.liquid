@@ -1,7 +1,16 @@
 {%- unless request.path contains 'disposable-vending' -%}
 
-{{ 'component-slideshow.css' | asset_url | stylesheet_tag }}
-{{ 'component-slider.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  The slideshow and slider styles are only for the rotating version (two or
+  more announcements). They stay render-blocking because that bar is the first
+  thing on screen at every width; without them the slides would stack and then
+  collapse into one line, shifting the whole page. A single announcement needs
+  neither, so it doesn't load them.
+{%- endcomment -%}
+{%- if section.blocks.size > 1 -%}
+  {{ 'component-slideshow.css' | asset_url | stylesheet_tag }}
+  {{ 'component-slider.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
 
 {%- liquid
   assign social_icons = true
@@ -16,8 +25,18 @@
   endif
 -%}
 
+{%- comment -%}
+  The bar's social icons are hidden below 990px (base.css), so the media query
+  keeps phones from waiting on this file before their first paint; desktop
+  still blocks on it, as the icons are on screen there. The footer links the
+  same file unconditionally for its own icons.
+{%- endcomment -%}
 {% if social_icons %}
-  {{ 'component-list-social.css' | asset_url | stylesheet_tag }}
+  <link
+    rel="stylesheet"
+    href="{{ 'component-list-social.css' | asset_url }}"
+    media="screen and (min-width: 990px)"
+  >
 {% endif %}
 
 <div
