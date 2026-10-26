@@ -52,7 +52,8 @@ Per the README's maintenance boundaries: confirm each app's production dependenc
 
 ## P2 — Images
 
-- [ ] **`LongChurchRoad.jpg`** (102 KiB, est. 60 KiB saving): served at 800×534 but displayed at 618×417, and under-compressed. Use `image_url` with a proper `widths`/`sizes` set via `image_tag` so the browser picks the right size; Shopify's CDN will serve WebP/AVIF automatically.
+- [x] **`LongChurchRoad.jpg`** (102 KiB, est. 60 KiB saving): served at 800×534 but displayed at 618×417, and under-compressed. Use `image_url` with a proper `widths`/`sizes` set via `image_tag` so the browser picks the right size; Shopify's CDN will serve WebP/AVIF automatically.
+  - Done: `sections/cfl-hero.liquid` already used `image_url | image_tag` with `widths`, but its `sizes` (`(min-width: 750px) 46vw, 92vw`) overstated the drawn width (it ignored the 54rem frame cap, the 36/38 photo-in-frame ratio, and that 1rem is 13px here). `sizes` is now measured from `cfl-components.css`, and 550/700 widths were added so PageSpeed's ~1.75x phone gets a 700w file instead of 800w. Still eager with `fetchpriority=high`. Compression/format is Shopify's CDN (WebP/AVIF automatically); nothing to change there.
 - [ ] **Popular Services grid images** in `templates/index.json` (`ul.cfl-services__grid … img`): `Buy_Film_4x6-01.jpg` (78 KiB, 51 KiB saving) and `StandardC….jpg` (50 KiB, 23 KiB saving). Check how the custom markup outputs these images; if the URLs are hard-coded or use a single size, switch to `image_url | image_tag` with `widths: '300, 450, 600'` and an accurate `sizes` attribute (4-up desktop, 2-up tablet, 1-up mobile per the README breakpoints). Add `loading="lazy"` to cards below the fold.
 
 ## P3 — Smaller clean-up
