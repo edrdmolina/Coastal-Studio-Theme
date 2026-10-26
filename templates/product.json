@@ -48,6 +48,35 @@
             "swatch_shape": "circle"
           }
         },
+        "appointment_picker": {
+          "type": "appointment_picker",
+          "settings": {
+            "product_list": [
+              "quickie"
+            ],
+            "heading": "Choose a day and time",
+            "note": "Your appointment is confirmed once your order is paid.",
+            "mon_open": "15:00",
+            "mon_close": "17:00",
+            "tue_open": "15:00",
+            "tue_close": "17:00",
+            "wed_open": "closed",
+            "wed_close": "17:00",
+            "thu_open": "15:00",
+            "thu_close": "17:00",
+            "fri_open": "15:00",
+            "fri_close": "17:00",
+            "sat_open": "closed",
+            "sat_close": "17:00",
+            "sun_open": "closed",
+            "sun_close": "17:00",
+            "slot_minutes": 30,
+            "buffer_minutes": 0,
+            "days_ahead": 21,
+            "notice_hours": 2,
+            "calendar_id": ""
+          }
+        },
         "quantity_selector": {
           "type": "quantity_selector",
           "settings": {}
@@ -57,35 +86,6 @@
           "settings": {
             "show_dynamic_checkout": true,
             "show_gift_card_recipient": true
-          }
-        },
-        "appointment_picker": {
-          "type": "appointment_picker",
-          "settings": {
-            "product_list": [
-              "quickie"
-            ],
-            "heading": "Choose a day and time",
-            "note": "Your appointment is confirmed once your order is paid.",
-            "mon_open": "closed",
-            "mon_close": "17:00",
-            "sun_open": "closed",
-            "sun_close": "17:00",
-            "slot_minutes": 30,
-            "buffer_minutes": 0,
-            "days_ahead": 21,
-            "notice_hours": 2,
-            "calendar_id": "",
-            "tue_open": "10:00",
-            "tue_close": "17:00",
-            "wed_open": "10:00",
-            "wed_close": "17:00",
-            "thu_open": "10:00",
-            "thu_close": "17:00",
-            "fri_open": "10:00",
-            "fri_close": "17:00",
-            "sat_open": "10:00",
-            "sat_close": "17:00"
           }
         }
       },
@@ -102,6 +102,7 @@
         "buy_buttons"
       ],
       "settings": {
+        "show_label_upsell": true,
         "enable_sticky_info": true,
         "color_scheme": "background-1",
         "media_size": "small",
@@ -141,7 +142,12 @@
       "blocks": {
         "judge_me_reviews_review_widget_T7rcRa": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
-          "settings": {}
+          "settings": {
+            "review_data": "sample_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
         }
       },
       "block_order": [
