@@ -270,9 +270,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     {{ 'base.css' | asset_url | stylesheet_tag }}
     {{ 'cfl-components.css' | asset_url | stylesheet_tag }}
 
-    {%- unless settings.type_body_font.system? -%}
-      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
-    {%- endunless -%}
+    {%- comment -%}
+      Body text is set in the self-hosted OpenSans Semibold (see base.css), so
+      that is the file to fetch early. The theme-settings body font is only a
+      fallback behind it; preloading it spent bandwidth on a font never shown.
+    {%- endcomment -%}
+    <link rel="preload" as="font" href="{{ 'OpenSans-Semibold.woff2' | asset_url }}" type="font/woff2" crossorigin>
+
     {%- unless settings.type_header_font.system? -%}
       <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
     {%- endunless -%}

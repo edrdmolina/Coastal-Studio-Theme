@@ -3512,15 +3512,18 @@ details-disclosure > details {
 @font-face {
   font-family: "Filicudi Solid";
   src: url({{ "./Filicudi_Solid.woff2" }}) format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "OpenSans Semibold";
   src: url("./OpenSans-Semibold.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Seawave";
   src: url({{ "./Seawave.woff2" }}) format("woff2");
+  font-display: swap;
 }
 
