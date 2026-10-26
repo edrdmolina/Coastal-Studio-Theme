@@ -11,9 +11,11 @@
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
 
-    {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
-      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
-    {%- endunless -%}
+    {%- comment -%}
+      Studio preconnected to fonts.shopifycdn.com here. Shopify now serves
+      font_url/font_face files from the store's own domain (/cdn/fonts/...), so
+      nothing on the page used that connection and PageSpeed flagged it.
+    {%- endcomment -%}
 
     <title>
       {{ page_title }}
