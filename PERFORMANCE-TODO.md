@@ -87,6 +87,17 @@ Lab scores stay noisy and bimodal. Before the change, blocking Forms in Lighthou
 - [ ] **Follow-up 2026-11-23:** count customers tagged `shopify-forms-164230` (should be ~0 new now) plus customers tagged **`newsletter`** created since 2026-10-26. Compare with the old popup baseline of **about 2 a month**. If footer signups are clearly below that and the list matters, consider re-enabling the popup (rollback above) or making the footer signup more prominent.
 - [ ] **Owner:** submit one real footer signup with your own email to confirm it subscribes and tags `newsletter`.
 
+## BookEasy → in-theme appointment picker (in progress, 2026-10-26)
+
+BookEasy accounts for most of the P0 third-party cost: two reCAPTCHA scripts (~1.7 MiB with repeats), the Stencil widget `p-d15c5182.entry.js` and the cart-validation script, all loaded on every page. Its replacement is built into the theme and costs nothing on pages that don't use it:
+
+- **Appointment picker** block on the product template (`snippets/appointment-picker.liquid`, `assets/appointment-picker.js` ~11 KB unminified, `assets/component-appointment-picker.css`). The JS and CSS load only on products listed in the block. No libraries, and one small availability request once the picker nears the viewport.
+- Busy times come from a Google Apps Script and paid orders reach the calendar through Shopify Flow. Code and step-by-step setup: [`booking/README.md`](booking/README.md).
+- Status: on for **Take-5 only** on the dev theme. The other services are still on BookEasy, and the BookEasy embed stays on until every service has moved.
+- [ ] Owner: one-time setup (script, Flow) and a test booking. See the README, steps 1–7.
+- [ ] Owner: take Take-5 out of BookEasy's services (BookEasy removes unbooked Take-5s from the cart, step 6), then publish.
+- [ ] Move the remaining services, then turn off the BookEasy app embed and uninstall. That clears the reCAPTCHA and `p-d15c5182` items above.
+
 ## P1 — Render path (FCP / LCP)
 
 - [ ] **LCP element is the hero text** (`p.cfl-hero__sub`, "C-41 and black & white film developed daily…") with **2,530 ms element render delay** while TTFB is only 20 ms. The text is waiting on render-blocking CSS, fonts, and main-thread JS. Fixing P0 is the main lever; also:
