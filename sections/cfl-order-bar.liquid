@@ -132,7 +132,8 @@
       // whatever the footer's height, unlike measuring against scrollHeight.
       var footerVisible = false;
       var footer = document.querySelector('.footer');
-      if (footer && 'IntersectionObserver' in window) {
+      var observed = footer && 'IntersectionObserver' in window;
+      if (observed) {
         new IntersectionObserver(function (entries) {
           footerVisible = entries[0].isIntersecting;
           update();
@@ -170,7 +171,15 @@
 
       window.addEventListener('scroll', update, { passive: true });
       window.addEventListener('resize', update, { passive: true });
-      update();
+
+      // No first update() here when the observer exists. This script runs
+      // while the page is still parsing, and reading scrollY/innerHeight at
+      // that point forces a full layout of everything above it (PageSpeed
+      // flagged ~150ms of forced reflow on this line). The observer always
+      // reports once on its own, after the browser has laid the page out, and
+      // its callback calls update() — so the bar gets the same first check
+      // without paying for an extra layout.
+      if (!observed) update();
     })();
   </script>
 {%- endif -%}

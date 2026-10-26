@@ -58,7 +58,8 @@ Per the README's maintenance boundaries: confirm each app's production dependenc
 ## P3 — Smaller clean-up
 
 - [ ] **Unused preconnects** in `<head>`: `fonts.shopifycdn.com`, `shop.app`, `shopify-extension.getredo.com`, and a `dns-prefetch preconnect` to `cdn.shopify.com`. Remove the ones the theme added; Redo's is app-injected (ask the vendor or leave it). Unused preconnects waste early connection slots on mobile.
-- [ ] **Forced reflow (~150 ms) from an inline script** at roughly line 7913 of the rendered homepage HTML. View source, find which snippet/app outputs it, and batch its DOM reads before writes (or defer it).
+- [x] **Forced reflow (~150 ms) from an inline script** at roughly line 7913 of the rendered homepage HTML. View source, find which snippet/app outputs it, and batch its DOM reads before writes (or defer it).
+  - Done: it was the theme's own sticky order bar (`sections/cfl-order-bar.liquid`), which read `scrollY`/`innerHeight` mid-parse to decide whether to show. The first check now comes from its IntersectionObserver callback, which runs after layout, so it no longer forces one.
 - [ ] **DOM size: 2,086 elements.** Two full country/region lists are rendered (`AnnouncementCountryForm` and `HeaderCountryMobileForm`). If the store only sells in USD/United States, disable the country selector in the announcement bar and header (`sections/header-group.json`) — it also removes `component-localization-form.css` from the blocking list.
 - [ ] **Cache TTLs** — the flagged short-cache resources are all third-party (Rise.ai, w3apps, Shopify's compat CSS). Nothing to change in the theme; resolved by the P0 app decisions.
 
