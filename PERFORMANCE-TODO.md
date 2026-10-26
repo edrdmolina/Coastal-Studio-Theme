@@ -72,7 +72,8 @@ Per the README's maintenance boundaries: confirm each app's production dependenc
 ## Non-performance issues from the same run
 
 - [ ] **Accessibility — color contrast:** the primary "Develop my film" button (`#FFF8EE` on `#7CCAB9`, ~1.81:1) and the service-card titles/descriptions fail. This is the pairing the README already flags. Switch primary button labels to Darkroom brown `#301E17` (or darken the teal) in `config/settings_data.json` schemes, and check the `cfl-service-card` text colors.
-- [ ] **SEO — link text:** some links have non-descriptive text. Open the `link-text` audit in PSI to see which ones, then give them specific labels or `aria-label`s.
+- [x] **SEO — link text:** some links have non-descriptive text. Open the `link-text` audit in PSI to see which ones, then give them specific labels or `aria-label`s.
+  - Done: the only generic link label in the home page HTML was the Camera Care card's "Learn more" button (`snippets/cfl-home-services.liquid`), now "See camera care". No other "learn more / read more / click here" labels in sections, snippets or templates. Re-run PSI to confirm the audit is clear; any leftovers would be in app-rendered markup.
 - [ ] **Best Practices — console errors:** current errors are Shopify telemetry (`otlp-http-production.shopifysvc.com`, `monorail-edge.shopifysvc.com`) blocked by the test client; likely not actionable. Recheck in a clean browser after the P0 changes.
 - [ ] **Theme Check baseline:** the README lists four existing errors (`email-signup-banner.liquid`, `footer.liquid`, `header.liquid`, `product-variant-options.liquid`). Fix them when touching those files so `--strict` can be enabled.
 
