@@ -276,7 +276,31 @@
     {%- endunless -%}
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
-      {{ 'component-localization-form.css' | asset_url | stylesheet_tag: preload: true }}
+      {%- comment -%}
+        The only selector drawn on first paint is the one in the announcement
+        bar, and that is hidden below 990px (small-hide medium-hide). On phones
+        the selectors live in the closed menu drawer and the footer, so this
+        file needn't hold up the first paint there.
+
+        The first link blocks rendering only on desktop, where the bar's
+        selector is on screen and would otherwise jump when its styles land.
+        On narrower screens the media query doesn't match, so the browser
+        fetches it without waiting. The second link applies the same file
+        everywhere once it arrives (one download; it's the same URL), in time
+        for the drawer or the footer. noscript covers browsers without JS.
+      {%- endcomment -%}
+      <link
+        rel="stylesheet"
+        href="{{ 'component-localization-form.css' | asset_url }}"
+        media="screen and (min-width: 990px)"
+      >
+      <link
+        rel="stylesheet"
+        href="{{ 'component-localization-form.css' | asset_url }}"
+        media="print"
+        onload="this.media='all'"
+      >
+      <noscript>{{ 'component-localization-form.css' | asset_url | stylesheet_tag }}</noscript>
       <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
