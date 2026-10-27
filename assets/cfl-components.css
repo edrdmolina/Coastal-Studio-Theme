@@ -271,7 +271,7 @@
 
 .cfl-format-card__title {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 2.2rem);
   line-height: 1.15;
   letter-spacing: 0.04em;
@@ -399,7 +399,7 @@
 
 .cfl-ship-option__title {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 2rem);
   line-height: 1.2;
 }
@@ -467,7 +467,7 @@
 
 .cfl-step__title {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
   letter-spacing: 0.04em;
 }
@@ -557,7 +557,7 @@
 
 .cfl-label-upsell__title {
   margin: 0 0 0.6rem;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
   letter-spacing: 0.04em;
   line-height: 1.2;
@@ -709,14 +709,14 @@
 
 .cfl-size-card__name {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
   letter-spacing: 0.03em;
   line-height: 1.15;
 }
 
 .cfl-size-card__price {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.6rem);
   white-space: nowrap;
 }
@@ -781,7 +781,7 @@
 
 .cfl-dodont__title {
   margin: 0 0 1.2rem;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
   letter-spacing: 0.03em;
 }
@@ -875,7 +875,7 @@
 
 .cfl-address__lines {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.9rem);
   line-height: 1.35;
   letter-spacing: 0.02em;
@@ -958,7 +958,7 @@
 
 .cfl-order-bar__heading {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.7rem);
   letter-spacing: 0.03em;
   line-height: 1.15;
@@ -981,7 +981,7 @@
 
 /* Mustard carries the notice role in this theme; 8.0:1 on the brown surface. */
 .cfl-order-bar__price {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.5rem);
   color: #e8af21;
   white-space: nowrap;
@@ -1119,7 +1119,7 @@
 .cfl-scan-calc__name {
   display: inline-block;
   color: rgb(var(--color-foreground));
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.6rem);
   letter-spacing: 0.03em;
   line-height: 1.2;
@@ -1187,7 +1187,7 @@
   flex: 0 0 8rem;
   margin: 0;
   text-align: right;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.5rem);
   white-space: nowrap;
 }
@@ -1246,7 +1246,7 @@
 
 .cfl-scan-calc__split-value {
   display: block;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 2.4rem);
   line-height: 1.1;
   white-space: nowrap;
@@ -1264,13 +1264,13 @@
 }
 
 .cfl-scan-calc__total-label {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.6rem);
   letter-spacing: 0.03em;
 }
 
 .cfl-scan-calc__total-value {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 2.2rem);
   white-space: nowrap;
 }
@@ -1329,13 +1329,13 @@
 }
 
 .cfl-scan-estimator__banner strong {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.7rem);
 }
 
 .cfl-scan-estimator__title {
   margin: 0 0 1.2rem;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.7rem);
   letter-spacing: 0.03em;
 }
@@ -1445,7 +1445,7 @@
 }
 
 .cfl-scan-estimator__row--today dd {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
 }
 
@@ -1467,7 +1467,7 @@
 }
 
 .cfl-scan-estimator__row--later dd {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
 }
 
@@ -1509,7 +1509,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
 .cfl-scan-notice h2,
 .cfl-scan-notice h3 {
   margin: 0 0 1rem;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.8rem);
   letter-spacing: 0.03em;
 }
@@ -1562,7 +1562,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
   to sit under the step titles in the reading order.
 */
 .cfl-premium-step__num {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: 2.6rem;
   line-height: 1;
   display: flex;
@@ -1853,7 +1853,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
 
 .cfl-quickorder__title {
   margin: 0;
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.6rem);
   line-height: 1.3;
 }
@@ -2206,7 +2206,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
   out, and it nudges on hover to signal the whole card is clickable.
 */
 .cfl-more-card__title {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.5rem);
   letter-spacing: 0.02em;
   color: var(--cfl-accent-dark);
@@ -2269,7 +2269,7 @@ html:not(.no-js) .cfl-scan-estimator__static {
 }
 
 .cfl-trust__label {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-size: calc(var(--font-heading-scale) * 1.5rem);
   color: var(--cfl-accent-dark);
 }
