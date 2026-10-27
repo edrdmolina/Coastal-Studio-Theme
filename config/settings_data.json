@@ -129,6 +129,7 @@
     "show_cart_note": true,
     "cart_drawer_collection": "",
     "cart_color_scheme": "background-1",
+    "booking_script_url": "https://script.google.com/macros/s/AKfycbx6uNFwPRreOt0DWlWrE5rYiji-o6OshhgHq6j2krgDFEnBo610sf9Mc4Anh_zXd926/exec",
     "checkout_logo_image": "shopify://shop_images/2021_Coastal_Film_Lab_Logo_Update_CFL_Full_Color.png",
     "checkout_logo_position": "left",
     "checkout_logo_size": "large",
@@ -156,17 +157,12 @@
       },
       "15659862187755629035": {
         "type": "shopify://apps/bookeasy/blocks/app-embed/865cd10f-9515-4d8b-8e41-efece9c83f71",
-        "disabled": false,
+        "disabled": true,
         "settings": {}
       },
       "13768625480086291342": {
         "type": "shopify://apps/forms/blocks/forms/8744a304-fcb1-4347-b211-bb6b4759a76a",
         "disabled": true,
-        "settings": {}
-      },
-      "5439026248262864547": {
-        "type": "shopify://apps/preorder-globo/blocks/app-embed/e547a0ad-8212-4bcc-b02f-761faa9b8af2",
-        "disabled": false,
         "settings": {}
       },
       "14060646107696862457": {
@@ -176,16 +172,6 @@
       },
       "1986737046835575827": {
         "type": "shopify://apps/az-google-font-custom-fonts/blocks/arc_fontify_block-app-embed/e720f1f7-5778-4825-85a3-3572dbcf27c4",
-        "disabled": false,
-        "settings": {}
-      },
-      "2200952712151285029": {
-        "type": "shopify://apps/microsoft-clarity/blocks/brandAgents_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
-        "disabled": false,
-        "settings": {}
-      },
-      "2567389343055140935": {
-        "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
         "disabled": false,
         "settings": {}
       },

@@ -30,11 +30,12 @@ Per the README's maintenance boundaries: confirm each app's production dependenc
 - [ ] **Stop reCAPTCHA loading 5× on the homepage.** `recaptcha__en.js` (gstatic.com) is downloaded five times at ~347 KiB each (~1.7 MiB, plus 71 KiB `styles__ltr.css`). It accounts for ~2.4 s of script boot-up, ~1.6 s of evaluation, ~830 KiB of unused JS, and most of the 20 long tasks.
   - Not theme code. The BookEasy app embed (`bookeasy-widget.js`) appends **two** `google.com/recaptcha/enterprise.js?render=…` scripts (two site keys) to `<head>` on every page except `/account/*` and `/challenge`. Each copy pulls `recaptcha__en.js` and its iframes, which accounts for the repeat downloads. **Owner action:** ask BookEasy support to load reCAPTCHA only on booking products or on first interaction with the widget. App embeds are site-wide, so the theme can't scope it.
   - [x] Identify which forms trigger it (likely Shopify's native spam protection on newsletter/contact/customer forms, or the Shopify Forms app embed). Count the `<form>` elements that include it — the WebMCP audit lists 14 forms on the page.
-    - Checked: the live home page has 17 `<form>`s: 6 `/localization` (announcement bar, menu drawer, footer; each one plus a noscript twin), search, cart notification, the label quick-add, and 8 featured-collection quick-adds. None is a customer, newsletter or contact form (the footer newsletter is off), so the theme renders nothing that carries reCAPTCHA. Shopify's own storefront captcha in `content_for_header` is hCaptcha, which only binds on submit.
+    - Checked: the live home page has 17 `<form>`s: 6 `/localization` (announcement bar, menu drawer, footer; each one plus a noscript twin), search, cart notification, the label quick-add, and 8 featured-collection quick-adds. None is a customer, newsletter or contact form (the footer newsletter is off), so the theme renders nothing that carries reCAPTCHA. (Since 2026-10-26 the footer newsletter is on; it's a native customer form.) Shopify's own storefront captcha in `content_for_header` is hCaptcha, which only binds on submit.
   - [ ] Options, least risky first: remove duplicate/hidden forms from the homepage; load reCAPTCHA only on interaction (focus/submit) instead of page load; or switch spam protection to hCaptcha/Shopify's built-in alternative if available.
     - No duplicate or hidden theme forms to remove. The other options are BookEasy/admin actions (see above).
   - [ ] Verify that the newsletter signup and any contact form still submit and are still protected.
-- [ ] **Find and cut `assets/index.js` (cdn.shopify.com, 261 KiB, 244 KiB unused).** Trace which app embed injects it (check `config/settings_data.json` app embeds: Globo Product Options, BookEasy, Shopify Forms, Globo Preorder, Judge.me, font app, Microsoft Clarity). If it only serves a specific page (e.g., BookEasy for studio rental), restrict the embed to that template.
+- [x] **Find and cut `assets/index.js` (cdn.shopify.com, 261 KiB, 244 KiB unused).**
+  - Done 2026-10-26: the Forms app embed is off, so `index.js` now loads only on Contact Us and Work For Coastal. See "Forms popup → footer signup" below. Trace which app embed injects it (check `config/settings_data.json` app embeds: Globo Product Options, BookEasy, Shopify Forms, Globo Preorder, Judge.me, font app, Microsoft Clarity). If it only serves a specific page (e.g., BookEasy for studio rental), restrict the embed to that template.
   - Not theme code. It's Shopify Forms: `shopify-forms-loader.js` (Forms app embed) rewrites its own URL to `…/forms-2636/assets/index.js` and loads it on every page. **Owner action** (keeping Forms): if the signup form is an inline form rather than a popup, turn off the Forms *app embed* (Theme editor → App embeds) and add the Forms *app block* only to the section/page where the form lives. If it's a popup that has to show site-wide, it stays.
 - [ ] **`p-d15c5182.entry.js` (89 KiB, 57 KiB unused)** — Stencil-style bundle from an app; identify and scope it the same way.
   - Not theme code. It's BookEasy's Stencil widget component (`bookeasy-widget.esm.js` maps `p-d15c5182` to `<bookeasy-widget>`), loaded by the BookEasy app embed on every page. **Owner action:** ask BookEasy whether the widget can load only on bookable products / the studio-rental page (app blocks instead of a global embed), together with the reCAPTCHA ask above.
@@ -50,6 +51,52 @@ Per the README's maintenance boundaries: confirm each app's production dependenc
   - Not theme code: nothing in the repo mentions `flip-clock`. It's the countdown-timer chunk of Globo Preorder (`globo.preorder.min.js` lazy-loads `flip_clock` / `flipclock` bundles). **Owner action:** turn off the preorder countdown timer in Globo Preorder if no countdown is running.
 - [ ] **Shop follow button (`loader.shop-follow-button.en.esm.js`)** — long task on load; disable the Shop app follow button if it isn't wanted.
   - Theme setting, not code: the footer renders it because `enable_follow_on_shop` is on in `sections/footer-group.json`. **Owner action** if it isn't wanted: Theme editor → Footer → untick "Enable Follow on Shop". That's left alone here because the editor owns that JSON.
+  - The owner turned it off in the Theme editor on 2026-10-26 (`enable_follow_on_shop: false`, Shopify commit `dec2854` on master, merged into dev).
+
+## Forms popup → footer signup (2026-10-26)
+
+**What changed** (owner-approved, live on master):
+
+- Turned **off** the Shopify Forms app embed (`config/settings_data.json`, block `13768625480086291342`, `"disabled": true`). The "Stay in touch" popup and its button are gone from every page. The Forms script (`shopify-forms-loader.js` + `index.js`, ~277 KB) no longer loads on the home page, product pages or anywhere else.
+- Turned **on** the theme's own footer signup "Subscribe to our emails" (`sections/footer-group.json`, `newsletter_enable: true`). It's Shopify's native customer form, needs no app script, and tags signups **`newsletter`** (hidden `contact[tags]` field in `sections/footer.liquid`).
+- Not changed: the "Mailing List" form (164230) in the Forms app is still set up as it was, so it can be switched back on. The Contact Us (791579) and Work For Coastal (1047047) inline forms are app blocks and still load Forms on those two pages only. Checked live: both render all their fields.
+
+**Correction to earlier notes:** form **791579 is the Contact Us page form**, not the popup. The "20–30 signups a month" counted on tag `shopify-forms-791579` are contact messages. The popup was **form 164230 ("Mailing List")**, tag `shopify-forms-164230`.
+
+**Why:** the popup brought in about 2 signups a month (Forms analytics, last 365 days: 282 views, 24 submissions, 8.5%; ~15 new customers tagged `shopify-forms-164230` in 2026; 0 submissions in the last 30 days). Meanwhile its script loaded on every page. No Forms setting defers the script: the loader always injects `index.js` straight away, and the delay only affects when the popup shows.
+
+**Old popup settings (for rollback)** — screenshots and the full `form_instances` JSON are in the session scratchpad (`forms-before/`):
+
+- Floating, bottom left. Teaser "Stay in touch", shown "First (before the form) and if the customer closes the form".
+- Pages: Home, Blogs, Articles only. Trigger: first page view, after 3 seconds. Exit intent off. All devices.
+- Fields: first name, last name, email, phone (all required), birthday. Email + SMS consent, Continue with Shop on. No discount. On success, redirect to coastalfilmlab.com.
+
+**How to roll back:** set the Forms block in `config/settings_data.json` back to `"disabled": false` (or Theme editor → App embeds → Forms on, then pull the Shopify commit into dev). Optionally set `newsletter_enable` back to `false`. The popup reappears with the settings above.
+
+**Before / after (live home page, mobile):**
+
+| | Before | After |
+| --- | --- | --- |
+| Forms JS on home/product pages | ~277 KB, ~100–165 ms main thread | none |
+| Local Lighthouse, median score | 50 (6 runs) | 50 (3 runs) |
+| Local Lighthouse, median FCP / LCP / TBT | 4.95 s / 13.5 s / 362 ms | 4.14 s / 17.6 s / 331 ms |
+| PageSpeed Insights score | 54–55 | 56, 78, 54 (median 56) |
+
+Lab scores stay noisy and bimodal. Before the change, blocking Forms in Lighthouse moved the median score by 1 point (50 → 51), so no big score jump was expected. The real gain is less download and phone processing on every page. FCP/LCP differences are within run-to-run noise.
+
+- [ ] **Follow-up 2026-11-23:** count customers tagged `shopify-forms-164230` (should be ~0 new now) plus customers tagged **`newsletter`** created since 2026-10-26. Compare with the old popup baseline of **about 2 a month**. If footer signups are clearly below that and the list matters, consider re-enabling the popup (rollback above) or making the footer signup more prominent.
+- [ ] **Owner:** submit one real footer signup with your own email to confirm it subscribes and tags `newsletter`.
+
+## BookEasy → in-theme appointment picker (in progress, 2026-10-26)
+
+BookEasy accounts for most of the P0 third-party cost: two reCAPTCHA scripts (~1.7 MiB with repeats), the Stencil widget `p-d15c5182.entry.js` and the cart-validation script, all loaded on every page. Its replacement is built into the theme and costs nothing on pages that don't use it:
+
+- **Appointment picker** block on the product template (`snippets/appointment-picker.liquid`, `assets/appointment-picker.js` ~11 KB unminified, `assets/component-appointment-picker.css`). The JS and CSS load only on products listed in the block. No libraries, and one small availability request once the picker nears the viewport.
+- Busy times come from a Google Apps Script and paid orders reach the calendar through Shopify Flow. Code and step-by-step setup: [`booking/README.md`](booking/README.md).
+- Status: on for **Take-5 only** on the dev theme. The other services are still on BookEasy, and the BookEasy embed stays on until every service has moved.
+- [ ] Owner: one-time setup (script, Flow) and a test booking. See the README, steps 1–7.
+- [ ] Owner: take Take-5 out of BookEasy's services (BookEasy removes unbooked Take-5s from the cart, step 6), then publish.
+- [ ] Move the remaining services, then turn off the BookEasy app embed and uninstall. That clears the reCAPTCHA and `p-d15c5182` items above.
 
 ## P1 — Render path (FCP / LCP)
 

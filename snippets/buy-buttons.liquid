@@ -6,6 +6,7 @@
   - product_form_id: {String} product form id.
   - section_id: {String} id of section to which this snippet belongs.
   - show_pickup_availability: {Boolean} for the pickup availability. If true the pickup availability is rendered, false - not rendered (optional).
+  - appointment_active: {Boolean} true when an appointment picker owns this product (optional).
 
   Usage:
   {% render 'buy-buttons', block: block, product: product, product_form_id: product_form_id, section_id: section.id, show_pickup_availability: true %}
@@ -21,6 +22,12 @@
       assign show_dynamic_checkout = false
       if block.settings.show_dynamic_checkout and gift_card_recipient_feature_active == false
         assign show_dynamic_checkout = true
+      endif
+
+      # Buy it now would skip the picker's checks and the cart, so bookings
+      # go through Add to cart only.
+      if appointment_active
+        assign show_dynamic_checkout = false
       endif
     -%}
 
@@ -44,6 +51,14 @@
         <span class="product-form__error-message"></span>
       </div>
 
+      {%- comment -%}
+        With an appointment picker on the page, the form's action gets a
+        #appointment suffix. BookEasy's embed takes over any form whose action
+        ends in /cart/add, which would hide this button behind its own widget.
+        The browser drops the fragment, so a plain POST still reaches /cart/add,
+        and the theme's AJAX add uses routes.cart_add_url, not the action.
+      {%- endcomment -%}
+      {%- capture product_form_html -%}
       {%- form 'product',
         product,
         id: product_form_id,
@@ -98,6 +113,12 @@
           {%- endif -%}
         </div>
       {%- endform -%}
+      {%- endcapture -%}
+      {%- if appointment_active -%}
+        {{ product_form_html | replace_first: 'action="/cart/add"', 'action="/cart/add#appointment"' }}
+      {%- else -%}
+        {{ product_form_html }}
+      {%- endif -%}
     </product-form>
   {%- else -%}
     <div class="product-form">
