@@ -3509,21 +3509,21 @@ details-disclosure > details {
   }
 }
 
+/*
+  Self-hosted brand fonts. Plain relative URLs: this file isn't Liquid, so
+  {{ }} here reaches the browser as a broken address. The preloads in
+  layout/theme.liquid must request these exact URLs (no ?v=) or each font
+  downloads twice.
+*/
 @font-face {
   font-family: "Filicudi Solid";
-  src: url({{ "./Filicudi_Solid.woff2" }}) format("woff2");
+  src: url("./Filicudi_Solid.woff2") format("woff2");
   font-display: swap;
 }
 
 @font-face {
   font-family: "OpenSans Semibold";
   src: url("./OpenSans-Semibold.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Seawave";
-  src: url({{ "./Seawave.woff2" }}) format("woff2");
   font-display: swap;
 }
 

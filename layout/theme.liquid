@@ -265,15 +265,17 @@
     {{ 'cfl-components.css' | asset_url | stylesheet_tag }}
 
     {%- comment -%}
-      Body text is set in the self-hosted OpenSans Semibold (see base.css), so
-      that is the file to fetch early. The theme-settings body font is only a
-      fallback behind it; preloading it spent bandwidth on a font never shown.
-    {%- endcomment -%}
-    <link rel="preload" as="font" href="{{ 'OpenSans-Semibold.woff2' | asset_url }}" type="font/woff2" crossorigin>
+      Body text is set in the self-hosted OpenSans Semibold and headings in
+      Filicudi Solid (see base.css), so those are the files to fetch early. The
+      theme-settings fonts are only fallbacks behind them; preloading those
+      spent bandwidth on fonts never shown.
 
-    {%- unless settings.type_header_font.system? -%}
-      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
-    {%- endunless -%}
+      base.css asks for these files by plain relative URL, without the ?v=
+      that asset_url adds. A preload only counts if the URL matches exactly,
+      so the query string is cut off here; otherwise each font downloads twice.
+    {%- endcomment -%}
+    <link rel="preload" as="font" href="{{ 'OpenSans-Semibold.woff2' | asset_url | split: '?' | first }}" type="font/woff2" crossorigin>
+    <link rel="preload" as="font" href="{{ 'Filicudi_Solid.woff2' | asset_url | split: '?' | first }}" type="font/woff2" crossorigin>
 
     {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
       {%- comment -%}
