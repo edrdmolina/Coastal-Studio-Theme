@@ -128,10 +128,13 @@ if (!customElements.get('appointment-picker')) {
           if (minutes === this.minutes) return;
           this.minutes = minutes;
           this.selectSlot(null);
+          // Stay on the same day if it still has times at the new length.
+          const dayKey = this.selectedDay && this.selectedDay.key;
           this.days = this.buildDays();
+          this.selectedDay = this.days.find((day) => day.key === dayKey) || null;
           if (this.status === 'loading') {
             this.renderDays();
-            this.selectDay(this.days[0] || null);
+            this.selectDay(this.selectedDay || this.days[0] || null);
           } else {
             this.applyBusy();
             this.setStatus(this.status);
