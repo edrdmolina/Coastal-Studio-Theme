@@ -1551,7 +1551,27 @@
           "step": 15,
           "unit": "min",
           "default": 30,
-          "info": "Also how far apart the start times are."
+          "info": "Used for any product or option not listed under Lengths by product or option."
+        },
+        {
+          "type": "textarea",
+          "id": "variant_lengths",
+          "label": "Lengths by product or option",
+          "placeholder": "1 hour = 60\nStudio Booking 4-Hour = 240",
+          "info": "One per line: the product title or option name, =, then minutes. Example: 30 minute = 30."
+        },
+        {
+          "type": "select",
+          "id": "start_every",
+          "label": "Start times every",
+          "options": [
+            { "value": "length", "label": "Appointment length" },
+            { "value": "15", "label": "15 minutes" },
+            { "value": "30", "label": "30 minutes" },
+            { "value": "60", "label": "1 hour" }
+          ],
+          "default": "length",
+          "info": "Appointment length lines bookings up back to back. A shorter step offers more start times, e.g. a 4-hour studio booking starting on any hour."
         },
         {
           "type": "range",

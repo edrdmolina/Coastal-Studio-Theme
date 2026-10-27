@@ -97,20 +97,53 @@ if (!customElements.get('appointment-picker')) {
         this.status = 'loading';
         this.selectedDay = null;
         this.selectedSlot = null;
+        this.busy = [];
+        this.minutes = this.minutesForVariant();
         this.days = this.buildDays();
 
         this.renderDays();
         this.selectDay(this.days[0] || null);
         this.lockButton();
         this.guardForm();
+        this.watchVariant();
         this.whenNearViewport(() => this.loadAvailability());
+      }
+
+      // Length for the chosen option, from "Lengths by product or option".
+      minutesForVariant() {
+        const { variantMinutes, slotMinutes } = this.config;
+        const variantInput = this.form && this.form.querySelector('[name="id"]');
+        const minutes = variantInput && variantMinutes ? variantMinutes[variantInput.value] : null;
+        return Number(minutes) || Number(slotMinutes) || 30;
+      }
+
+      // Options with different lengths offer different times, so rebuild the
+      // day strip when the option changes. The theme fires change on the
+      // form's variant input.
+      watchVariant() {
+        if (!this.form) return;
+        this.form.addEventListener('change', (event) => {
+          if (event.target.name !== 'id') return;
+          const minutes = this.minutesForVariant();
+          if (minutes === this.minutes) return;
+          this.minutes = minutes;
+          this.selectSlot(null);
+          this.days = this.buildDays();
+          if (this.status === 'loading') {
+            this.renderDays();
+            this.selectDay(this.days[0] || null);
+          } else {
+            this.applyBusy();
+            this.setStatus(this.status);
+          }
+        });
       }
 
       // Every open slot in the booking window, from the block's hours alone.
       buildDays() {
-        const { hours, slotMinutes, bufferMinutes, daysAhead, noticeHours } = this.config;
-        const slot = Number(slotMinutes) || 30;
-        const step = slot + (Number(bufferMinutes) || 0);
+        const { hours, startEvery, bufferMinutes, daysAhead, noticeHours } = this.config;
+        const slot = this.minutes;
+        const step = Number(startEvery) || slot + (Number(bufferMinutes) || 0);
         const earliest = Date.now() + (Number(noticeHours) || 0) * 3600000;
         const today = this.zone.parts(Date.now());
         const days = [];
@@ -147,16 +180,16 @@ if (!customElements.get('appointment-picker')) {
       }
 
       async loadAvailability() {
-        const { scriptUrl, calendarId, bufferMinutes } = this.config;
-        if (!this.days.length) return this.setStatus('live');
+        const { scriptUrl, calendarId, daysAhead } = this.config;
         if (!scriptUrl || !calendarId) return this.setStatus('fallback');
 
-        const buffer = (Number(bufferMinutes) || 0) * 60000;
-        const lastDay = this.days[this.days.length - 1];
+        // The whole booking window, so a change of option needs no new request.
+        // Whole hours, so visitors share the script's short cache.
+        const start = Math.floor(Date.now() / 3600000) * 3600000 - 86400000;
         const url = new URL(scriptUrl);
         url.searchParams.set('calendar', calendarId);
-        url.searchParams.set('start', new Date(this.days[0].slots[0].start - buffer).toISOString());
-        url.searchParams.set('end', new Date(lastDay.slots[lastDay.slots.length - 1].end + buffer).toISOString());
+        url.searchParams.set('start', new Date(start).toISOString());
+        url.searchParams.set('end', new Date(start + ((Number(daysAhead) || 21) + 2) * 86400000).toISOString());
 
         const controller = 'AbortController' in window ? new AbortController() : null;
         const timer = controller && setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -170,7 +203,8 @@ if (!customElements.get('appointment-picker')) {
           });
           const data = await response.json();
           if (!data || data.ok !== true || !Array.isArray(data.busy)) throw new Error(data && data.error);
-          this.applyBusy(data.busy, buffer);
+          this.busy = data.busy;
+          this.applyBusy();
           this.setStatus('live');
         } catch (error) {
           console.warn('Appointment picker: availability unavailable', error);
@@ -180,11 +214,12 @@ if (!customElements.get('appointment-picker')) {
         }
       }
 
-      // busy: [[startMs, endMs], ...]. The buffer keeps a gap either side.
-      applyBusy(busy, buffer) {
+      // this.busy: [[startMs, endMs], ...]. The buffer keeps a gap either side.
+      applyBusy() {
+        const buffer = (Number(this.config.bufferMinutes) || 0) * 60000;
         this.days.forEach((day) =>
           day.slots.forEach((slot) => {
-            slot.busy = busy.some(([start, end]) => start < slot.end + buffer && end > slot.start - buffer);
+            slot.busy = this.busy.some(([start, end]) => start < slot.end + buffer && end > slot.start - buffer);
           })
         );
       }

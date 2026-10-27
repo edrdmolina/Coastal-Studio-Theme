@@ -52,7 +52,10 @@
           "type": "appointment_picker",
           "settings": {
             "product_list": [
-              "quickie"
+              "quickie",
+              "one-on-one-camera-training",
+              "one-on-one-photo-class",
+              "premium-client-color-profile"
             ],
             "heading": "Choose a day and time",
             "note": "Your appointment is confirmed once your order is paid.",
@@ -71,6 +74,8 @@
             "sun_open": "closed",
             "sun_close": "17:00",
             "slot_minutes": 30,
+            "variant_lengths": "15 minute = 15\n30 minute = 30\n1 hour = 60\nOne On One Photo Class = 60\nPremium Client Color Profile = 60",
+            "start_every": "30",
             "buffer_minutes": 0,
             "days_ahead": 21,
             "notice_hours": 2,

@@ -51,6 +51,39 @@
             "show_dynamic_checkout": true,
             "show_gift_card_recipient": true
           }
+        },
+        "appointment_picker": {
+          "type": "appointment_picker",
+          "settings": {
+            "product_list": [
+              "studio-booking",
+              "copy-of-studio-booking-4-hour",
+              "studio-booking-8-hour"
+            ],
+            "heading": "Choose a day and time",
+            "note": "Your studio booking is confirmed once your order is paid.",
+            "mon_open": "10:00",
+            "mon_close": "18:00",
+            "tue_open": "10:00",
+            "tue_close": "18:00",
+            "wed_open": "10:00",
+            "wed_close": "18:00",
+            "thu_open": "10:00",
+            "thu_close": "18:00",
+            "fri_open": "10:00",
+            "fri_close": "18:00",
+            "sat_open": "10:00",
+            "sat_close": "18:00",
+            "sun_open": "10:00",
+            "sun_close": "18:00",
+            "slot_minutes": 60,
+            "variant_lengths": "Studio Booking 1-Hour = 60\nStudio Booking 4-Hour = 240\nStudio Booking 8-Hour = 480",
+            "start_every": "60",
+            "buffer_minutes": 0,
+            "days_ahead": 60,
+            "notice_hours": 24,
+            "calendar_id": ""
+          }
         }
       },
       "block_order": [
@@ -59,6 +92,7 @@
         "share",
         "description",
         "variant_picker_f3GDc6",
+        "appointment_picker",
         "quantity_selector",
         "buy_buttons"
       ],
