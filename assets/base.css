@@ -287,6 +287,31 @@ h5,
   word-break: break-word;
 }
 
+/*
+  Brand guidelines: headings in Seawave, all caps, wide letter-spacing and a
+  slight stroke; subheadings in Filicudi. h1/h2 are the theme's headings,
+  h3-h5 its subheadings.
+*/
+h1,
+h2,
+.h0,
+.h1,
+.h2,
+.hxl {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  -webkit-text-stroke: 0.015em currentColor;
+}
+
+h3,
+h4,
+h5,
+.h3,
+.h4,
+.h5 {
+  font-family: var(--font-subheading-family);
+}
+
 .hxl {
   font-size: calc(var(--font-heading-scale) * 5rem);
 }
@@ -345,7 +370,7 @@ h3,
 
 h4,
 .h4 {
-  font-family: var(--font-heading-family);
+  font-family: var(--font-subheading-family);
   font-style: var(--font-heading-style);
   font-size: calc(var(--font-heading-scale) * 1.5rem);
 }
@@ -1244,6 +1269,7 @@ button.shopify-payment-button__button--unbranded {
   padding: 0 3rem;
   cursor: pointer;
   font: inherit;
+  font-family: var(--font-subheading-family);
   font-size: 1.5rem;
   text-decoration: none;
   color: rgb(var(--color-button-text));
@@ -3518,6 +3544,12 @@ details-disclosure > details {
 @font-face {
   font-family: "Filicudi Solid";
   src: url("./Filicudi_Solid.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Seawave";
+  src: url("./Seawave.woff2") format("woff2");
   font-display: swap;
 }
 
