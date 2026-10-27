@@ -40,18 +40,6 @@
             "swatch_shape": "circle"
           }
         },
-        "quantity_selector": {
-          "type": "quantity_selector",
-          "disabled": true,
-          "settings": {}
-        },
-        "buy_buttons": {
-          "type": "buy_buttons",
-          "settings": {
-            "show_dynamic_checkout": true,
-            "show_gift_card_recipient": true
-          }
-        },
         "appointment_picker": {
           "type": "appointment_picker",
           "settings": {
@@ -74,7 +62,7 @@
             "fri_close": "18:00",
             "sat_open": "10:00",
             "sat_close": "18:00",
-            "sun_open": "10:00",
+            "sun_open": "closed",
             "sun_close": "18:00",
             "slot_minutes": 60,
             "variant_lengths": "Studio Booking 1-Hour = 60\nStudio Booking 4-Hour = 240\nStudio Booking 8-Hour = 480",
@@ -83,6 +71,18 @@
             "days_ahead": 60,
             "notice_hours": 24,
             "calendar_id": "c_74d6842f1d4475f8eeeeb427aaf20df3f81e8b4c6fa40f1641557e716255e2e4@group.calendar.google.com"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "disabled": true,
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true
           }
         }
       },
