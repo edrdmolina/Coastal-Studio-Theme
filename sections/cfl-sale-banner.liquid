@@ -1,6 +1,8 @@
 {% comment %}
   A dated promotion for the top of the home page: the offer, its terms, and the
-  buttons on one side, one photograph on the other.
+  buttons on one side, one photograph on the other — mounted in the same frame
+  of 35mm film as the hero's, using the hero's own .cfl-hero__media and
+  .cfl-hero__film styles so the two frames can't drift apart.
 
   It renders only between "Starts" and "Ends", so a sale can be set up ahead of
   time and comes down by itself — nobody has to remember to remove it at
@@ -16,9 +18,11 @@
   SPEED
   While it runs, this photograph is the first image on the page and so the
   likely largest contentful paint — it loads eagerly at high priority. The
-  sizes attribute follows the grid in cfl-components.css (1rem is 13px): about
-  48vw - 20px beside the text from 750px, capped at ~672px, and the viewport
-  less 1.5rem of padding each side below that.
+  sizes attribute follows the grid in cfl-components.css (1rem is 13px). The
+  photo fills 36/38ths (~94.7%) of the film frame, and the frame is capped at
+  54rem. From 750px the frame is the right-hand column, about 48vw - 20px, so
+  the photo draws about 45.5vw - 18px until the cap at ~1503px (665px). Below
+  750px the frame spans the viewport less 1.5rem each side: 94.7vw - 37px.
 {% endcomment %}
 
 {%- liquid
@@ -102,17 +106,19 @@
       </div>
 
       {%- if section.settings.image != blank -%}
-        <div class="cfl-sale__media">
-          {{
-            section.settings.image
-            | image_url: width: 1400
-            | image_tag:
-              loading: 'eager',
-              fetchpriority: 'high',
-              widths: '400, 550, 700, 900, 1100, 1400',
-              sizes: '(min-width: 1456px) 672px, (min-width: 750px) calc(48vw - 20px), calc(100vw - 39px)',
-              alt: section.settings.image_alt
-          }}
+        <div class="cfl-hero__media">
+          <div class="cfl-hero__film">
+            {{
+              section.settings.image
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'eager',
+                fetchpriority: 'high',
+                widths: '400, 550, 700, 900, 1100, 1400',
+                sizes: '(min-width: 1503px) 665px, (min-width: 750px) calc(45.5vw - 18px), calc(94.7vw - 37px)',
+                alt: section.settings.image_alt
+            }}
+          </div>
         </div>
       {%- endif -%}
     </div>
@@ -200,7 +206,7 @@
       "type": "image_picker",
       "id": "image",
       "label": "Photograph",
-      "info": "A 3:2 landscape works best. Leave empty for text only."
+      "info": "Shown in a frame of 35mm film, like the hero. A 3:2 landscape works best. Leave empty for text only."
     },
     {
       "type": "text",
