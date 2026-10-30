@@ -1,0 +1,34 @@
+{{ 'camera-store.css' | asset_url | stylesheet_tag }}
+<div class="camera-store cs-shelf">
+  <div class="cs-shell">
+    <div class="cs-section-heading"><div><p class="cs-eyebrow">A DIFFERENT PERSPECTIVE</p><h2>{{ section.settings.heading | escape }}</h2></div>{% if section.settings.collection != blank %}<a class="cs-text-link" href="{{ section.settings.collection.url }}">Shop all lenses {% render 'camera-store-icon', icon: 'arrow' %}</a>{% endif %}</div>
+    <p class="cs-section-intro">{{ section.settings.description | escape }}</p>
+    <div class="cs-product-grid cs-product-grid--shelf">
+      {% assign available_count = 0 %}
+      {% for product in section.settings.collection.products limit: 50 %}
+        {% if product.available %}
+          {% render 'camera-store-card', product: product, category: 'Camera lens' %}
+          {% assign available_count = available_count | plus: 1 %}
+          {% if available_count == 4 %}{% break %}{% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% if available_count == 0 %}<p>Explore our <a href="{{ section.settings.collection.url }}">lens collection</a> for the latest availability.</p>{% endif %}
+    <div class="cs-complete-kit">
+      <div><p class="cs-eyebrow">DON’T FORGET THE FILM</p><h3>A camera is just the beginning.</h3></div>
+      <a href="{{ section.settings.film_url }}">Stock up on film {% render 'camera-store-icon', icon: 'arrow' %}</a>
+      <a href="{{ section.settings.accessories_url }}">Find accessories {% render 'camera-store-icon', icon: 'arrow' %}</a>
+      <a href="{{ section.settings.processing_url }}">Develop your first roll {% render 'camera-store-icon', icon: 'arrow' %}</a>
+    </div>
+  </div>
+</div>
+{% schema %}
+{"name":"Camera store: lenses","settings":[
+  {"type":"collection","id":"collection","label":"Lens collection"},
+  {"type":"text","id":"heading","label":"Heading","default":"Same camera. New possibilities."},
+  {"type":"textarea","id":"description","label":"Description","default":"Find a new point of view with an available lens. Check the mount and compatibility in the listing, or ask us before you buy."},
+  {"type":"url","id":"film_url","label":"Film link"},
+  {"type":"url","id":"accessories_url","label":"Accessories link"},
+  {"type":"url","id":"processing_url","label":"Processing link"}
+],"presets":[{"name":"Camera store: lenses"}]}
+{% endschema %}

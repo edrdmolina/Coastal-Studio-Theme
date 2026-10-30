@@ -1,0 +1,72 @@
+{% comment %}
+  Camera storefront card. Category membership is authoritative; condition is
+  left to the product description rather than inferred from marketing copy.
+  Accepts product, category (optional), and index (optional).
+{% endcomment %}
+{% liquid
+  assign camera_title = product.title | downcase
+  assign kit_label = ''
+  if camera_title contains ' + ' and camera_title contains 'lens'
+    assign kit_label = 'Lens included'
+  endif
+  assign image_alt = product.featured_image.alt | default: product.title
+  assign description_text = product.description | strip_html | downcase
+  assign grade = product.metafields.custom.condition.value | default: ''
+  if grade == blank and description_text contains 'condition:'
+    assign condition_text = description_text | split: 'condition:' | last | strip
+    assign first_three = condition_text | slice: 0, 3
+    assign first_four = condition_text | slice: 0, 4
+    assign first_five = condition_text | slice: 0, 5
+    assign first_seven = condition_text | slice: 0, 7
+    assign first_nine = condition_text | slice: 0, 9
+    if first_three == 'new'
+      assign grade = 'New'
+    elsif first_four == 'mint'
+      assign grade = 'Mint'
+    elsif first_nine == 'excellent'
+      assign grade = 'Excellent'
+    elsif first_four == 'good'
+      assign grade = 'Good'
+    elsif first_seven == 'one-off'
+      assign grade = 'One-Off'
+    elsif first_five == 'as-is'
+      assign grade = 'AS-IS'
+    endif
+    assign first_two = condition_text | slice: 0, 9
+    if first_two == 'near mint'
+      assign grade = 'Near mint'
+    endif
+  endif
+  assign caution = ''
+  if description_text contains 'non-functional' or description_text contains 'not working' or description_text contains 'meter is dead' or grade == 'One-Off'
+    assign caution = 'Known limitations — read listing'
+  endif
+  if camera_title contains 'read description' or camera_title contains 'please read'
+    assign caution = 'Important condition notes'
+  endif
+  if special_item or grade == 'AS-IS'
+    assign caution = 'AS-IS / display — check listing'
+  endif
+%}
+<article class="cs-product">
+  <a class="cs-product__image" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+    {% if product.featured_image %}
+      {{ product.featured_image | image_url: width: 800 | image_tag: widths: '240, 400, 600, 800', sizes: '(min-width: 1100px) 23vw, (min-width: 750px) 31vw, 46vw', loading: 'lazy', alt: image_alt }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'cs-placeholder' }}
+    {% endif %}
+    {% if product.compare_at_price > product.price %}<span class="cs-product__badge">On sale</span>{% endif %}
+    <span class="cs-product__image-arrow">{% render 'camera-store-icon', icon: 'arrow' %}</span>
+  </a>
+  <div class="cs-product__body">
+    {% if category != blank %}<p class="cs-product__type">{{ category | escape }}{% if kit_label != blank %}<span> · {{ kit_label }}</span>{% endif %}</p>{% endif %}
+    <h3><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
+    <p class="cs-product__condition">{% if grade != blank %}Listed condition: <strong>{{ grade | escape }}</strong>{% else %}See condition in listing{% endif %}</p>
+    {% if caution != blank %}<p class="cs-product__caution">{{ caution }}</p>{% endif %}
+    <div class="cs-product__price">
+      <span>{% if product.price_varies %}From {% endif %}{{ product.price | money_with_currency }}</span>
+      {% if product.compare_at_price > product.price %}<s>{{ product.compare_at_price | money_with_currency }}</s>{% endif %}
+    </div>
+    <a class="cs-product__details" href="{{ product.url }}" aria-label="View condition and details for {{ product.title | escape }}">Condition & details {% render 'camera-store-icon', icon: 'arrow' %}</a>
+  </div>
+</article>

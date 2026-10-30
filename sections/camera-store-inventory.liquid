@@ -1,0 +1,127 @@
+{{ 'camera-store.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'camera-store.js' | asset_url }}" defer="defer"></script>
+{% assign camera_collection = section.settings.collection %}
+<camera-store class="camera-store cs-inventory" id="CameraInventory" data-section-id="{{ section.id }}" data-page-size="12">
+  <div class="cs-shell">
+    <div class="cs-section-heading">
+      <div><p class="cs-eyebrow">LESS SCROLLING. MORE SHOOTING.</p><h2>{{ section.settings.heading | escape }}</h2></div>
+      {% if camera_collection != blank %}<a class="cs-text-link" href="{{ camera_collection.url }}">Browse full collection {% render 'camera-store-icon', icon: 'arrow' %}</a>{% endif %}
+    </div>
+    <p class="cs-section-intro">{{ section.settings.description | escape }}</p>
+    <details class="cs-finder" id="CameraFinder">
+      <summary><span><span class="cs-eyebrow">A LITTLE DIRECTION?</span><span class="cs-finder__heading">Find a camera that fits your style & budget.</span></span>{% render 'camera-store-icon', icon: 'plus' %}</summary>
+      <div class="cs-finder__content">
+      <form class="cs-finder__form" data-finder hidden>
+        <div class="cs-field"><label for="CameraStyle-{{ section.id }}">I want to…</label><select id="CameraStyle-{{ section.id }}" name="style">
+          <option value="all">Explore everything</option><option value="point-shoot">Keep it simple — point & shoot</option><option value="35mm">Take control — 35mm SLR</option><option value="medium">Go bigger — medium format</option><option value="instant">Make instant prints</option><option value="digital">Shoot digital</option><option value="large">Try large format</option>
+        </select></div>
+        <div class="cs-field"><label for="CameraBudget-{{ section.id }}">My budget</label><select id="CameraBudget-{{ section.id }}" name="budget">
+          <option value="all">Any budget</option><option value="10000">Under {{ 10000 | money_with_currency }}</option><option value="25000">Under {{ 25000 | money_with_currency }}</option><option value="50000">Under {{ 50000 | money_with_currency }}</option><option value="100000">Under {{ 100000 | money_with_currency }}</option>
+        </select></div>
+        <button class="cs-button" type="submit">Find my camera {% render 'camera-store-icon', icon: 'arrow' %}</button>
+      </form>
+      <noscript><p><a class="cs-text-link" href="{{ camera_collection.url }}">Browse cameras and use collection filters →</a></p></noscript>
+      </div>
+    </details>
+    {% if camera_collection != blank %}
+      {% paginate camera_collection.products by 250 %}
+        <div class="cs-shop-tools" data-shop-tools hidden>
+          <div class="cs-filter-tabs" role="group" aria-label="Camera type">
+            <button type="button" data-category="all" aria-pressed="true">All cameras</button>
+            <button type="button" data-category="point-shoot" aria-pressed="false">Point & shoot</button>
+            <button type="button" data-category="35mm" aria-pressed="false">35mm SLR</button>
+            <button type="button" data-category="medium" aria-pressed="false">Medium format</button>
+            <button type="button" data-category="instant" aria-pressed="false">Instant</button>
+            <button type="button" data-category="digital" aria-pressed="false">Digital</button>
+            <button type="button" data-category="large" aria-pressed="false">Large format</button>
+            <button type="button" data-category="other" aria-pressed="false">Other film</button>
+          </div>
+          <div class="cs-shop-tools__row">
+            <div class="cs-search">{% render 'camera-store-icon', icon: 'search' %}<label class="visually-hidden" for="CameraSearch-{{ section.id }}">Search available cameras</label><input id="CameraSearch-{{ section.id }}" type="search" placeholder="Search a brand or camera…" data-search autocomplete="off"></div>
+            <div class="cs-sort"><label for="CameraSort-{{ section.id }}">Sort by</label><select id="CameraSort-{{ section.id }}" data-sort><option value="featured">Featured</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="newest">Newest added</option><option value="title">Name: A–Z</option></select></div>
+          </div>
+          <div class="cs-result-row">
+            <p data-result-count role="status" aria-live="polite" aria-atomic="true"></p>
+            <label class="cs-special-filter"><input type="checkbox" data-include-special> Include AS-IS & display pieces <span>(read condition notes carefully)</span></label>
+            <button class="cs-reset" type="button" data-reset hidden>Clear filters</button>
+          </div>
+        </div>
+        <div class="cs-product-grid" data-product-grid>
+          {% assign available_index = 0 %}
+          {% for product in camera_collection.products %}
+            {% liquid
+              assign camera_title = product.title | downcase
+              assign product_type = product.type | downcase
+              assign is_camera = false
+              if product_type == 'camera'
+                assign is_camera = true
+              elsif product_type == blank and camera_title contains 'camera'
+                assign is_camera = true
+                if camera_title contains 'case' or camera_title contains 'hood' or camera_title contains 'back' or camera_title contains 'teleconverter' or camera_title contains 'adapter' or camera_title contains 'screen'
+                  assign is_camera = false
+                endif
+              elsif product_type == 'film' and camera_title contains 'disposable'
+                assign is_camera = true
+              endif
+              assign special_item = false
+              assign description_text = product.description | strip_html | downcase
+              if camera_title contains 'display' or camera_title contains 'shelf piece' or camera_title contains 'as is' or camera_title contains 'as-is' or description_text contains 'condition: as-is'
+                assign special_item = true
+              endif
+            %}
+            {% if product.available and is_camera %}
+              {% assign available_index = available_index | plus: 1 %}
+              {% liquid
+                assign handles = product.collections | map: 'handle'
+                assign tags = product.tags | join: '|' | downcase
+                assign category = 'other'
+                assign category_label = 'Film camera'
+                if tags contains 'digital camera' or tags contains 'digicam'
+                  assign category = 'digital'
+                  assign category_label = 'Digital camera'
+                elsif handles contains 'instant-film-cameras'
+                  assign category = 'instant'
+                  assign category_label = 'Instant camera'
+                elsif handles contains 'medium-format-film-cameras'
+                  assign category = 'medium'
+                  assign category_label = 'Medium format'
+                elsif handles contains 'large-format-camera-gear'
+                  assign category = 'large'
+                  assign category_label = 'Large format'
+                elsif handles contains 'point-and-shoots'
+                  assign category = 'point-shoot'
+                  assign category_label = 'Point & shoot'
+                elsif tags contains 'slr' and handles contains '35mm-cameras'
+                  assign category = '35mm'
+                  assign category_label = '35mm SLR'
+                endif
+              %}
+              {% if available_index > 12 %}<template data-camera-template>{% endif %}
+              <div data-camera data-category="{{ category }}" data-special="{{ special_item }}" data-price="{{ product.price }}" data-title="{{ product.title | escape }}" data-date="{{ product.created_at | date: '%s' }}" data-index="{{ forloop.index }}">
+                {% render 'camera-store-card', product: product, category: category_label, special_item: special_item %}
+              </div>
+              {% if available_index > 12 %}</template>{% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="cs-empty" data-empty hidden><h3>No cameras match this combination.</h3><p>Try a different format, a wider budget, or another search.</p><button class="cs-button" data-reset type="button">Show all available cameras {% render 'camera-store-icon', icon: 'arrow' %}</button><a class="cs-text-link" href="{{ section.settings.contact_url }}">Ask us for a recommendation ↗</a></div>
+        <div class="cs-inventory__footer">
+          <noscript><p>Showing a selection of available cameras. <a href="{{ camera_collection.url }}">Browse the complete camera collection →</a></p></noscript>
+          <button type="button" class="cs-button cs-button--outline" data-load-more hidden>Show more cameras {% render 'camera-store-icon', icon: 'plus' %}</button>
+          <p data-stock-note>Available gear only. See each listing for condition, included items, and any known issues.</p>
+          {% if paginate.pages > 1 %}<p>This is a selection of our inventory. <a href="{{ camera_collection.url }}">See the full camera collection →</a></p>{% endif %}
+        </div>
+      {% endpaginate %}
+    {% else %}
+      <p>Select your camera collection in the theme editor to display available cameras.</p>
+    {% endif %}
+  </div>
+</camera-store>
+{% schema %}
+{"name":"Camera store: inventory","settings":[
+  {"type":"collection","id":"collection","label":"Camera collection"},
+  {"type":"text","id":"heading","label":"Heading","default":"The next roll starts here."},
+  {"type":"textarea","id":"description","label":"Description","default":"Explore available cameras, from everyday companions to forever finds. Check each listing for its condition, what’s included, and the details that make it yours."},
+  {"type":"url","id":"contact_url","label":"Contact page"}
+],"presets":[{"name":"Camera store: inventory"}]}
+{% endschema %}

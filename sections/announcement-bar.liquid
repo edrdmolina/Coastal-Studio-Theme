@@ -121,7 +121,7 @@
                       >
                     {%- endif -%}
                     <p class="announcement-bar__message h5">
-                      <span>{{ block.settings.text | escape }}</span>
+                      <span>{%- assign announcement_text = block.settings.text | downcase -%}{%- if template.suffix == 'cameras' and announcement_text contains 'turnaround' -%}Film processing: {% endif %}{{ block.settings.text | escape }}</span>
                       {%- if block.settings.link != blank -%}
                         {% render 'icon-arrow' %}
                       {%- endif -%}

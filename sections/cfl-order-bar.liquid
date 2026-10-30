@@ -29,6 +29,11 @@
     assign show_bar = false
   endif
 
+  # Keep the camera storefront focused on choosing gear.
+  if template.name == 'page' and template.suffix == 'cameras'
+    assign show_bar = false
+  endif
+
   unless section.settings.enabled
     assign show_bar = false
   endunless
