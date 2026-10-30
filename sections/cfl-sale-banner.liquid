@@ -61,7 +61,7 @@
     }
   {%- endstyle -%}
 
-  <div class="color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="cfl-sale-band color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
     <div class="cfl-sale{% if section.settings.image != blank %} cfl-sale--split{% endif %}">
       <div class="cfl-sale__text">
         {%- if section.settings.eyebrow != blank -%}
@@ -212,7 +212,8 @@
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "Color scheme",
-      "default": "background-2"
+      "info": "Sets the text and button colours. The background is always the warm cream.",
+      "default": "background-1"
     },
     {
       "type": "header",

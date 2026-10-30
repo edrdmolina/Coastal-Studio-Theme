@@ -2054,11 +2054,19 @@ html:not(.no-js) .cfl-scan-estimator__static {
 
 /*
   The dated promotion above the hero. It shares the hero's two-column shape so
-  the top of the page reads as one system, but sits on the mustard notice
-  colour and shows its photograph plainly rather than in film, so the two
-  don't stack into a pair of look-alike heroes. Text uses the scheme's brown
-  throughout: the teal accent is too low-contrast on mustard for small type.
+  the top of the page reads as one system, but sits on the warm cream ground
+  and shows its photograph plainly rather than in film, so the two don't stack
+  into a pair of look-alike heroes. The section uses the paper-white colour
+  scheme for its buttons — the same pairings as the hero — and only the cream
+  ground is overridden here. Mustard appears just once, as the notice tag on
+  the eyebrow: a whole mustard section was too loud, and the teal outline
+  button can't be read on it.
 */
+.cfl-sale-band.gradient {
+  background: #fff8ef;
+  border-bottom: 0.1rem solid rgba(48, 30, 23, 0.12);
+}
+
 .cfl-sale {
   max-width: 82rem;
   margin: 0 auto;
@@ -2081,7 +2089,12 @@ html:not(.no-js) .cfl-scan-estimator__static {
 }
 
 .cfl-sale__eyebrow {
-  margin: 0 0 1.2rem;
+  display: inline-block;
+  margin: 0 0 1.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: 0.4rem;
+  background: #e8af21;
+  color: #301e17;
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -2117,6 +2130,15 @@ html:not(.no-js) .cfl-scan-estimator__static {
   line-height: 1.5;
 }
 
+/*
+  The outline button's label and border take the darkened seafoam: the brand
+  teal measures 1.81:1 on cream, this measures 5.07:1. Dawn reads both from
+  --color-button-text as an RGB triplet.
+*/
+.cfl-sale .button--secondary {
+  --color-button-text: 0, 119, 124;
+}
+
 .cfl-sale__actions {
   display: flex;
   flex-wrap: wrap;
@@ -2143,6 +2165,11 @@ html:not(.no-js) .cfl-scan-estimator__static {
   .cfl-sale__text {
     display: flex;
     flex-direction: column;
+  }
+
+  /* Keep the notice tag its own width rather than stretching across the column. */
+  .cfl-sale__eyebrow {
+    align-self: center;
   }
 
   .cfl-sale__actions {
