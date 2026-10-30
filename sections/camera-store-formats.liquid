@@ -1,5 +1,5 @@
 {{ 'camera-store.css' | asset_url | stylesheet_tag }}
-<div class="camera-store cs-formats"><div class="cs-shell">
+<div class="camera-store cs-formats"><div class="cs-shell page-width">
     <div class="cs-section-heading cs-category-heading">
       <div><p class="cs-eyebrow">FIND YOUR FORMAT</p><h2>{{ section.settings.category_heading | escape }}</h2></div>
       <p>Different ways to see.<br>The same love for film.</p>
@@ -14,7 +14,6 @@
               {% if category_image != blank %}
                 {{ category_image | image_url: width: 640 | image_tag: widths: '240, 400, 640', sizes: '(min-width: 990px) 20vw, (min-width: 600px) 33vw, 50vw', loading: 'lazy', alt: category.title }}
               {% endif %}
-              <span class="cs-category__number">0{{ forloop.index }}</span>
             </div>
             <div class="cs-category__title"><h3>{{ block.settings.heading | default: category.title | escape }}</h3>{% render 'camera-store-icon', icon: 'arrow' %}</div>
             <p>{{ block.settings.description | escape }}</p>

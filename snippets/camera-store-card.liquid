@@ -48,7 +48,7 @@
     assign caution = 'AS-IS / display — check listing'
   endif
 %}
-<article class="cs-product">
+<article class="cs-product product-card-wrapper">
   <a class="cs-product__image" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
     {% if product.featured_image %}
       {{ product.featured_image | image_url: width: 800 | image_tag: widths: '240, 400, 600, 800', sizes: '(min-width: 1100px) 23vw, (min-width: 750px) 31vw, 46vw', loading: 'lazy', alt: image_alt }}
@@ -56,17 +56,13 @@
       {{ 'product-1' | placeholder_svg_tag: 'cs-placeholder' }}
     {% endif %}
     {% if product.compare_at_price > product.price %}<span class="cs-product__badge">On sale</span>{% endif %}
-    <span class="cs-product__image-arrow">{% render 'camera-store-icon', icon: 'arrow' %}</span>
   </a>
   <div class="cs-product__body">
     {% if category != blank %}<p class="cs-product__type">{{ category | escape }}{% if kit_label != blank %}<span> · {{ kit_label }}</span>{% endif %}</p>{% endif %}
-    <h3><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
+    <h3 class="card__heading h4"><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
     <p class="cs-product__condition">{% if grade != blank %}Listed condition: <strong>{{ grade | escape }}</strong>{% else %}See condition in listing{% endif %}</p>
     {% if caution != blank %}<p class="cs-product__caution">{{ caution }}</p>{% endif %}
-    <div class="cs-product__price">
-      <span>{% if product.price_varies %}From {% endif %}{{ product.price | money_with_currency }}</span>
-      {% if product.compare_at_price > product.price %}<s>{{ product.compare_at_price | money_with_currency }}</s>{% endif %}
-    </div>
-    <a class="cs-product__details" href="{{ product.url }}" aria-label="View condition and details for {{ product.title | escape }}">Condition & details {% render 'camera-store-icon', icon: 'arrow' %}</a>
+    <div class="cs-product__price">{% render 'price', product: product, show_compare_at_price: true %}</div>
+    <a class="button button--secondary cs-product__details" href="{{ product.url }}" aria-label="View condition and details for {{ product.title | escape }}">Condition & details {% render 'camera-store-icon', icon: 'arrow' %}</a>
   </div>
 </article>

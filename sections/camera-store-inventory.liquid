@@ -1,8 +1,10 @@
 {{ 'camera-store.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'camera-store.js' | asset_url }}" defer="defer"></script>
 {% assign camera_collection = section.settings.collection %}
 <camera-store class="camera-store cs-inventory" id="CameraInventory" data-section-id="{{ section.id }}" data-page-size="12">
-  <div class="cs-shell">
+  <div class="cs-shell page-width">
     <div class="cs-section-heading">
       <div><p class="cs-eyebrow">LESS SCROLLING. MORE SHOOTING.</p><h2>{{ section.settings.heading | escape }}</h2></div>
       {% if camera_collection != blank %}<a class="cs-text-link" href="{{ camera_collection.url }}">Browse full collection {% render 'camera-store-icon', icon: 'arrow' %}</a>{% endif %}
@@ -18,7 +20,7 @@
         <div class="cs-field"><label for="CameraBudget-{{ section.id }}">My budget</label><select id="CameraBudget-{{ section.id }}" name="budget">
           <option value="all">Any budget</option><option value="10000">Under {{ 10000 | money_with_currency }}</option><option value="25000">Under {{ 25000 | money_with_currency }}</option><option value="50000">Under {{ 50000 | money_with_currency }}</option><option value="100000">Under {{ 100000 | money_with_currency }}</option>
         </select></div>
-        <button class="cs-button" type="submit">Find my camera {% render 'camera-store-icon', icon: 'arrow' %}</button>
+        <button class="button button--primary cs-button" type="submit">Find my camera {% render 'camera-store-icon', icon: 'arrow' %}</button>
       </form>
       <noscript><p><a class="cs-text-link" href="{{ camera_collection.url }}">Browse cameras and use collection filters →</a></p></noscript>
       </div>
@@ -104,10 +106,10 @@
             {% endif %}
           {% endfor %}
         </div>
-        <div class="cs-empty" data-empty hidden><h3>No cameras match this combination.</h3><p>Try a different format, a wider budget, or another search.</p><button class="cs-button" data-reset type="button">Show all available cameras {% render 'camera-store-icon', icon: 'arrow' %}</button><a class="cs-text-link" href="{{ section.settings.contact_url }}">Ask us for a recommendation ↗</a></div>
+        <div class="cs-empty" data-empty hidden><h3>No cameras match this combination.</h3><p>Try a different format, a wider budget, or another search.</p><button class="button button--primary cs-button" data-reset type="button">Show all available cameras {% render 'camera-store-icon', icon: 'arrow' %}</button><a class="cs-text-link" href="{{ section.settings.contact_url }}">Ask us for a recommendation ↗</a></div>
         <div class="cs-inventory__footer">
           <noscript><p>Showing a selection of available cameras. <a href="{{ camera_collection.url }}">Browse the complete camera collection →</a></p></noscript>
-          <button type="button" class="cs-button cs-button--outline" data-load-more hidden>Show more cameras {% render 'camera-store-icon', icon: 'plus' %}</button>
+          <button type="button" class="button button--secondary cs-button cs-button--outline" data-load-more hidden>Show more cameras {% render 'camera-store-icon', icon: 'plus' %}</button>
           <p data-stock-note>Available gear only. See each listing for condition, included items, and any known issues.</p>
           {% if paginate.pages > 1 %}<p>This is a selection of our inventory. <a href="{{ camera_collection.url }}">See the full camera collection →</a></p>{% endif %}
         </div>

@@ -1,6 +1,8 @@
 {{ 'camera-store.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
 <div class="camera-store cs-shelf">
-  <div class="cs-shell">
+  <div class="cs-shell page-width">
     <div class="cs-section-heading"><div><p class="cs-eyebrow">A DIFFERENT PERSPECTIVE</p><h2>{{ section.settings.heading | escape }}</h2></div>{% if section.settings.collection != blank %}<a class="cs-text-link" href="{{ section.settings.collection.url }}">Shop all lenses {% render 'camera-store-icon', icon: 'arrow' %}</a>{% endif %}</div>
     <p class="cs-section-intro">{{ section.settings.description | escape }}</p>
     <div class="cs-product-grid cs-product-grid--shelf">

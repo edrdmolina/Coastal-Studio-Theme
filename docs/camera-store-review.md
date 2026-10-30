@@ -6,7 +6,15 @@ Draft theme: **Camera Store Redesign - Review 2026-10-30** (ID `158931484726`, u
 
 [Open the camera store draft](https://www.coastalfilmlab.com/pages/cameras?preview_theme_id=158931484726)
 
-[Desktop screenshot](camera-store-desktop.png) · [Mobile screenshot](camera-store-mobile.png)
+[Desktop screenshot](camera-store-desktop.png) · [Mobile screenshot](camera-store-mobile.png) · [Product components](camera-store-products.png)
+
+## Shared design system
+
+The camera page uses the site's Seawave display headings, Filicudi subheadings and buttons, native Studio button and price components, theme page-width gutters, product-card alignment/radius settings, square product photography, variant-style camera filters, and native FAQ accordions. The reassurance strip uses the homepage's shared `cfl-trust` component. Surfaces follow the theme color variables, with the cream `accent-2` scheme for the confidence panel.
+
+The shopping improvements remain in place. Decorative numbered category markers, floating image arrows, the photo label, and the separate dark confidence surface were removed. Teal buttons keep brown labels, following the existing shared components' contrast correction.
+
+Verified computed Seawave headings, Filicudi button text, and the theme's 12px outer button radius. Updated desktop, product, and mobile screenshots reflect this design. Finder combinations, sorting, 320px/390px layouts, and the no-JavaScript fallback still pass, with no runtime exceptions or added Theme Check findings.
 
 ## What changed
 

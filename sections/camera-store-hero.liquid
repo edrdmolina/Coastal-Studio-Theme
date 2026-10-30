@@ -1,31 +1,30 @@
 {{ 'camera-store.css' | asset_url | stylesheet_tag }}
 
 <div class="camera-store cs-hero-section">
-  <div class="cs-shell">
+  <div class="cs-shell page-width">
     <nav class="cs-breadcrumb" aria-label="Breadcrumb"><a href="{{ routes.root_url }}">Home</a><span aria-hidden="true">/</span><span>Camera store</span></nav>
     <div class="cs-hero">
       <div class="cs-hero__copy">
-        <p class="cs-eyebrow"><span class="cs-dot"></span> {{ section.settings.eyebrow | escape }}</p>
+        <p class="cs-eyebrow">{{ section.settings.eyebrow | escape }}</p>
         <h1>{{ section.settings.heading | escape | newline_to_br }}</h1>
         <p class="cs-hero__description">{{ section.settings.description | escape }}</p>
         <div class="cs-actions">
-          <a class="cs-button" href="#CameraInventory">Shop available cameras {% render 'camera-store-icon', icon: 'arrow' %}</a>
+          <a class="button button--primary cs-button" href="#CameraInventory">Shop available cameras {% render 'camera-store-icon', icon: 'arrow' %}</a>
           <a class="cs-text-link" href="#CameraFinder">Help me choose <span aria-hidden="true">↗</span></a>
         </div>
       </div>
-      <div class="cs-hero__media">
+      <div class="cs-hero__media global-media-settings">
         {% if section.settings.image != blank %}
           {{ section.settings.image | image_url: width: 1600 | image_tag: widths: '480, 750, 1000, 1300, 1600', sizes: '(min-width: 990px) 48vw, 100vw', loading: 'eager', fetchpriority: 'high', alt: 'A selection of classic film cameras at Coastal Film Lab' }}
         {% else %}
           {{ 'collection-2' | placeholder_svg_tag: 'cs-placeholder' }}
         {% endif %}
-        <div class="cs-hero__label"><span>COASTAL CAMERA STORE</span><span>TAMPA, FL ↗</span></div>
       </div>
     </div>
-    <div class="cs-promises">
-      <a href="#CameraConfidence">{% render 'camera-store-icon', icon: 'camera' %}<span><strong>More than a battery check</strong><span>Our 20-point inspection. AS-IS excluded.</span></span></a>
-      <a href="{{ section.settings.warranty_url }}">{% render 'camera-store-icon', icon: 'shield' %}<span><strong>90-day limited warranty</strong><span>On used gear, except AS-IS. Terms apply.</span></span></a>
-      <a href="{{ section.settings.contact_url }}">{% render 'camera-store-icon', icon: 'box' %}<span><strong>Real people. A real film lab.</strong><span>Camera advice & shipping from Tampa, Florida.</span></span></a>
+    <div class="cs-promises cfl-trust">
+      <a href="#CameraConfidence"><span class="cfl-trust__item"><strong class="cfl-trust__label">More than a battery check</strong><span class="cfl-trust__body">Our 20-point inspection. AS-IS excluded.</span></span></a>
+      <a href="{{ section.settings.warranty_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">90-day limited warranty</strong><span class="cfl-trust__body">On used gear, except AS-IS. Terms apply.</span></span></a>
+      <a href="{{ section.settings.contact_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">Real people. A real film lab.</strong><span class="cfl-trust__body">Camera advice & shipping from Tampa, Florida.</span></span></a>
     </div>
   </div>
 </div>
