@@ -2049,6 +2049,124 @@ html:not(.no-js) .cfl-scan-estimator__static {
 }
 
 /* ------------------------------------------------------------------ *
+ * Home: sale banner
+ * ------------------------------------------------------------------ */
+
+/*
+  The dated promotion above the hero. It shares the hero's two-column shape so
+  the top of the page reads as one system, but sits on the mustard notice
+  colour and shows its photograph plainly rather than in film, so the two
+  don't stack into a pair of look-alike heroes. Text uses the scheme's brown
+  throughout: the teal accent is too low-contrast on mustard for small type.
+*/
+.cfl-sale {
+  max-width: 82rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.cfl-sale--split {
+  max-width: 112rem;
+  display: grid;
+  gap: clamp(2.8rem, 4vw, 5.6rem);
+}
+
+@media screen and (min-width: 750px) {
+  .cfl-sale--split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    text-align: left;
+  }
+}
+
+.cfl-sale__eyebrow {
+  margin: 0 0 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/*
+  A step smaller than the hero's h1, so the terms and both buttons still fit
+  above the fold on a 1280 x 800 laptop.
+*/
+.cfl-sale__title {
+  margin: 0 0 1.4rem;
+  font-family: var(--font-heading-family);
+  font-size: clamp(3.2rem, 1.2rem + 2.6vw, 4.8rem);
+  line-height: 1.08;
+}
+
+.cfl-sale__sub {
+  margin: 0 auto 1.6rem;
+  max-width: 52ch;
+  font-size: clamp(1.6rem, 1.45rem + 0.2vw, 1.8rem);
+  line-height: 1.55;
+}
+
+/* The condition and the deadline: set apart so nobody misses them before checkout. */
+.cfl-sale__terms {
+  margin: 0 auto 2.4rem;
+  max-width: 52ch;
+  padding-top: 1.2rem;
+  border-top: 0.1rem solid currentColor;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cfl-sale__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  justify-content: center;
+}
+
+@media screen and (min-width: 750px) {
+  .cfl-sale--split .cfl-sale__sub,
+  .cfl-sale--split .cfl-sale__terms {
+    margin-inline: 0;
+  }
+
+  .cfl-sale--split .cfl-sale__actions {
+    justify-content: flex-start;
+  }
+}
+
+/*
+  On phones the buttons move above the terms, so the primary button is on the
+  first screen of an iPhone-sized viewport; the terms follow straight after.
+*/
+@media screen and (max-width: 749px) {
+  .cfl-sale__text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cfl-sale__actions {
+    order: 1;
+    margin-bottom: 2rem;
+  }
+
+  .cfl-sale__terms {
+    order: 2;
+    margin-bottom: 0;
+  }
+}
+
+.cfl-sale__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 0.6rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.16);
+}
+
+/* ------------------------------------------------------------------ *
  * Home: service cards
  * ------------------------------------------------------------------ */
 
