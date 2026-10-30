@@ -31,6 +31,12 @@ Verified computed Seawave headings, Filicudi button text, and the theme's 12px o
 - Responsive grids, readable button contrast, native disclosure controls, focus states, reduced-motion support, and a footer email wrap fix scoped to the camera storefront.
 - Five Shopify sections keep the hero, catalog, format guide, lens shelf, and confidence content independently editable.
 
+## Link overlay regression
+
+The custom cards retain the theme's `h4` typography class but use `cs-product__title` instead of `card__heading`. The latter generates an absolutely positioned full-card link in Studio. Outside the native card container it stretched over the page, making a lens link intercept hero clicks.
+
+Reproduced on the unpublished public draft: a point in the hero resolved to the Prospec lens. After removing that behavioral class, browser hit testing passed 54 targets: hero heading, description, photograph, both hero actions, a type filter, and the title/photo/details links on all 16 rendered camera and lens cards. All product-title `::after` overlays now compute to `none`.
+
 ## Validation
 
 - Shopify-rendered preview with the real store's products, collections, photography, prices, and policies.

@@ -59,7 +59,8 @@
   </a>
   <div class="cs-product__body">
     {% if category != blank %}<p class="cs-product__type">{{ category | escape }}{% if kit_label != blank %}<span> · {{ kit_label }}</span>{% endif %}</p>{% endif %}
-    <h3 class="card__heading h4"><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
+    {% comment %}Use the theme's type scale without card__heading's stretched-link overlay.{% endcomment %}
+    <h3 class="cs-product__title h4"><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
     <p class="cs-product__condition">{% if grade != blank %}Listed condition: <strong>{{ grade | escape }}</strong>{% else %}See condition in listing{% endif %}</p>
     {% if caution != blank %}<p class="cs-product__caution">{{ caution }}</p>{% endif %}
     <div class="cs-product__price">{% render 'price', product: product, show_compare_at_price: true %}</div>
