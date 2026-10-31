@@ -89,13 +89,13 @@ The updated unpublished Shopify preview has 78 available camera cards, nine expl
 
 The live storefront has not been published or updated by this work.
 
-## Overlapping camera taxonomy — preparation
+## Overlapping camera taxonomy
 
 The next catalog pass uses `custom.camera_categories`, a list of single-line text values restricted to Point and Shoot, SLR, Rangefinder, Medium Format, Compact Camera, and Large Format. Format, camera construction, and body size overlap deliberately. Medium-format TLRs receive Medium Format without an incorrect SLR or Rangefinder label. Cameras outside these six categories remain visible in All cameras.
 
-The definition payload is `docs/camera-categories-metafield.json`. The prepared draft filter code consumes only this field for category membership and intersects multiple selections; it does not infer audited categories from legacy tags. Category metadata can also identify legacy cameras with missing product types. `scripts/camera-metafields.mjs` is a dry-run-by-default importer using Shopify CLI product authorization, identity checks, compare-and-set writes, and backups. Store writes and the draft upload are pending the completed catalog audit and authenticated product access.
+The definition payload is `docs/camera-categories-metafield.json`. The draft filter code consumes only this field for category membership and intersects multiple selections; it does not infer audited categories from legacy tags. Category metadata can also identify legacy cameras with missing product types. `scripts/camera-metafields.mjs` is a dry-run-by-default importer using Shopify CLI product authorization, identity checks, compare-and-set writes, and backups. The 87 classified public cameras have been saved and read back in Shopify. The updated category UI is uploaded only to the existing unpublished review theme. Additional Admin-only entries are being audited separately.
 
-Preparation checks: 43 Liquid fixtures and 16 browser fixture checks pass. Serve the repository root over HTTP and open `tests/camera-store/browser.html` for the browser checks. These fixture checks do not claim that Shopify product metafields have been saved.
+Checks: 43 Liquid fixtures, eight importer checks, and 16 browser fixture checks pass. Serve the repository root over HTTP and open `tests/camera-store/browser.html` for the browser checks. Live Shopify verification also confirms the saved metafields, three Medium Format + SLR matches, and one Medium Format + Rangefinder match. Shared URL restoration, sorting, reset/load-more focus, and all 73 link targets pass. Actual 320px and 390px layouts have no overflow; the JavaScript-disabled fallback still offers 12 initial cameras and full-collection links.
 
 
 ### Completed public catalog audit
@@ -110,4 +110,4 @@ Validate the reviewed import without Shopify access:
 node scripts/camera-metafields.mjs docs/camera-catalog-classification.json --plan
 ```
 
-After authenticated Shopify product access is available, run the same command without `--plan` to inspect the current-value dry run, then use `--apply` to create/validate the definition and save the classified arrays with backups and concurrency checks. Run `--verify` afterward. The five out-of-taxonomy cameras and 13 exclusions are not assigned category arrays. Shopify writes and uploading the prepared filter UI remain pending authentication.
+After authenticated Shopify product access is available, run the same command without `--plan` to inspect the current-value dry run, then use `--apply` to create/validate the definition and save the classified arrays with backups and concurrency checks. Run `--verify` afterward. The five out-of-taxonomy cameras and 13 exclusions are not assigned category arrays. The public classifications are now saved and verified, and the filter UI is uploaded to the unpublished review theme. No live theme was published. Backups are stored in the ignored `.shopify/camera-catalog-backups/` directory. Admin contains additional nonpublic entries; those names and classifications stay outside this public repository.

@@ -2,7 +2,7 @@
 
 Audited 2026-10-31T01:37:21.233074+00:00. Store: `d61956-2.myshopify.com`. Canonical public collection: [Cameras](https://www.coastalfilmlab.com/collections/cameras).
 
-All **105** public listings were inspected: **92 actual cameras**, including **14 sold-out camera listings**, and **13 noncamera accessories/lenses**. **87 cameras** receive at least one requested label; **5 real cameras** remain outside this taxonomy. Categories overlap. No Shopify writes or parent code changes were made.
+All **105** public listings were inspected: **92 actual cameras**, including **14 sold-out camera listings**, and **13 noncamera accessories/lenses**. **87 cameras** receive at least one requested label; **5 real cameras** remain outside this taxonomy. Categories overlap. This subagent audit was read-only. Subsequent Shopify application and filter verification are recorded in [the implementation notes](camera-store-review.md).
 
 ## Counts
 

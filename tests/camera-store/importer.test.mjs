@@ -42,3 +42,23 @@ for (const [name, mutate] of invalidCases) {
     } finally { rmSync(dir, {recursive:true,force:true}); }
   });
 }
+
+test('verification accepts Shopify CLI pretty-printed JSON without writing', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'coastal-camera-cli-test-'));
+  try {
+    const mock = `#!/usr/bin/env node
+const fs = require('node:fs');
+if (process.argv.includes('--allow-mutations')) throw new Error('Unexpected mutation');
+const audit = JSON.parse(fs.readFileSync(process.env.CAMERA_TEST_AUDIT));
+const vars = JSON.parse(fs.readFileSync(process.argv[process.argv.indexOf('--variable-file')+1]));
+const nodes = vars.ids.map(id=>{const p=audit.products.find(p=>p.admin_graphql_api_id===id);return {id,handle:p.handle,title:p.title,taxonomy:{type:'list.single_line_text_field',value:JSON.stringify(p.categories),compareDigest:'test-digest'}}});
+console.log(JSON.stringify({nodes},null,2));
+`;
+    writeFileSync(join(dir, 'shopify'), mock, {mode:0o755});
+    const result = spawnSync(process.execPath, [script, auditFile, '--verify'], {
+      encoding:'utf8', env:{...process.env, PATH:`${dir}:${process.env.PATH}`, CAMERA_TEST_AUDIT:auditFile}
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout.trim()).changes, 0);
+  } finally { rmSync(dir, {recursive:true,force:true}); }
+});

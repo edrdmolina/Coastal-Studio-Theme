@@ -4,9 +4,10 @@
 // Apply:   node scripts/camera-metafields.mjs AUDIT.json --apply
 // Verify:  node scripts/camera-metafields.mjs AUDIT.json --verify
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const store = 'd61956-2.myshopify.com';
 const file = process.argv[2];
@@ -48,9 +49,13 @@ function graphql(query, variables = {}, mutate = false) {
   const args = ['store', 'execute', '--store', store, '--version', '2026-10', '--query-file', queryFile, '--variable-file', variableFile, '--json', '--no-input'];
   if (mutate) args.push('--allow-mutations');
   const output = execFileSync('shopify', args, { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
-  const lines = output.trim().split('\n').map(line => { try { return JSON.parse(line); } catch { return null; } });
-  const result = lines.findLast(line => line && !line.type);
-  if (!result || result.error || result.errors) throw new Error(JSON.stringify(result || lines));
+  let result;
+  try { result = JSON.parse(output); }
+  catch {
+    const lines = output.trim().split('\n').map(line => { try { return JSON.parse(line); } catch { return null; } });
+    result = lines.findLast(line => line && !line.type);
+  }
+  if (!result || result.error || result.errors) throw new Error(JSON.stringify(result || {message:'No JSON response from Shopify CLI'}));
   return result.data || result;
 }
 function readProducts() {
@@ -91,7 +96,9 @@ try {
       if (created.userErrors.length || !created.createdDefinition) throw new Error(JSON.stringify(created.userErrors));
     }
     // Back up the original public product metadata before writing any values.
-    const backup = `${file}.before-metafields-${Date.now()}.json`;
+    const backupDir = fileURLToPath(new URL('../.shopify/camera-catalog-backups/', import.meta.url));
+    mkdirSync(backupDir, { recursive: true });
+    const backup = join(backupDir, `${basename(file)}.before-${Date.now()}.json`);
     writeFileSync(backup, JSON.stringify({ store, capturedAt: new Date().toISOString(), products: [...current.values()] }, null, 2) + '\n', { flag: 'wx' });
     for (let i = 0; i < changes.length; i += 25) {
       const result = graphql(`mutation ($metafields: [MetafieldsSetInput!]!) { metafieldsSet(metafields: $metafields) { metafields { id key value } userErrors { field message code } } }`, { metafields: changes.slice(i, i + 25) }, true).metafieldsSet;

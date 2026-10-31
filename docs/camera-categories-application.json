@@ -1,0 +1,27 @@
+{
+  "store": "d61956-2.myshopify.com",
+  "metafield": "custom.camera_categories",
+  "definition_id": "gid://shopify/MetafieldDefinition/601989054518",
+  "type": "list.single_line_text_field",
+  "public_collection_listings": 105,
+  "public_cameras": 92,
+  "public_cameras_classified_and_verified": 87,
+  "public_cameras_outside_six_labels": 5,
+  "public_exclusions": 13,
+  "admin_collection_listings": 123,
+  "additional_admin_entries_pending_audit": 18,
+  "draft_theme_id": 158931484726,
+  "live_theme_published": false,
+  "private_backup_directory": ".shopify/camera-catalog-backups/",
+  "verification": {
+    "automated_checks": 51,
+    "browser_fixture_checks": 16,
+    "link_targets": 73,
+    "medium_slr_matches": 3,
+    "medium_rangefinder_matches": 1,
+    "mobile_widths_without_overflow": [
+      320,
+      390
+    ]
+  }
+}
