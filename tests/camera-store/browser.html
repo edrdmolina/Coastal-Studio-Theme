@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Camera category regression checks</title>
+<style>[hidden]{display:none!important}body{font-family:system-ui;max-width:60rem;margin:2rem auto}button,a,select,input{margin:.25rem;padding:.5rem}</style>
+<script src="../../assets/camera-store.js" defer></script>
+<script defer>
+document.addEventListener('DOMContentLoaded', () => {
+  const store = document.querySelector('camera-store');
+  const results = [];
+  const check = (name, pass) => { results.push({name, pass:!!pass}); if(!pass)throw new Error(name); };
+  const tab = key => store.querySelector(`[data-category="${key}"][aria-pressed]`);
+  const reset = () => store.querySelector('[data-empty] [data-reset]').click();
+  try {
+    check('all includes cameras outside the six categories', store.matches.length === 4);
+    tab('medium').click();
+    check('medium format contains multiple constructions', store.matches.length === 2);
+    tab('slr').click();
+    check('medium format plus SLR uses intersection', store.matches.length === 1 && store.matches[0].dataset.title === 'Medium SLR');
+    check('both selected categories remain pressed', tab('medium').getAttribute('aria-pressed') === 'true' && tab('slr').getAttribute('aria-pressed') === 'true');
+    check('combined categories persist in URL', new URL(location.href).searchParams.get('camera_type') === 'medium,slr');
+    tab('slr').click();
+    check('toggle removes just one category', store.matches.length === 2);
+    tab('rangefinder').click();
+    check('medium format plus rangefinder uses intersection', store.matches.length === 1 && store.matches[0].dataset.title === 'Medium Rangefinder');
+    tab('all').click();tab('point-shoot').click();tab('compact').click();
+    check('point and shoot plus compact overlaps', store.matches.length === 1 && store.matches[0].dataset.title === 'Compact Point and Shoot');
+    store.form.elements.style.value = 'slr';store.form.elements.budget.value = '25000';
+    store.form.dispatchEvent(new Event('submit',{cancelable:true}));
+    check('finder replaces category combination and combines budget', store.matches.length === 1 && store.categories.join() === 'slr');
+    store.search.value='no-match';store.search.dispatchEvent(new Event('input'));
+    check('no match displays recovery', !store.querySelector('[data-empty]').hidden && store.matches.length === 0);
+    store.querySelector('[data-empty] [data-reset]').focus();reset();
+    check('reset focuses first restored camera', document.activeElement === store.matches[0].querySelector('h3 a'));
+    check('reset clears both selected categories', store.categories.length === 0 && tab('all').getAttribute('aria-pressed') === 'true');
+    const oldLimit = store.limit;store.more.click();
+    check('load more focuses first new camera', document.activeElement === store.matches[oldLimit].querySelector('h3 a'));
+    history.replaceState(null,'','?camera_type=rangefinder,medium&camera_budget=25000');
+    store.restoreFromUrl();
+    check('back/share URL restores overlapping categories', store.matches.length === 1 && store.matches[0].dataset.title === 'Medium Rangefinder');
+    tab('slr').click();
+    check('impossible category combination recovers honestly', store.matches.length === 0);
+    reset();
+    store.sort.value='price-asc';store.sort.dispatchEvent(new Event('change'));
+    check('sorting remains correct with categories', store.matches.every((c,i)=>!i || +store.matches[i-1].dataset.price <= +c.dataset.price));
+    const result = document.querySelector('output');result.textContent=`${results.length} browser checks passed`;
+    window.cameraStoreTests = {pass:true, results};
+  } catch(error) {
+    window.cameraStoreTests = {pass:false, results, error:error.message};
+    document.querySelector('output').textContent = error.stack;
+  }
+});
+</script>
+<h1>Camera category regression checks</h1>
+<p>Serve the repository root over HTTP and open this page. It exercises the production camera-store.js with representative overlapping metadata.</p>
+<output>Running…</output>
+<camera-store data-page-size="2">
+  <details id="CameraFinder"><summary>Finder</summary>
+    <form data-finder hidden><select name="style"><option value="all">All</option><option value="point-shoot">Point and Shoot</option><option value="slr">SLR</option><option value="rangefinder">Rangefinder</option><option value="medium">Medium Format</option><option value="compact">Compact Camera</option><option value="large">Large Format</option></select><select name="budget"><option value="all">Any budget</option><option value="25000">Under $250</option></select><button>Find</button></form>
+  </details>
+  <div data-shop-tools hidden>
+    <div role="group"><button data-category="all" aria-pressed="true">All</button><button data-category="point-shoot" aria-pressed="false">Point and Shoot</button><button data-category="slr" aria-pressed="false">SLR</button><button data-category="rangefinder" aria-pressed="false">Rangefinder</button><button data-category="medium" aria-pressed="false">Medium Format</button><button data-category="compact" aria-pressed="false">Compact Camera</button><button data-category="large" aria-pressed="false">Large Format</button></div>
+    <label>Search <input data-search type="search"></label>
+    <select data-sort><option value="featured">Featured</option><option value="price-asc">Price low to high</option><option value="price-desc">Price high to low</option></select>
+    <div class="cs-result-row"><p data-result-count tabindex="-1" role="status"></p><label><input type="checkbox" data-include-special>AS-IS</label><button data-reset hidden>Clear filters</button></div>
+  </div>
+  <div data-product-grid>
+    <div data-camera data-categories="medium|slr|" data-special="false" data-title="Medium SLR" data-price="20000" data-index="0"><h3><a href="#slr">Medium SLR</a></h3><a class="cs-product__details" href="#slr-details">Details</a></div>
+    <div data-camera data-categories="medium|rangefinder|" data-special="false" data-title="Medium Rangefinder" data-price="15000" data-index="1"><h3><a href="#rf">Medium Rangefinder</a></h3><a class="cs-product__details" href="#rf-details">Details</a></div>
+    <div data-camera data-categories="point-shoot|compact|" data-special="false" data-title="Compact Point and Shoot" data-price="5000" data-index="2"><h3><a href="#compact">Compact Point and Shoot</a></h3><a class="cs-product__details" href="#compact-details">Details</a></div>
+    <div data-camera data-category="medium" data-categories="" data-special="false" data-title="Uncategorized Camera" data-price="35000" data-index="3"><h3><a href="#other">Uncategorized Camera</a></h3><a class="cs-product__details" href="#other-details">Details</a></div>
+  </div>
+  <div data-empty hidden><button data-reset>Show all available cameras</button></div>
+  <button data-load-more hidden>Show more cameras</button><p data-stock-note>Available inventory</p>
+</camera-store>
+</html>

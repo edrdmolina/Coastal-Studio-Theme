@@ -11,7 +11,9 @@
   assign tags = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
   assign handles = product.collections | map: 'handle'
   assign is_camera = false
-  if product_type == 'camera'
+  if product.metafields.custom.camera_categories.value != blank
+    assign is_camera = true
+  elsif product_type == 'camera'
     assign is_camera = true
   elsif product_type == blank
     if title_words contains ' camera ' or title_words contains ' slr '

@@ -15,7 +15,7 @@
       <div class="cs-finder__content">
       <form class="cs-finder__form" data-finder hidden>
         <div class="cs-field"><label for="CameraStyle-{{ section.id }}">I want to…</label><select id="CameraStyle-{{ section.id }}" name="style">
-          <option value="all">Explore everything</option><option value="point-shoot">Keep it simple — point & shoot</option><option value="35mm">Take control — 35mm SLR</option><option value="medium">Go bigger — medium format</option><option value="instant">Make instant prints</option><option value="digital">Shoot digital</option><option value="large">Try large format</option>
+          <option value="all">Explore everything</option><option value="point-shoot">Point and Shoot</option><option value="slr">SLR</option><option value="rangefinder">Rangefinder</option><option value="medium">Medium Format</option><option value="compact">Compact Camera</option><option value="large">Large Format</option>
         </select></div>
         <div class="cs-field"><label for="CameraBudget-{{ section.id }}">My budget</label><select id="CameraBudget-{{ section.id }}" name="budget">
           <option value="all">Any budget</option><option value="10000">Under {{ 10000 | money_with_currency }}</option><option value="25000">Under {{ 25000 | money_with_currency }}</option><option value="50000">Under {{ 50000 | money_with_currency }}</option><option value="100000">Under {{ 100000 | money_with_currency }}</option>
@@ -28,15 +28,15 @@
     {% if camera_collection != blank %}
       {% paginate camera_collection.products by 250 %}
         <div class="cs-shop-tools" data-shop-tools hidden>
-          <div class="cs-filter-tabs" role="group" aria-label="Camera type">
+          <p id="CameraCategoryHelp-{{ section.id }}" class="cs-category-help">Choose one or more categories. Cameras must match every selected category.</p>
+          <div class="cs-filter-tabs" role="group" aria-label="Camera categories" aria-describedby="CameraCategoryHelp-{{ section.id }}">
             <button type="button" data-category="all" aria-pressed="true">All cameras</button>
-            <button type="button" data-category="point-shoot" aria-pressed="false">Point & shoot</button>
-            <button type="button" data-category="35mm" aria-pressed="false">35mm SLR</button>
-            <button type="button" data-category="medium" aria-pressed="false">Medium format</button>
-            <button type="button" data-category="instant" aria-pressed="false">Instant</button>
-            <button type="button" data-category="digital" aria-pressed="false">Digital</button>
-            <button type="button" data-category="large" aria-pressed="false">Large format</button>
-            <button type="button" data-category="other" aria-pressed="false">Other film</button>
+            <button type="button" data-category="point-shoot" aria-pressed="false">Point and Shoot</button>
+            <button type="button" data-category="slr" aria-pressed="false">SLR</button>
+            <button type="button" data-category="rangefinder" aria-pressed="false">Rangefinder</button>
+            <button type="button" data-category="medium" aria-pressed="false">Medium Format</button>
+            <button type="button" data-category="compact" aria-pressed="false">Compact Camera</button>
+            <button type="button" data-category="large" aria-pressed="false">Large Format</button>
           </div>
           <div class="cs-shop-tools__row">
             <div class="cs-search">{% render 'camera-store-icon', icon: 'search' %}<label class="visually-hidden" for="CameraSearch-{{ section.id }}">Search available cameras</label><input id="CameraSearch-{{ section.id }}" type="search" placeholder="Search a brand or camera…" data-search autocomplete="off"></div>
@@ -57,12 +57,16 @@
               {% assign available_index = available_index | plus: 1 %}
               {% assign category = camera_data[1] %}
               {% assign category_label = camera_data[2] %}
+              {% if product.metafields.custom.camera_categories.value != blank %}
+                {% assign category_label = product.metafields.custom.camera_categories.value | join: ' · ' %}
+              {% endif %}
+              {% capture category_keys %}{% render 'camera-store-category-keys', product: product %}{% endcapture %}
               {% capture condition %}{% render 'camera-store-condition', product: product %}{% endcapture %}
               {% assign condition_data = condition | strip | split: '|' %}
               {% assign special_item = false %}
               {% if condition_data[1] == 'true' %}{% assign special_item = true %}{% endif %}
               {% if available_index > 12 %}<template data-camera-template>{% endif %}
-              <div data-camera data-category="{{ category }}" data-special="{{ special_item }}" data-price="{{ product.price }}" data-title="{{ product.title | escape }}" data-date="{{ product.created_at | date: '%s' }}" data-index="{{ forloop.index }}">
+              <div data-camera data-category="{{ category }}" data-categories="{{ category_keys | strip | escape }}" data-special="{{ special_item }}" data-price="{{ product.price }}" data-title="{{ product.title | escape }}" data-date="{{ product.created_at | date: '%s' }}" data-index="{{ forloop.index }}">
                 {% render 'camera-store-card', product: product, category: category_label, condition_data: condition_data %}
               </div>
               {% if available_index > 12 %}</template>{% endif %}

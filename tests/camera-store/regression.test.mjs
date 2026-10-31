@@ -16,6 +16,7 @@ const identity = [
   ['Medium format without collection', {tags:['medium format','SLR']}, 'true|medium|Medium format'],
   ['Digital beats film membership', {tags:['digital'],collections:[{handle:'point-and-shoots'}]}, 'true|digital|Digital camera'],
   ['Unknown remains unknown', {}, 'true|other|Film camera'],
+  ['audited categories identify an untyped camera without title keywords', {title:'Ricoh Singlex',type:'',metafields:{custom:{camera_categories:{value:['SLR']}}}}, 'true|other|Film camera'],
   ['Camera bag', {title:'Leitz Leicaflex 35mm SLR OEM Leather Half Case',type:'Camera Bag',tags:['camera','SLR']}, false],
   ['Blank-type half case', {title:'Konica Hexar RF Custom Leather Half Case',type:'',tags:['camera','point and shoot']}, false],
   ['Blank-type film back', {title:'Rollei Rolleiflex Magazin 6000 220 Film Back for Cameras',type:'',tags:['Camera','SLR','medium format']}, false],
@@ -60,4 +61,23 @@ for (const [name, product, expected] of conditions) {
 test('unknown grade preserves the shared card/filter field positions', async () => {
   const template = "{% capture raw %}{% render 'camera-store-condition', product: product %}{% endcapture %}{% assign data = raw | strip | split: '|' %}{{ data[0] }};{{ data[1] }}";
   assert.equal(await engine.parseAndRender(template, { product: { ...base, description: 'for display only' } }), ';true');
+});
+
+const categoryCases = [
+  ['medium-format SLR overlaps', ['Medium Format', 'SLR'], 'medium|slr|'],
+  ['medium-format rangefinder overlaps', ['Medium Format', 'Rangefinder'], 'medium|rangefinder|'],
+  ['compact point-and-shoot overlaps', ['Point and Shoot', 'Compact Camera'], 'point-shoot|compact|'],
+  ['medium-format TLR uses format without mislabeling construction', ['Medium Format'], 'medium|'],
+  ['all requested labels map exactly', ['Point and Shoot', 'SLR', 'Rangefinder', 'Medium Format', 'Compact Camera', 'Large Format'], 'point-shoot|slr|rangefinder|medium|compact|large|'],
+  ['unknown labels do not become filter categories', ['SLR-like', 'Digital'], ''],
+  ['empty categories stay empty', [], '']
+];
+for (const [name, categories, expected] of categoryCases) {
+  test(name, async () => {
+    const product = { ...base, metafields: { custom: { camera_categories: { value: categories } } } };
+    assert.equal((await engine.renderFile('camera-store-category-keys', { product })).trim(), expected);
+  });
+}
+test('missing taxonomy does not infer filter categories from legacy tags', async () => {
+  assert.equal((await engine.renderFile('camera-store-category-keys', { product: { ...base, tags: ['SLR', 'medium format'] } })).trim(), '');
 });

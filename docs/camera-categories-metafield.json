@@ -1,0 +1,16 @@
+{
+  "name": "Camera categories",
+  "namespace": "custom",
+  "key": "camera_categories",
+  "description": "Overlapping shopping categories. Select every applicable category; Medium Format describes film format, while SLR and Rangefinder describe camera construction and Compact Camera describes body form.",
+  "type": "list.single_line_text_field",
+  "ownerType": "PRODUCT",
+  "pin": true,
+  "access": { "storefront": "PUBLIC_READ" },
+  "validations": [
+    {
+      "name": "choices",
+      "value": "[\"Point and Shoot\",\"SLR\",\"Rangefinder\",\"Medium Format\",\"Compact Camera\",\"Large Format\"]"
+    }
+  ]
+}

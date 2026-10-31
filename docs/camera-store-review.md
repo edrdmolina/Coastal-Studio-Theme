@@ -88,3 +88,11 @@ The updated unpublished Shopify preview has 78 available camera cards, nine expl
 6. Measure click-through, finder usage, product-to-cart rate, and actual purchase conversion before claiming improved performance.
 
 The live storefront has not been published or updated by this work.
+
+## Overlapping camera taxonomy — preparation
+
+The next catalog pass uses `custom.camera_categories`, a list of single-line text values restricted to Point and Shoot, SLR, Rangefinder, Medium Format, Compact Camera, and Large Format. Format, camera construction, and body size overlap deliberately. Medium-format TLRs receive Medium Format without an incorrect SLR or Rangefinder label. Cameras outside these six categories remain visible in All cameras.
+
+The definition payload is `docs/camera-categories-metafield.json`. The prepared draft filter code consumes only this field for category membership and intersects multiple selections; it does not infer audited categories from legacy tags. Category metadata can also identify legacy cameras with missing product types. `scripts/camera-metafields.mjs` is a dry-run-by-default importer using Shopify CLI product authorization, identity checks, compare-and-set writes, and backups. Store writes and the draft upload are pending the completed catalog audit and authenticated product access.
+
+Preparation checks: 43 Liquid fixtures and 16 browser fixture checks pass. Serve the repository root over HTTP and open `tests/camera-store/browser.html` for the browser checks. These fixture checks do not claim that Shopify product metafields have been saved.

@@ -23,7 +23,7 @@ if (!customElements.get('camera-store')) {
       this.special = this.querySelector('[data-include-special]');
       this.pageSize = Number(this.dataset.pageSize) || 12;
       this.limit = this.pageSize;
-      this.category = 'all';
+      this.categories = [];
       this.budget = 'all';
       this.form.hidden = false;
       this.querySelector('[data-shop-tools]').hidden = false;
@@ -37,7 +37,7 @@ if (!customElements.get('camera-store')) {
       });
       this.form.addEventListener('submit', event => {
         event.preventDefault();
-        this.category = this.form.elements.style.value;
+        this.categories = this.form.elements.style.value === 'all' ? [] : [this.form.elements.style.value];
         this.budget = this.form.elements.budget.value;
         this.limit = this.pageSize;
         this.update();
@@ -45,14 +45,17 @@ if (!customElements.get('camera-store')) {
       });
       this.querySelectorAll('[data-category][aria-pressed]').forEach(button => {
         // Hide empty categories based on the actual available selection.
-        if (button.dataset.category !== 'all' && !this.cards.some(card => card.dataset.category === button.dataset.category)) {
+        if (button.dataset.category !== 'all' && !this.cards.some(card => this.cardCategories(card).includes(button.dataset.category))) {
           button.hidden = true;
           const option = this.form.elements.style.querySelector(`option[value="${button.dataset.category}"]`);
           if (option) option.disabled = true;
         }
         button.addEventListener('click', () => {
-          this.category = button.dataset.category;
-          this.form.elements.style.value = this.category === 'other' ? 'all' : this.category;
+          const category = button.dataset.category;
+          if (category === 'all') this.categories = [];
+          else if (this.categories.includes(category)) this.categories = this.categories.filter(value => value !== category);
+          else this.categories.push(category);
+          this.form.elements.style.value = this.categories.length === 1 ? this.categories[0] : 'all';
           this.limit = this.pageSize;
           this.update();
         });
@@ -66,7 +69,7 @@ if (!customElements.get('camera-store')) {
         this.update();
       });
       this.querySelectorAll('[data-reset]').forEach(button => button.addEventListener('click', () => {
-        this.category = 'all';
+        this.categories = [];
         this.budget = 'all';
         this.search.value = '';
         this.form.reset();
@@ -98,13 +101,12 @@ if (!customElements.get('camera-store')) {
 
     restoreFromUrl() {
       const params = new URL(window.location.href).searchParams;
-      const category = params.get('camera_type');
+      const requestedCategories = (params.get('camera_type') || '').split(',').map(value => value === '35mm' ? 'slr' : value);
+      const allowedCategories = Array.from(this.form.elements.style.options).map(option => option.value).filter(value => value !== 'all');
+      this.categories = [...new Set(requestedCategories.filter(value => allowedCategories.includes(value)))];
       const budget = params.get('camera_budget');
-      this.category = Array.from(this.form.elements.style.options).some(option => option.value === category) ? category : 'all';
       this.budget = Array.from(this.form.elements.budget.options).some(option => option.value === budget) ? budget : 'all';
-      // 'other' exists as a browse tab but is not a beginner-finder option.
-      if (category === 'other') this.category = 'other';
-      this.form.elements.style.value = this.category === 'other' ? 'all' : this.category;
+      this.form.elements.style.value = this.categories.length === 1 ? this.categories[0] : 'all';
       this.form.elements.budget.value = this.budget;
       this.search.value = params.get('camera_search') || '';
       const sort = params.get('camera_sort');
@@ -114,12 +116,16 @@ if (!customElements.get('camera-store')) {
       this.update();
     }
 
+    cardCategories(card) {
+      return (card.dataset.categories || '').split('|').filter(Boolean);
+    }
+
     update() {
       const query = this.search.value.trim().toLocaleLowerCase();
       const words = query.split(/\s+/).filter(Boolean);
       const budget = Number(this.budget);
       this.matches = this.cards.filter(card =>
-        (this.category === 'all' || card.dataset.category === this.category) &&
+        this.categories.every(category => this.cardCategories(card).includes(category)) &&
         (this.special.checked || card.dataset.special !== 'true') &&
         (this.budget === 'all' || Number(card.dataset.price) < budget) &&
         words.every(word => card.dataset.title.toLocaleLowerCase().includes(word))
@@ -137,7 +143,7 @@ if (!customElements.get('camera-store')) {
         if (index < this.limit) this.grid.appendChild(card);
       });
       this.querySelectorAll('[data-category][aria-pressed]').forEach(button => {
-        button.setAttribute('aria-pressed', String(button.dataset.category === this.category));
+        button.setAttribute('aria-pressed', String(button.dataset.category === 'all' ? this.categories.length === 0 : this.categories.includes(button.dataset.category)));
       });
       const count = this.matches.length;
       const visible = Math.min(this.limit, count);
@@ -150,11 +156,11 @@ if (!customElements.get('camera-store')) {
       this.querySelector('[data-empty]').hidden = count > 0;
       this.more.hidden = visible >= count;
       this.querySelector('[data-stock-note]').hidden = count === 0;
-      this.querySelector('.cs-result-row [data-reset]').hidden = this.category === 'all' && this.budget === 'all' && !query && !this.special.checked;
+      this.querySelector('.cs-result-row [data-reset]').hidden = this.categories.length === 0 && this.budget === 'all' && !query && !this.special.checked;
       // Keep a useful share/back URL without disturbing Shopify preview params.
       const url = new URL(window.location.href);
       const state = {
-        camera_type: this.category === 'all' ? '' : this.category,
+        camera_type: [...this.categories].sort().join(','),
         camera_budget: this.budget === 'all' ? '' : this.budget,
         camera_search: query,
         camera_sort: order === 'featured' ? '' : order,
