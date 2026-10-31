@@ -1,0 +1,47 @@
+{
+  "store": "d61956-2.myshopify.com",
+  "metafield": "custom.camera_categories",
+  "definition_id": "gid://shopify/MetafieldDefinition/601989054518",
+  "type": "list.single_line_text_field",
+  "public_collection_listings": 105,
+  "public_cameras": 92,
+  "public_cameras_classified_and_verified": 87,
+  "public_cameras_outside_six_labels": 5,
+  "public_exclusions": 13,
+  "admin_collection_listings": 123,
+  "draft_theme_id": 158931484726,
+  "live_theme_published": false,
+  "private_backup_directory": ".shopify/camera-catalog-backups/",
+  "verification": {
+    "automated_checks": 51,
+    "browser_fixture_checks": 16,
+    "link_targets": 73,
+    "medium_slr_matches": 3,
+    "medium_rangefinder_matches": 1,
+    "mobile_widths_without_overflow": [
+      320,
+      390
+    ]
+  },
+  "additional_admin_entries_audited": 18,
+  "additional_admin_cameras_classified_and_verified": 16,
+  "full_collection": {
+    "collection_entries": 123,
+    "cameras": 109,
+    "classified_and_verified": 103,
+    "cameras_outside_six_labels": 6,
+    "noncamera_exclusions": 14,
+    "category_totals": {
+      "Point and Shoot": 54,
+      "Compact Camera": 48,
+      "SLR": 37,
+      "Rangefinder": 5,
+      "Medium Format": 10,
+      "Large Format": 1
+    },
+    "all_publication_statuses_preserved": true,
+    "other_queried_fields_preserved": true,
+    "verified_at_utc": "2026-10-31T03:54:05.482517+00:00"
+  },
+  "private_audit_directory": ".shopify/camera-catalog-audits"
+}

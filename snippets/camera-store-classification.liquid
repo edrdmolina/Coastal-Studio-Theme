@@ -1,0 +1,53 @@
+{%- comment -%}
+  Camera identity and shopping category: is_camera|category|label.
+  Prefer product type, then explicit camera names for untyped legacy listings.
+  Whole-word accessory exclusions avoid matching names such as Throwback.
+  Categories use descriptive tags as well as collection membership.
+{%- endcomment -%}
+{%- liquid
+  assign camera_title = product.title | downcase
+  assign title_words = camera_title | replace: '-', ' ' | replace: '/', ' ' | replace: '(', ' ' | replace: ')', ' ' | prepend: ' ' | append: ' '
+  assign product_type = product.type | downcase | strip
+  assign tags = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
+  assign handles = product.collections | map: 'handle'
+  assign is_camera = false
+  if product.metafields.custom.camera_categories.value != blank
+    assign is_camera = true
+  elsif product_type == 'camera'
+    assign is_camera = true
+  elsif product_type == blank
+    if title_words contains ' camera ' or title_words contains ' slr '
+      assign is_camera = true
+      if title_words contains ' case ' or title_words contains ' hood ' or title_words contains ' film back ' or title_words contains ' teleconverter ' or title_words contains ' adapter ' or title_words contains ' screen '
+        assign is_camera = false
+      endif
+    endif
+  elsif product_type == 'film' and title_words contains ' disposable '
+    assign is_camera = true
+  endif
+  assign category = 'other'
+  assign category_label = 'Film camera'
+  if tags contains '|digital|' or tags contains 'digital camera' or tags contains '|digicam|' or camera_title contains 'digital camera'
+    assign category = 'digital'
+    assign category_label = 'Digital camera'
+  elsif tags contains '|instant|' or tags contains 'instant camera' or tags contains 'instant film camera' or tags contains '|instax|' or handles contains 'instant-film-cameras'
+    assign category = 'instant'
+    assign category_label = 'Instant camera'
+  elsif tags contains 'medium format' or camera_title contains 'medium format' or handles contains 'medium-format-film-cameras'
+    assign category = 'medium'
+    assign category_label = 'Medium format'
+  elsif tags contains 'large format' or camera_title contains 'large format' or handles contains 'large-format-camera-gear'
+    assign category = 'large'
+    assign category_label = 'Large format'
+  elsif tags contains '35mm slr' or camera_title contains '35mm slr'
+    assign category = '35mm'
+    assign category_label = '35mm SLR'
+  elsif tags contains 'point and shoot' or camera_title contains 'point and shoot' or handles contains 'point-and-shoots'
+    assign category = 'point-shoot'
+    assign category_label = 'Point & shoot'
+  elsif tags contains '|slr|' and handles contains '35mm-cameras'
+    assign category = '35mm'
+    assign category_label = '35mm SLR'
+  endif
+-%}
+{{- is_camera -}}|{{- category -}}|{{- category_label -}}

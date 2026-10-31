@@ -1,0 +1,94 @@
+{{ 'camera-store.css' | asset_url | stylesheet_tag }}
+
+<div class="camera-store cs-hero-section">
+  <div class="cs-shell page-width">
+    <nav class="cs-breadcrumb" aria-label="Breadcrumb"><a href="{{ routes.root_url }}">Home</a><span aria-hidden="true">/</span><span>Camera store</span></nav>
+    <div class="cs-hero">
+      <div class="cs-hero__copy">
+        <p class="cs-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        <h1>{{ section.settings.heading | escape | newline_to_br }}</h1>
+        <p class="cs-hero__description">{{ section.settings.description | escape }}</p>
+        <div class="cs-actions">
+          <a class="button button--primary cs-button" href="#CameraInventory">Shop available cameras {% render 'camera-store-icon', icon: 'arrow' %}</a>
+          <a class="cs-text-link" href="#CameraFinder">Help me choose</a>
+        </div>
+      </div>
+      <div class="cs-hero__media global-media-settings">
+        {% if section.settings.image != blank %}
+          {{ section.settings.image | image_url: width: 1600 | image_tag: widths: '480, 750, 1000, 1300, 1600', sizes: '(min-width: 990px) 48vw, 100vw', loading: 'eager', fetchpriority: 'high', alt: 'A selection of classic film cameras at Coastal Film Lab' }}
+        {% else %}
+          {{ 'collection-2' | placeholder_svg_tag: 'cs-placeholder' }}
+        {% endif %}
+      </div>
+    </div>
+    <section class="cs-benefits" aria-labelledby="CameraBenefitsHeading-{{ section.id }}">
+      <div class="cs-benefits__intro">
+        <h2 id="CameraBenefitsHeading-{{ section.id }}">{{ section.settings.benefits_heading | escape }}</h2>
+        <p>{{ section.settings.benefits_description | escape }}</p>
+      </div>
+      <div class="cs-promises cfl-trust">
+        <a href="#CameraConfidence"><span class="cfl-trust__item"><strong class="cfl-trust__label">More than a battery check</strong><span class="cfl-trust__body">Our 20-point inspection. AS-IS excluded.</span></span></a>
+        <a href="{{ section.settings.warranty_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">90-day limited warranty</strong><span class="cfl-trust__body">On used gear, except AS-IS. Terms apply.</span></span></a>
+        <a href="{{ section.settings.contact_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">Real people. A real film lab.</strong><span class="cfl-trust__body">Camera advice & shipping from Tampa, Florida.</span></span></a>
+      </div>
+    </section>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Camera store: intro",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Good cameras. Real film people."
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Find your next\nfilm camera."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Your first roll or your next obsession. Shop new and pre-owned cameras from the people who develop your film, with clear condition notes and a little help when you need it."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Hero photograph"
+    },
+    {
+      "type": "text",
+      "id": "benefits_heading",
+      "label": "Benefits heading",
+      "default": "Why buy from Coastal?"
+    },
+    {
+      "type": "textarea",
+      "id": "benefits_description",
+      "label": "Benefits introduction",
+      "default": "We’ll help you understand the condition, choose the right camera, and know what support comes with it."
+    },
+    {
+      "type": "url",
+      "id": "warranty_url",
+      "label": "Grading and warranty page"
+    },
+    {
+      "type": "url",
+      "id": "contact_url",
+      "label": "Contact page"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Camera store: intro"
+    }
+  ]
+}
+{% endschema %}

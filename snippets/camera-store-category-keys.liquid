@@ -1,0 +1,15 @@
+{%- comment -%}
+  Filter keys come only from the audited, multi-value product metafield.
+  A camera can have multiple categories; missing data stays uncategorized.
+  The pipe delimiters let JavaScript match complete keys without substrings.
+{%- endcomment -%}
+{%- for camera_category in product.metafields.custom.camera_categories.value -%}
+  {%- case camera_category -%}
+    {%- when 'Point and Shoot' -%}point-shoot|
+    {%- when 'SLR' -%}slr|
+    {%- when 'Rangefinder' -%}rangefinder|
+    {%- when 'Medium Format' -%}medium|
+    {%- when 'Compact Camera' -%}compact|
+    {%- when 'Large Format' -%}large|
+  {%- endcase -%}
+{%- endfor -%}
