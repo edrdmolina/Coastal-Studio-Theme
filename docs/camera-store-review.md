@@ -37,10 +37,26 @@ The custom cards retain the theme's `h4` typography class but use `cs-product__t
 
 Reproduced on the unpublished public draft: a point in the hero resolved to the Prospec lens. After removing that behavioral class, browser hit testing passed 54 targets: hero heading, description, photograph, both hero actions, a type filter, and the title/photo/details links on all 16 rendered camera and lens cards. All product-title `::after` overlays now compute to `none`.
 
+## Code review fixes
+
+- Contact CTA: exempt native buttons from inherited link colors and use cream text on the confidence panel’s brown primary button. The rendered contrast is 15.05:1; the remaining primary buttons retain brown labels on teal.
+- Reset focus: both reset actions move focus to the first restored camera title. A focusable result status is the fallback when inventory is empty. Real Enter activation followed by Tab reaches that camera’s details link.
+- Shared condition classification: cards and inventory filters consume the same grade/special classification. `custom.condition: AS-IS` excludes a camera by default even when its title and description lack AS-IS wording. No current metafield-only example was observed; regression fixtures cover this supported path.
+- Display-only inventory: explicit “for display only” descriptions, including the Kodak Brownie, require opting in and show a caution. Generic marketing references to being collectible or a shelf piece do not exclude functional cameras.
+- Camera identity: whole-word accessory exclusions preserve “Throwback.” Explicit SLR titles recover blank-type cameras such as the Ricoh Singlex, while bags, standalone lenses, hoods, screens, and backs remain excluded.
+- Camera types: descriptive tags supplement collection membership, placing the Lumix in Digital and Instax Mini 12 in Instant. Digital classification takes priority over point-and-shoot membership.
+- Condition whitespace: normalize literal and encoded nonbreaking spaces before parsing explicit grades. The Polaroid Business Edition now shows Good.
+
+### Regression checks
+
+Run the isolated Liquid fixture suite with `npm --prefix tests/camera-store ci` followed by `npm --prefix tests/camera-store test`. All 34 tests pass; they exercise the actual snippets, including metafield-only AS-IS, blank types, accessory exclusions, category precedence, unknown condition, and whitespace variants. LiquidJS fixtures supplement Shopify-rendered checks; they do not replace Shopify’s product drops or browser tests.
+
+The updated unpublished Shopify preview has 78 available camera cards, nine explicit AS-IS/display pieces, and 69 default results at verification time. The reported omitted products, category assignments, condition grade, opt-in behavior, both reset actions, sorting, and load-more focus passed. All 73 visible camera-page link targets passed hit testing, including open FAQ answers. Desktop and 320px/390px layouts, native typography/button geometry, and the JavaScript-disabled fallback passed in an isolated Chromium browser; no runtime exceptions occurred. The contact button was visually inspected after the contrast fix.
+
 ## Validation
 
 - Shopify-rendered preview with the real store's products, collections, photography, prices, and policies.
-- At review time the collection contained 105 products, 91 available; camera classification yielded 75 available cameras, of which seven were explicit AS-IS/display pieces. The default view showed 68 cameras. These are observations, not hard-coded claims.
+- At the initial design review the collection contained 105 products, 91 available; camera classification yielded 75 available cameras, of which seven were explicit AS-IS/display pieces. The default view showed 68 cameras. These are observations, not hard-coded claims.
 - Finder: point-and-shoot plus under $100 yielded 12 matching cameras, all within the selected budget.
 - Price ascending, no-match recovery, reset, AS-IS inclusion, and load-more keyboard focus verified in the browser.
 - Filter query restoration verified on a fresh navigation and return from a product.
@@ -57,8 +73,8 @@ Reproduced on the unpublished public draft: a point in the hero resolved to the 
 
 - The finder renders up to 250 collection products with Liquid, filtering the full rendered selection, rather than only the first 12 visible cards. If the collection exceeds that limit, an additional full-collection notice appears. Collection links remain available throughout.
 - A 35mm SLR is a distinct shopping choice from a point-and-shoot; format collection links still include overlapping film formats. Digital tags take precedence over film-style membership.
-- The existing catalog has inconsistent product types and tags. Explicit camera types are preferred; blank types use conservative title exclusions. Unclassified cameras stay under Other film. This should eventually be replaced by normalized product metafields.
-- Condition uses `custom.condition` when present, then a recognized explicit `Condition:` prefix in the description. Unknown condition stays unknown. Limitations are warnings, not a substitute for reading the description.
+- The existing catalog has inconsistent product types and tags. Explicit camera types are preferred; blank types use explicit camera/SLR titles with whole-word accessory exclusions. Descriptive format/style tags supplement collection membership. Unclassified cameras stay under Other film. This should eventually be replaced by normalized product metafields.
+- Condition uses `custom.condition` when present, then a recognized explicit `Condition:` prefix after normalizing nonbreaking whitespace in the description. Unknown condition stays unknown. Limitations are warnings, not a substitute for reading the description.
 - Availability means the item can be purchased, not that every function works. AS-IS/display recognition uses explicit listing language; unmarked legacy issues still require reading the listing.
 - The lens shelf considers the first 50 collection products to fill four available positions.
 

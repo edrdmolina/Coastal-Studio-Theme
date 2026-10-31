@@ -73,6 +73,10 @@ if (!customElements.get('camera-store')) {
         this.special.checked = false;
         this.limit = this.pageSize;
         this.update();
+        // Both reset buttons disappear after clearing. Move focus into the
+        // restored products, or to a stable status when no cameras remain.
+        const target = this.matches[0]?.querySelector('h3 a') || this.querySelector('[data-result-count]');
+        target.focus();
       }));
       this.more.addEventListener('click', () => {
         const previousLimit = this.limit;

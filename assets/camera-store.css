@@ -14,7 +14,7 @@
 .camera-store *, .camera-store *::before, .camera-store *::after { box-sizing: border-box; }
 .camera-store [hidden] { display: none !important; }
 body:has(.camera-store) .footer a[href^="mailto:"] { overflow-wrap: anywhere; }
-.camera-store a { color: inherit; }
+.camera-store a:not(.button) { color: inherit; }
 .camera-store input, .camera-store select, .camera-store button:not(.button) { font: inherit; color: inherit; }
 .camera-store button, .camera-store select { cursor: pointer; }
 .camera-store svg:not(.icon-caret) { width: 2.3rem; height: 2.3rem; flex-shrink: 0; }
@@ -34,7 +34,7 @@ body:has(.camera-store) .footer a[href^="mailto:"] { overflow-wrap: anywhere; }
 .cs-actions { display: flex; align-items: center; gap: 1.8rem; flex-wrap: wrap; margin-top: 2.8rem; }
 /* Native .button supplies font, colors, rounding, borders, shadow and hover.
    Brown labels on teal retain the shared components' accessible contrast fix. */
-.camera-store .cs-button, .camera-store .cs-product__details { --color-button-text: var(--color-foreground); min-width: 0; gap: 1.2rem; padding: 1.2rem 2.4rem; text-align: center; white-space: normal; }
+.camera-store .cs-button, .camera-store .cs-product__details { --color-button-text: var(--color-foreground); color: rgb(var(--color-button-text)); min-width: 0; gap: 1.2rem; padding: 1.2rem 2.4rem; text-align: center; white-space: normal; }
 .cs-text-link { display: inline-flex; align-items: center; gap: 1rem; font-size: 1.5rem; text-decoration: underline; text-underline-offset: .3rem; }
 .cs-text-link:hover { text-decoration-thickness: .2rem; }
 .cs-hero__media { position: relative; min-width: 0; aspect-ratio: 1.4; overflow: hidden; }
@@ -114,7 +114,9 @@ body:has(.camera-store) .footer a[href^="mailto:"] { overflow-wrap: anywhere; }
 .cs-confidence__panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(3rem, 5vw, 6rem); padding: clamp(2.4rem, 4vw, 5rem); background: rgb(var(--color-background)); border-radius: var(--text-boxes-radius); }
 .cs-confidence__intro h2 { margin: 1.6rem 0; }
 .cs-confidence__intro > p:not(.cs-eyebrow) { max-width: 46ch; }
-.cs-confidence__intro .cs-button { margin-top: 2.4rem; }
+/* The cream scheme has a brown primary background: use its cream for the
+   label rather than the brown-on-teal override used on the white sections. */
+.camera-store .cs-confidence__intro .cs-button { --color-button-text: var(--color-background); margin-top: 2.4rem; }
 .cs-confidence__checks { display: flex; flex-direction: column; justify-content: center; gap: 2.4rem; }
 .cs-confidence__checks h3 { margin-bottom: .8rem; }
 .cs-confidence__checks p { font-size: 1.5rem; }

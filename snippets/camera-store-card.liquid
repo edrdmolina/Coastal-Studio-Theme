@@ -1,7 +1,6 @@
 {% comment %}
-  Camera storefront card. Category membership is authoritative; condition is
-  left to the product description rather than inferred from marketing copy.
-  Accepts product, category (optional), and index (optional).
+  Camera storefront card. Accepts product, category (optional), and shared
+  condition_data (optional). Lens shelves resolve the same condition data here.
 {% endcomment %}
 {% liquid
   assign camera_title = product.title | downcase
@@ -11,31 +10,16 @@
   endif
   assign image_alt = product.featured_image.alt | default: product.title
   assign description_text = product.description | strip_html | downcase
-  assign grade = product.metafields.custom.condition.value | default: ''
-  if grade == blank and description_text contains 'condition:'
-    assign condition_text = description_text | split: 'condition:' | last | strip
-    assign first_three = condition_text | slice: 0, 3
-    assign first_four = condition_text | slice: 0, 4
-    assign first_five = condition_text | slice: 0, 5
-    assign first_seven = condition_text | slice: 0, 7
-    assign first_nine = condition_text | slice: 0, 9
-    if first_three == 'new'
-      assign grade = 'New'
-    elsif first_four == 'mint'
-      assign grade = 'Mint'
-    elsif first_nine == 'excellent'
-      assign grade = 'Excellent'
-    elsif first_four == 'good'
-      assign grade = 'Good'
-    elsif first_seven == 'one-off'
-      assign grade = 'One-Off'
-    elsif first_five == 'as-is'
-      assign grade = 'AS-IS'
-    endif
-    assign first_two = condition_text | slice: 0, 9
-    if first_two == 'near mint'
-      assign grade = 'Near mint'
-    endif
+%}
+{% if condition_data == blank %}
+  {% capture condition %}{% render 'camera-store-condition', product: product %}{% endcapture %}
+  {% assign condition_data = condition | strip | split: '|' %}
+{% endif %}
+{% liquid
+  assign grade = condition_data[0]
+  assign special_item = false
+  if condition_data[1] == 'true'
+    assign special_item = true
   endif
   assign caution = ''
   if description_text contains 'non-functional' or description_text contains 'not working' or description_text contains 'meter is dead' or grade == 'One-Off'

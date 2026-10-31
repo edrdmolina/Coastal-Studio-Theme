@@ -43,7 +43,7 @@
             <div class="cs-sort"><label for="CameraSort-{{ section.id }}">Sort by</label><select id="CameraSort-{{ section.id }}" data-sort><option value="featured">Featured</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="newest">Newest added</option><option value="title">Name: A–Z</option></select></div>
           </div>
           <div class="cs-result-row">
-            <p data-result-count role="status" aria-live="polite" aria-atomic="true"></p>
+            <p data-result-count tabindex="-1" role="status" aria-live="polite" aria-atomic="true"></p>
             <label class="cs-special-filter"><input type="checkbox" data-include-special> Include AS-IS & display pieces <span>(read condition notes carefully)</span></label>
             <button class="cs-reset" type="button" data-reset hidden>Clear filters</button>
           </div>
@@ -51,56 +51,19 @@
         <div class="cs-product-grid" data-product-grid>
           {% assign available_index = 0 %}
           {% for product in camera_collection.products %}
-            {% liquid
-              assign camera_title = product.title | downcase
-              assign product_type = product.type | downcase
-              assign is_camera = false
-              if product_type == 'camera'
-                assign is_camera = true
-              elsif product_type == blank and camera_title contains 'camera'
-                assign is_camera = true
-                if camera_title contains 'case' or camera_title contains 'hood' or camera_title contains 'back' or camera_title contains 'teleconverter' or camera_title contains 'adapter' or camera_title contains 'screen'
-                  assign is_camera = false
-                endif
-              elsif product_type == 'film' and camera_title contains 'disposable'
-                assign is_camera = true
-              endif
-              assign special_item = false
-              assign description_text = product.description | strip_html | downcase
-              if camera_title contains 'display' or camera_title contains 'shelf piece' or camera_title contains 'as is' or camera_title contains 'as-is' or description_text contains 'condition: as-is'
-                assign special_item = true
-              endif
-            %}
-            {% if product.available and is_camera %}
+            {% capture classification %}{% render 'camera-store-classification', product: product %}{% endcapture %}
+            {% assign camera_data = classification | strip | split: '|' %}
+            {% if product.available and camera_data[0] == 'true' %}
               {% assign available_index = available_index | plus: 1 %}
-              {% liquid
-                assign handles = product.collections | map: 'handle'
-                assign tags = product.tags | join: '|' | downcase
-                assign category = 'other'
-                assign category_label = 'Film camera'
-                if tags contains 'digital camera' or tags contains 'digicam'
-                  assign category = 'digital'
-                  assign category_label = 'Digital camera'
-                elsif handles contains 'instant-film-cameras'
-                  assign category = 'instant'
-                  assign category_label = 'Instant camera'
-                elsif handles contains 'medium-format-film-cameras'
-                  assign category = 'medium'
-                  assign category_label = 'Medium format'
-                elsif handles contains 'large-format-camera-gear'
-                  assign category = 'large'
-                  assign category_label = 'Large format'
-                elsif handles contains 'point-and-shoots'
-                  assign category = 'point-shoot'
-                  assign category_label = 'Point & shoot'
-                elsif tags contains 'slr' and handles contains '35mm-cameras'
-                  assign category = '35mm'
-                  assign category_label = '35mm SLR'
-                endif
-              %}
+              {% assign category = camera_data[1] %}
+              {% assign category_label = camera_data[2] %}
+              {% capture condition %}{% render 'camera-store-condition', product: product %}{% endcapture %}
+              {% assign condition_data = condition | strip | split: '|' %}
+              {% assign special_item = false %}
+              {% if condition_data[1] == 'true' %}{% assign special_item = true %}{% endif %}
               {% if available_index > 12 %}<template data-camera-template>{% endif %}
               <div data-camera data-category="{{ category }}" data-special="{{ special_item }}" data-price="{{ product.price }}" data-title="{{ product.title | escape }}" data-date="{{ product.created_at | date: '%s' }}" data-index="{{ forloop.index }}">
-                {% render 'camera-store-card', product: product, category: category_label, special_item: special_item %}
+                {% render 'camera-store-card', product: product, category: category_label, condition_data: condition_data %}
               </div>
               {% if available_index > 12 %}</template>{% endif %}
             {% endif %}
