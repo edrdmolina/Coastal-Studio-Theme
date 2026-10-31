@@ -120,3 +120,10 @@ Authenticated Admin access revealed 123 collection entries. The additional audit
 A complete read-back verified every category array, unchanged publication statuses, and unchanged queried titles, descriptions, types, tags, vendors, images, and variant IDs/SKUs. Only the category metafields were written. The definition and aggregate application receipt are public repository artifacts; the additional item-level audit, complete combined manifest, and final Admin read-back remain local under the ignored `.shopify/camera-catalog-audits/` directory. Original category values are backed up under `.shopify/camera-catalog-backups/`.
 
 The current draft uses the saved list metafield for overlapping category membership. Selecting Medium Format + SLR gives three public available camera bodies; Medium Format + Rangefinder gives one. The live theme has not been published.
+
+
+## Benefits introduction and text links
+
+The hero now leads into an explicitly labeled benefits section: “Why buy from Coastal?” followed by a short explanation of condition guidance, camera selection, and support. The heading and introduction are editable in the hero section settings. The shared trust-band typography and three benefits remain, with the divider above them removed. Text-arrow characters that could render as emoji on iOS are removed from camera-store links; native line SVG controls remain consistent with the theme.
+
+Verified on the unpublished Shopify draft: the benefits section has an accessible heading association, the introduction precedes all three links, no text-arrow glyphs remain, and there are no Liquid errors. Desktop, 390px, 320px, and enlarged-text layouts were visually checked with no horizontal overflow or runtime exceptions. Theme Check reports only the existing unrelated email-signup-banner schema error.

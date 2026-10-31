@@ -10,7 +10,7 @@
         <p class="cs-hero__description">{{ section.settings.description | escape }}</p>
         <div class="cs-actions">
           <a class="button button--primary cs-button" href="#CameraInventory">Shop available cameras {% render 'camera-store-icon', icon: 'arrow' %}</a>
-          <a class="cs-text-link" href="#CameraFinder">Help me choose <span aria-hidden="true">↗</span></a>
+          <a class="cs-text-link" href="#CameraFinder">Help me choose</a>
         </div>
       </div>
       <div class="cs-hero__media global-media-settings">
@@ -21,11 +21,17 @@
         {% endif %}
       </div>
     </div>
-    <div class="cs-promises cfl-trust">
-      <a href="#CameraConfidence"><span class="cfl-trust__item"><strong class="cfl-trust__label">More than a battery check</strong><span class="cfl-trust__body">Our 20-point inspection. AS-IS excluded.</span></span></a>
-      <a href="{{ section.settings.warranty_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">90-day limited warranty</strong><span class="cfl-trust__body">On used gear, except AS-IS. Terms apply.</span></span></a>
-      <a href="{{ section.settings.contact_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">Real people. A real film lab.</strong><span class="cfl-trust__body">Camera advice & shipping from Tampa, Florida.</span></span></a>
-    </div>
+    <section class="cs-benefits" aria-labelledby="CameraBenefitsHeading-{{ section.id }}">
+      <div class="cs-benefits__intro">
+        <h2 id="CameraBenefitsHeading-{{ section.id }}">{{ section.settings.benefits_heading | escape }}</h2>
+        <p>{{ section.settings.benefits_description | escape }}</p>
+      </div>
+      <div class="cs-promises cfl-trust">
+        <a href="#CameraConfidence"><span class="cfl-trust__item"><strong class="cfl-trust__label">More than a battery check</strong><span class="cfl-trust__body">Our 20-point inspection. AS-IS excluded.</span></span></a>
+        <a href="{{ section.settings.warranty_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">90-day limited warranty</strong><span class="cfl-trust__body">On used gear, except AS-IS. Terms apply.</span></span></a>
+        <a href="{{ section.settings.contact_url }}"><span class="cfl-trust__item"><strong class="cfl-trust__label">Real people. A real film lab.</strong><span class="cfl-trust__body">Camera advice & shipping from Tampa, Florida.</span></span></a>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -55,6 +61,18 @@
       "type": "image_picker",
       "id": "image",
       "label": "Hero photograph"
+    },
+    {
+      "type": "text",
+      "id": "benefits_heading",
+      "label": "Benefits heading",
+      "default": "Why buy from Coastal?"
+    },
+    {
+      "type": "textarea",
+      "id": "benefits_description",
+      "label": "Benefits introduction",
+      "default": "We’ll help you understand the condition, choose the right camera, and know what support comes with it."
     },
     {
       "type": "url",

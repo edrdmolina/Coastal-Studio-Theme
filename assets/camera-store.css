@@ -39,7 +39,11 @@ body:has(.camera-store) .footer a[href^="mailto:"] { overflow-wrap: anywhere; }
 .cs-text-link:hover { text-decoration-thickness: .2rem; }
 .cs-hero__media { position: relative; min-width: 0; aspect-ratio: 1.4; overflow: hidden; }
 .cs-hero__media > img, .cs-hero__media > svg { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
-.cs-promises.cfl-trust { max-width: none; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-inline: 0; }
+.cs-benefits { padding-top: .8rem; }
+.cs-benefits__intro { max-width: 76rem; margin-bottom: 2.4rem; }
+.cs-benefits__intro h2 { font-size: clamp(2.6rem, 2.3vw, 3.4rem); }
+.cs-benefits__intro p { margin-top: 1.2rem; color: var(--cs-muted); }
+.cs-promises.cfl-trust { max-width: none; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-inline: 0; padding-top: 0; border-top: 0; }
 .cs-promises a { text-decoration: none; }
 .cs-promises a:hover strong { text-decoration: underline; text-underline-offset: .3rem; }
 .cs-promises strong { font-weight: 400; }

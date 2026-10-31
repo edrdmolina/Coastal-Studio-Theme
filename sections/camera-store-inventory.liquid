@@ -22,7 +22,7 @@
         </select></div>
         <button class="button button--primary cs-button" type="submit">Find my camera {% render 'camera-store-icon', icon: 'arrow' %}</button>
       </form>
-      <noscript><p><a class="cs-text-link" href="{{ camera_collection.url }}">Browse cameras and use collection filters →</a></p></noscript>
+      <noscript><p><a class="cs-text-link" href="{{ camera_collection.url }}">Browse cameras and use collection filters</a></p></noscript>
       </div>
     </details>
     {% if camera_collection != blank %}
@@ -73,12 +73,12 @@
             {% endif %}
           {% endfor %}
         </div>
-        <div class="cs-empty" data-empty hidden><h3>No cameras match this combination.</h3><p>Try a different format, a wider budget, or another search.</p><button class="button button--primary cs-button" data-reset type="button">Show all available cameras {% render 'camera-store-icon', icon: 'arrow' %}</button><a class="cs-text-link" href="{{ section.settings.contact_url }}">Ask us for a recommendation ↗</a></div>
+        <div class="cs-empty" data-empty hidden><h3>No cameras match this combination.</h3><p>Try a different format, a wider budget, or another search.</p><button class="button button--primary cs-button" data-reset type="button">Show all available cameras {% render 'camera-store-icon', icon: 'arrow' %}</button><a class="cs-text-link" href="{{ section.settings.contact_url }}">Ask us for a recommendation</a></div>
         <div class="cs-inventory__footer">
-          <noscript><p>Showing a selection of available cameras. <a href="{{ camera_collection.url }}">Browse the complete camera collection →</a></p></noscript>
+          <noscript><p>Showing a selection of available cameras. <a href="{{ camera_collection.url }}">Browse the complete camera collection</a></p></noscript>
           <button type="button" class="button button--secondary cs-button cs-button--outline" data-load-more hidden>Show more cameras {% render 'camera-store-icon', icon: 'plus' %}</button>
           <p data-stock-note>Available gear only. See each listing for condition, included items, and any known issues.</p>
-          {% if paginate.pages > 1 %}<p>This is a selection of our inventory. <a href="{{ camera_collection.url }}">See the full camera collection →</a></p>{% endif %}
+          {% if paginate.pages > 1 %}<p>This is a selection of our inventory. <a href="{{ camera_collection.url }}">See the full camera collection</a></p>{% endif %}
         </div>
       {% endpaginate %}
     {% else %}
