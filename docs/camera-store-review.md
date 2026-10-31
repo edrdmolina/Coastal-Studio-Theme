@@ -96,3 +96,18 @@ The next catalog pass uses `custom.camera_categories`, a list of single-line tex
 The definition payload is `docs/camera-categories-metafield.json`. The prepared draft filter code consumes only this field for category membership and intersects multiple selections; it does not infer audited categories from legacy tags. Category metadata can also identify legacy cameras with missing product types. `scripts/camera-metafields.mjs` is a dry-run-by-default importer using Shopify CLI product authorization, identity checks, compare-and-set writes, and backups. Store writes and the draft upload are pending the completed catalog audit and authenticated product access.
 
 Preparation checks: 43 Liquid fixtures and 16 browser fixture checks pass. Serve the repository root over HTTP and open `tests/camera-store/browser.html` for the browser checks. These fixture checks do not claim that Shopify product metafields have been saved.
+
+
+### Completed public catalog audit
+
+The subagent audited all 105 public collection listings: 92 cameras (14 sold out) and 13 accessories/lenses. The 87 cameras fitting the six requested labels have overlapping category totals of Point and Shoot 43, SLR 34, Rangefinder 4, Medium Format 8, Compact Camera 37, and Large Format 1. Five cameras remain outside these labels: X-Pro1, the Handycam camcorder, two Kodak Pony bodies, and the Instax Mini TL70 TLR. They remain cameras in the default view; no incorrect SLR/Rangefinder assignment is inferred.
+
+The complete machine-readable audit is `docs/camera-catalog-classification.json`; item-by-item evidence, primary sources, taxonomy policy, 15 conflicting listings, and eight unresolved details are in `docs/camera-catalog-classification.md`. This covers the public collection, not unpublished Admin inventory. The existing listing text is not altered by category assignment.
+
+Validate the reviewed import without Shopify access:
+
+```sh
+node scripts/camera-metafields.mjs docs/camera-catalog-classification.json --plan
+```
+
+After authenticated Shopify product access is available, run the same command without `--plan` to inspect the current-value dry run, then use `--apply` to create/validate the definition and save the classified arrays with backups and concurrency checks. Run `--verify` afterward. The five out-of-taxonomy cameras and 13 exclusions are not assigned category arrays. Shopify writes and uploading the prepared filter UI remain pending authentication.

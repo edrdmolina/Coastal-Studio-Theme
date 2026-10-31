@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test regression.test.mjs"
+    "test": "node --test"
   },
   "devDependencies": {
     "liquidjs": "10.21.1"

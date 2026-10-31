@@ -1,5 +1,6 @@
 // Uses Shopify CLI's stored authentication; no tokens are read or written here.
 // Dry run: node scripts/camera-metafields.mjs AUDIT.json
+// Local review: node scripts/camera-metafields.mjs AUDIT.json --plan
 // Apply:   node scripts/camera-metafields.mjs AUDIT.json --apply
 // Verify:  node scripts/camera-metafields.mjs AUDIT.json --verify
 import { execFileSync } from 'node:child_process';
@@ -11,19 +12,33 @@ const store = 'd61956-2.myshopify.com';
 const file = process.argv[2];
 const apply = process.argv.includes('--apply');
 const verify = process.argv.includes('--verify');
-if (!file || (apply && verify)) throw new Error('Supply an audit JSON file and at most one of --apply or --verify.');
+const plan = process.argv.includes('--plan');
+if (!file || [apply, verify, plan].filter(Boolean).length > 1) throw new Error('Supply an audit JSON file and at most one of --apply, --verify or --plan.');
 const definition = JSON.parse(readFileSync(new URL('../docs/camera-categories-metafield.json', import.meta.url)));
 const allowed = JSON.parse(definition.validations[0].value);
 const audit = JSON.parse(readFileSync(file));
 const products = Array.isArray(audit) ? audit : audit.products;
 if (!Array.isArray(products)) throw new Error('The audit must contain a products array.');
-const planned = products.filter(p => p.is_camera && p.categories.length).map(p => {
-  if (!p.id || !p.handle || !p.title || !Array.isArray(p.categories) || p.categories.some(c => !allowed.includes(c)) || new Set(p.categories).size !== p.categories.length) {
-    throw new Error(`Invalid classification: ${p.handle || p.id}`);
+if (audit.store && audit.store !== store) throw new Error('The audit belongs to a different Shopify store.');
+const validated = products.map(p => {
+  const id = String(p.product_id || p.id || '');
+  const gid = id.startsWith('gid://') ? id : `gid://shopify/Product/${id}`;
+  if (!/^gid:\/\/shopify\/Product\/\d+$/.test(gid) || !p.handle || !p.title || typeof p.is_camera !== 'boolean' || !Array.isArray(p.categories) || p.categories.some(c => !allowed.includes(c)) || new Set(p.categories).size !== p.categories.length || (!p.is_camera && p.categories.length)) {
+    throw new Error(`Invalid classification: ${p.handle || id}`);
   }
-  return { ...p, gid: String(p.id).startsWith('gid://') ? String(p.id) : `gid://shopify/Product/${p.id}` };
+  if (p.admin_graphql_api_id && p.admin_graphql_api_id !== gid) throw new Error(`Conflicting product IDs: ${p.handle}`);
+  return { ...p, gid };
 });
-if (!planned.length || new Set(planned.map(p => p.gid)).size !== planned.length) throw new Error('Empty or duplicate product plan.');
+if (!validated.length || new Set(validated.map(p => p.gid)).size !== validated.length) throw new Error('Empty or duplicate product plan.');
+const planned = validated.filter(p => p.is_camera && p.categories.length);
+if (!planned.length) throw new Error('No classified cameras in this audit.');
+if (plan) {
+  console.log(JSON.stringify({ store, definition, cameras: validated.filter(p => p.is_camera).length,
+    classified: planned.length, outsideTaxonomy: validated.filter(p => p.is_camera && !p.categories.length).map(p => ({id:p.gid,title:p.title})),
+    excluded: validated.filter(p => !p.is_camera).length,
+    products: planned.map(p => ({id:p.gid,handle:p.handle,title:p.title,categories:p.categories})) }, null, 2));
+  process.exit(0);
+}
 const dir = mkdtempSync(join(tmpdir(), 'coastal-camera-metafields-'));
 function graphql(query, variables = {}, mutate = false) {
   const queryFile = join(dir, 'operation.graphql');
