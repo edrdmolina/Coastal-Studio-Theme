@@ -27,7 +27,9 @@
         "filter_type": "horizontal"
       },
       "custom_css": [
-        ".button {--color-button-text: var(--color-foreground);}"
+        ".button {--color-button-text: var(--color-foreground);}",
+        ".facet-filters__sort, .mobile-facets__sort .select__select {padding-inline-end: 4rem;}",
+        ".facet-filters__field .select .icon-caret, .mobile-facets__sort .select .icon-caret {inset-inline-end: 1.2rem;}"
       ]
     }
   },

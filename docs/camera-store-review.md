@@ -144,3 +144,10 @@ At verification, the public digital collection had 157 listings and eight purcha
 For future products, set **Digital camera** in the product metafields. The collection and shopping section update from the saved value. Review condition notes and stock availability separately; marking a product digital does not change its publication, price, condition, or stock.
 
 The unrelated floating processing bar is suppressed on the digital collection template, turnaround announcements are explicitly labeled as film processing there, and collection buttons retain readable brown text. These theme adjustments are scoped to the new digital collection.
+
+
+## Dropdown caret spacing
+
+Finder style, budget, and inventory sort now use the shared theme caret with a 1.2rem end inset and 4rem of reserved label space. The digital collection's desktop and mobile sort receive the same spacing. Mobile inventory sort stacks its label above a full-width control. FAQ carets already have an adequate inset.
+
+Verified the unpublished draft at 1440px, 390px, and 320px, plus 125% text size: no horizontal overflow, caret clicks reach the native select, and keyboard selection works. No runtime exceptions were observed. Theme Check retains the existing unrelated email-signup-banner schema error.
