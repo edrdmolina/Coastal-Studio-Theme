@@ -1,0 +1,47 @@
+{{ 'camera-store.css' | asset_url | stylesheet_tag }}
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+<div class="camera-store cs-confidence" id="CameraConfidence">
+  <div class="cs-shell page-width">
+    <div class="cs-confidence__panel color-accent-2 gradient">
+      <div class="cs-confidence__intro"><p class="cs-eyebrow">FROM THE LAB, WITH LOVE</p><h2>{{ section.settings.heading | escape | newline_to_br }}</h2><p>{{ section.settings.description | escape }}</p><a class="button button--primary cs-button" href="{{ section.settings.contact_url }}">Talk cameras with us {% render 'camera-store-icon', icon: 'arrow' %}</a></div>
+      <div class="cs-confidence__checks">
+        <div><div><h3>A closer look, before you buy.</h3><p>Our 20-point inspection goes beyond a quick battery check. Read every listing for its individual condition and known issues. AS-IS equipment is the exception.</p></div></div>
+        <div><div><h3>Know the grade. Know the gear.</h3><p>Cosmetic wear, optical condition, and missing functions matter. We use a grading system so you can make an informed choice.</p></div></div>
+        <div><div><h3>Support after the shutter clicks.</h3><p>Used cameras and lenses carry a 90-day limited warranty, excluding AS-IS. Coverage and exclusions are explained in our full policy.</p></div></div>
+      </div>
+    </div>
+    <div class="cs-grading">
+      <div class="cs-section-heading"><div><p class="cs-eyebrow">USED GEAR, EXPLAINED</p><h2>A little wear. A lot of clarity.</h2></div><a class="cs-text-link" href="{{ section.settings.warranty_url }}">Full grading & warranty policy {% render 'camera-store-icon', icon: 'arrow' %}</a></div>
+      <div class="cs-grade-grid">
+        <div><span class="cs-grade-dot cs-grade-dot--mint"></span><h3>Mint</h3><p>Virtually no signs of use. All functions work.</p></div>
+        <div><span class="cs-grade-dot cs-grade-dot--excellent"></span><h3>Excellent</h3><p>Light signs of use. All camera functions work.</p></div>
+        <div><span class="cs-grade-dot cs-grade-dot--good"></span><h3>Good</h3><p>More visible wear. Read the listing for optical condition.</p></div>
+        <div><span class="cs-grade-dot cs-grade-dot--oneoff"></span><h3>One-Off</h3><p>Some functions are missing. Details are listed.</p></div>
+        <div class="cs-grade--asis"><span class="cs-grade-dot cs-grade-dot--asis"></span><h3>AS-IS</h3><p>May be untested or nonfunctional. No returns or warranty.</p></div>
+      </div>
+      <p class="cs-grading__note">A quick guide, with the full details in our policy. Always read the individual product description before purchasing.</p>
+    </div>
+    <div class="cs-faq">
+      <div class="cs-faq__intro"><p class="cs-eyebrow">GOOD QUESTIONS</p><h2>Before you<br>take the shot.</h2><p>Choosing a first camera? Matching a lens? We’re happy to help you figure it out.</p><a class="cs-text-link" href="{{ section.settings.contact_url }}">Ask the lab {% render 'camera-store-icon', icon: 'arrow' %}</a></div>
+      <div class="cs-faq__questions">
+        {% for block in section.blocks %}
+          <div class="accordion" {{ block.shopify_attributes }}>
+            <details id="CameraQuestion-{{ section.id }}-{{ block.id }}">
+              <summary><h3 class="accordion__title inline-richtext h4">{{ block.settings.question | escape }}</h3>{% render 'icon-caret' %}</summary>
+              <div class="cs-faq__answer accordion__content rte">{{ block.settings.answer }}</div>
+            </details>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="cs-closing"><p>Less guesswork.<br><span>More good photographs.</span></p><a class="button button--primary cs-button" href="#CameraInventory">Find your next camera {% render 'camera-store-icon', icon: 'arrow' %}</a></div>
+  </div>
+</div>
+{% schema %}
+{"name":"Camera store: confidence","settings":[
+  {"type":"textarea","id":"heading","label":"Heading","default":"We’re film people.\nCamera people, too."},
+  {"type":"textarea","id":"description","label":"Description","default":"We’re a working film lab in Tampa, Florida. We want the same thing you do: a camera you understand, and a reason to keep shooting."},
+  {"type":"url","id":"warranty_url","label":"Grading and warranty page"},
+  {"type":"url","id":"contact_url","label":"Contact page"}
+],"blocks":[{"type":"question","name":"Frequently asked question","settings":[{"type":"text","id":"question","label":"Question"},{"type":"richtext","id":"answer","label":"Answer"}]}],"presets":[{"name":"Camera store: confidence"}]}
+{% endschema %}

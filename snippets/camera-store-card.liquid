@@ -1,0 +1,53 @@
+{% comment %}
+  Camera storefront card. Accepts product, category (optional), and shared
+  condition_data (optional). Lens shelves resolve the same condition data here.
+{% endcomment %}
+{% liquid
+  assign camera_title = product.title | downcase
+  assign kit_label = ''
+  if camera_title contains ' + ' and camera_title contains 'lens'
+    assign kit_label = 'Lens included'
+  endif
+  assign image_alt = product.featured_image.alt | default: product.title
+  assign description_text = product.description | strip_html | downcase
+%}
+{% if condition_data == blank %}
+  {% capture condition %}{% render 'camera-store-condition', product: product %}{% endcapture %}
+  {% assign condition_data = condition | strip | split: '|' %}
+{% endif %}
+{% liquid
+  assign grade = condition_data[0]
+  assign special_item = false
+  if condition_data[1] == 'true'
+    assign special_item = true
+  endif
+  assign caution = ''
+  if description_text contains 'non-functional' or description_text contains 'not working' or description_text contains 'meter is dead' or grade == 'One-Off'
+    assign caution = 'Known limitations — read listing'
+  endif
+  if camera_title contains 'read description' or camera_title contains 'please read'
+    assign caution = 'Important condition notes'
+  endif
+  if special_item or grade == 'AS-IS'
+    assign caution = 'AS-IS / display — check listing'
+  endif
+%}
+<article class="cs-product product-card-wrapper">
+  <a class="cs-product__image" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+    {% if product.featured_image %}
+      {{ product.featured_image | image_url: width: 800 | image_tag: widths: '240, 400, 600, 800', sizes: '(min-width: 1100px) 23vw, (min-width: 750px) 31vw, 46vw', loading: 'lazy', alt: image_alt }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'cs-placeholder' }}
+    {% endif %}
+    {% if product.compare_at_price > product.price %}<span class="cs-product__badge">On sale</span>{% endif %}
+  </a>
+  <div class="cs-product__body">
+    {% if category != blank %}<p class="cs-product__type">{{ category | escape }}{% if kit_label != blank %}<span> · {{ kit_label }}</span>{% endif %}</p>{% endif %}
+    {% comment %}Use the theme's type scale without card__heading's stretched-link overlay.{% endcomment %}
+    <h3 class="cs-product__title h4"><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
+    <p class="cs-product__condition">{% if grade != blank %}Listed condition: <strong>{{ grade | escape }}</strong>{% else %}See condition in listing{% endif %}</p>
+    {% if caution != blank %}<p class="cs-product__caution">{{ caution }}</p>{% endif %}
+    <div class="cs-product__price">{% render 'price', product: product, show_compare_at_price: true %}</div>
+    <a class="button button--secondary cs-product__details" href="{{ product.url }}" aria-label="View condition and details for {{ product.title | escape }}">Condition & details {% render 'camera-store-icon', icon: 'arrow' %}</a>
+  </div>
+</article>

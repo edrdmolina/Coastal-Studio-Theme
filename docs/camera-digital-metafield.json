@@ -1,0 +1,17 @@
+{
+  "name": "Digital camera",
+  "namespace": "custom",
+  "key": "is_digital_camera",
+  "description": "Check for cameras that record digital photos or digital video. Leave unchecked for film, instant-film, and analog tape cameras. Independent of camera construction and body-size categories.",
+  "type": "boolean",
+  "ownerType": "PRODUCT",
+  "pin": true,
+  "access": {
+    "storefront": "PUBLIC_READ"
+  },
+  "capabilities": {
+    "smartCollectionCondition": {
+      "enabled": true
+    }
+  }
+}

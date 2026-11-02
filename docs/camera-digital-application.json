@@ -1,0 +1,35 @@
+{
+  "store": "d61956-2.myshopify.com",
+  "metafield": "custom.is_digital_camera",
+  "type": "boolean",
+  "definition_id": "gid://shopify/MetafieldDefinition/604502982710",
+  "digital_listings_identified_and_verified": 168,
+  "reviewed_nondigital_camera_values": 94,
+  "storewide_search_candidates_reviewed": 218,
+  "collection": {
+    "id": "gid://shopify/Collection/327782203446",
+    "handle": "digital-cameras",
+    "membership": "custom.is_digital_camera equals true",
+    "published_to": "Online Store",
+    "other_channels_published": false
+  },
+  "storefront_observation": {
+    "public_digital_listings": 157,
+    "available_digital_cameras": 8,
+    "featured_cards": 4,
+    "unique_combined_inventory_cards": 77
+  },
+  "draft_theme_id": 158931484726,
+  "live_theme_published": false,
+  "verification": {
+    "automated_tests": 57,
+    "browser_fixture_checks": 18,
+    "link_targets": 87,
+    "mobile_widths": [
+      320,
+      390
+    ],
+    "digital_slr_matches": 2
+  },
+  "verified_at_utc": "2026-11-02T18:44:06.451619+00:00"
+}

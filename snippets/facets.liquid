@@ -16,6 +16,12 @@
 {{ 'component-visual-display.css' | asset_url | stylesheet_tag }}
 
 {%- liquid
+  assign displayed_filters = results.filters
+  if results.template_suffix == 'digital-cameras'
+    assign availability_filters = results.filters | where: 'param_name', 'filter.v.availability'
+    assign price_filters = results.filters | where: 'type', 'price_range'
+    assign displayed_filters = availability_filters | concat: price_filters
+  endif
   assign sort_by = results.sort_by | default: results.default_sort_by
   assign total_active_values = 0
   if results.url
@@ -46,7 +52,7 @@
               class="facets__wrapper"
             {% endif %}
           >
-            {%- if filter_type == 'horizontal' and results.filters != empty -%}
+            {%- if filter_type == 'horizontal' and displayed_filters != empty -%}
               <h2 class="facets__heading caption-large text-body" id="verticalTitle" tabindex="-1">
                 {{ 'products.facets.filter_by_label' | t }}
               </h2>
@@ -55,7 +61,7 @@
             {%- if filter_type == 'vertical' -%}
               <div class="active-facets active-facets-desktop">
                 <div class="active-facets-vertical-filter">
-                  {%- unless results.filters == empty -%}
+                  {%- unless displayed_filters == empty -%}
                     <h2
                       class="facets__heading facets__heading--vertical caption-large text-body"
                       id="verticalTitle"
@@ -70,7 +76,7 @@
                     </a>
                   </facet-remove>
                 </div>
-                {%- for filter in results.filters -%}
+                {%- for filter in displayed_filters -%}
                   {%- for value in filter.active_values -%}
                     <facet-remove>
                       <a href="{{ value.url_to_remove }}" class="active-facets__button active-facets__button--light">
@@ -111,7 +117,7 @@
 
             <script src="{{ 'show-more.js' | asset_url }}" defer="defer"></script>
             {% comment %} Filters for both horizontal and vertical filter {% endcomment %}
-            {%- for filter in results.filters -%}
+            {%- for filter in displayed_filters -%}
               {% liquid
                 assign total_active_values = total_active_values | plus: filter.active_values.size
                 case filter.presentation
@@ -465,7 +471,7 @@
           {% comment %} Pills after filtes on filter type horizontal {% endcomment %}
           {%- if filter_type == 'horizontal' -%}
             <div class="active-facets active-facets-desktop">
-              {%- for filter in results.filters -%}
+              {%- for filter in displayed_filters -%}
                 {%- for value in filter.active_values -%}
                   <facet-remove>
                     <a href="{{ value.url_to_remove }}" class="active-facets__button active-facets__button--light">
@@ -687,7 +693,7 @@
               class="mobile-facets__main has-submenu gradient"
             >
               {%- if enable_filtering -%}
-                {%- for filter in results.filters -%}
+                {%- for filter in displayed_filters -%}
                   {% liquid
                     case filter.presentation
                       when 'swatch'
@@ -1028,7 +1034,7 @@
   </menu-drawer>
 
   <div class="active-facets active-facets-mobile medium-hide large-up-hide">
-    {%- for filter in results.filters -%}
+    {%- for filter in displayed_filters -%}
       {%- for value in filter.active_values -%}
         <facet-remove>
           <a href="{{ value.url_to_remove }}" class="active-facets__button active-facets__button--light">
@@ -1145,7 +1151,7 @@
     <facet-filters-form class="facets facets-pill small-hide">
       <form id="FacetFiltersPillsForm" class="facets__form">
         <div class="active-facets active-facets-desktop">
-          {%- for filter in results.filters -%}
+          {%- for filter in displayed_filters -%}
             {%- for value in filter.active_values -%}
               <facet-remove>
                 <a href="{{ value.url_to_remove }}" class="active-facets__button active-facets__button--light">
