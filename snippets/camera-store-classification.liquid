@@ -11,7 +11,7 @@
   assign tags = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
   assign handles = product.collections | map: 'handle'
   assign is_camera = false
-  if product.metafields.custom.camera_categories.value != blank
+  if product.metafields.custom.is_digital_camera.value == true or product.metafields.custom.camera_categories.value != blank
     assign is_camera = true
   elsif product_type == 'camera'
     assign is_camera = true
@@ -27,7 +27,13 @@
   endif
   assign category = 'other'
   assign category_label = 'Film camera'
-  if tags contains '|digital|' or tags contains 'digital camera' or tags contains '|digicam|' or camera_title contains 'digital camera'
+  assign digital_camera = product.metafields.custom.is_digital_camera.value
+  if digital_camera == nil
+    if tags contains '|digital|' or tags contains 'digital camera' or tags contains '|digicam|' or camera_title contains 'digital camera'
+      assign digital_camera = true
+    endif
+  endif
+  if digital_camera == true
     assign category = 'digital'
     assign category_label = 'Digital camera'
   elsif tags contains '|instant|' or tags contains 'instant camera' or tags contains 'instant film camera' or tags contains '|instax|' or handles contains 'instant-film-cameras'

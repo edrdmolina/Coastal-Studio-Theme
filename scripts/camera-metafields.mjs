@@ -3,6 +3,7 @@
 // Local review: node scripts/camera-metafields.mjs AUDIT.json --plan
 // Apply:   node scripts/camera-metafields.mjs AUDIT.json --apply
 // Verify:  node scripts/camera-metafields.mjs AUDIT.json --verify
+// Add --digital to target custom.is_digital_camera with an audited boolean plan.
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -14,9 +15,11 @@ const file = process.argv[2];
 const apply = process.argv.includes('--apply');
 const verify = process.argv.includes('--verify');
 const plan = process.argv.includes('--plan');
+const digital = process.argv.includes('--digital');
 if (!file || [apply, verify, plan].filter(Boolean).length > 1) throw new Error('Supply an audit JSON file and at most one of --apply, --verify or --plan.');
-const definition = JSON.parse(readFileSync(new URL('../docs/camera-categories-metafield.json', import.meta.url)));
-const allowed = JSON.parse(definition.validations[0].value);
+const definition = JSON.parse(readFileSync(new URL(digital ? '../docs/camera-digital-metafield.json' : '../docs/camera-categories-metafield.json', import.meta.url)));
+const allowed = digital ? null : JSON.parse(definition.validations[0].value);
+const desiredValue = product => JSON.stringify(digital ? product.is_digital_camera : product.categories);
 const audit = JSON.parse(readFileSync(file));
 const products = Array.isArray(audit) ? audit : audit.products;
 if (!Array.isArray(products)) throw new Error('The audit must contain a products array.');
@@ -24,20 +27,21 @@ if (audit.store && audit.store !== store) throw new Error('The audit belongs to 
 const validated = products.map(p => {
   const id = String(p.product_id || p.id || '');
   const gid = id.startsWith('gid://') ? id : `gid://shopify/Product/${id}`;
-  if (!/^gid:\/\/shopify\/Product\/\d+$/.test(gid) || !p.handle || !p.title || typeof p.is_camera !== 'boolean' || !Array.isArray(p.categories) || p.categories.some(c => !allowed.includes(c)) || new Set(p.categories).size !== p.categories.length || (!p.is_camera && p.categories.length)) {
+  if (!/^gid:\/\/shopify\/Product\/\d+$/.test(gid) || !p.handle || !p.title || typeof p.is_camera !== 'boolean' || !Array.isArray(p.categories) || (!digital && p.categories.some(c => !allowed.includes(c))) || new Set(p.categories).size !== p.categories.length || (!p.is_camera && p.categories.length)) {
     throw new Error(`Invalid classification: ${p.handle || id}`);
   }
+  if (digital && p.is_camera && typeof p.is_digital_camera !== 'boolean') throw new Error(`Missing digital classification: ${p.handle}`);
   if (p.admin_graphql_api_id && p.admin_graphql_api_id !== gid) throw new Error(`Conflicting product IDs: ${p.handle}`);
   return { ...p, gid };
 });
 if (!validated.length || new Set(validated.map(p => p.gid)).size !== validated.length) throw new Error('Empty or duplicate product plan.');
-const planned = validated.filter(p => p.is_camera && p.categories.length);
+const planned = validated.filter(p => p.is_camera && (digital || p.categories.length));
 if (!planned.length) throw new Error('No classified cameras in this audit.');
 if (plan) {
   console.log(JSON.stringify({ store, definition, cameras: validated.filter(p => p.is_camera).length,
-    classified: planned.length, outsideTaxonomy: validated.filter(p => p.is_camera && !p.categories.length).map(p => ({id:p.gid,title:p.title})),
+    classified: planned.length, outsideTaxonomy: validated.filter(p => !digital && p.is_camera && !p.categories.length).map(p => ({id:p.gid,title:p.title})),
     excluded: validated.filter(p => !p.is_camera).length,
-    products: planned.map(p => ({id:p.gid,handle:p.handle,title:p.title,categories:p.categories})) }, null, 2));
+    products: planned.map(p => ({id:p.gid,handle:p.handle,title:p.title,...(digital ? {is_digital_camera:p.is_digital_camera} : {categories:p.categories})})) }, null, 2));
   process.exit(0);
 }
 const dir = mkdtempSync(join(tmpdir(), 'coastal-camera-metafields-'));
@@ -61,7 +65,7 @@ function graphql(query, variables = {}, mutate = false) {
 function readProducts() {
   const current = [];
   for (let i = 0; i < planned.length; i += 25) {
-    const data = graphql(`query ($ids: [ID!]!) { nodes(ids: $ids) { ... on Product { id handle title taxonomy: metafield(namespace: "custom", key: "camera_categories") { value type compareDigest } } } }`, { ids: planned.slice(i, i + 25).map(p => p.gid) });
+    const data = graphql(`query ($ids: [ID!]!) { nodes(ids: $ids) { ... on Product { id handle title taxonomy: metafield(namespace: "custom", key: "${definition.key}") { value type compareDigest } } } }`, { ids: planned.slice(i, i + 25).map(p => p.gid) });
     current.push(...data.nodes);
   }
   return new Map(current.map(p => {
@@ -76,11 +80,11 @@ try {
     const actual = current.get(p.gid);
     if (actual.handle !== p.handle || actual.title !== p.title) throw new Error(`Product identity changed since audit: ${p.handle}`);
     if (actual.taxonomy && actual.taxonomy.type !== definition.type) throw new Error(`Incompatible existing metafield: ${p.handle}`);
-    const desired = JSON.stringify(p.categories);
+    const desired = desiredValue(p);
     const existing = actual.taxonomy?.value;
     if (existing !== desired) changes.push({ ownerId: p.gid, namespace: definition.namespace, key: definition.key, type: definition.type, value: desired, compareDigest: actual.taxonomy?.compareDigest || null });
   }
-  console.log(JSON.stringify({ store, planned: planned.length, changes: changes.length, mode: apply ? 'apply' : verify ? 'verify' : 'dry-run' }));
+  console.log(JSON.stringify({ store, planned: planned.length, changes: changes.length, metafield: `${definition.namespace}.${definition.key}`, mode: apply ? 'apply' : verify ? 'verify' : 'dry-run' }));
   if (verify) {
     if (changes.length) throw new Error(`${changes.length} products do not match the audit.`);
   } else if (apply) {
@@ -89,8 +93,10 @@ try {
     const existing = data.metafieldDefinitions.nodes.find(d => d.key === definition.key);
     if (existing) {
       if (existing.type.name !== definition.type) throw new Error('Existing definition has a different type.');
-      const choices = existing.validations.find(v => v.name === 'choices');
-      if (!choices || JSON.stringify([...JSON.parse(choices.value)].sort()) !== JSON.stringify([...allowed].sort())) throw new Error('Existing definition has different choices.');
+      if (!digital) {
+        const choices = existing.validations.find(v => v.name === 'choices');
+        if (!choices || JSON.stringify([...JSON.parse(choices.value)].sort()) !== JSON.stringify([...allowed].sort())) throw new Error('Existing definition has different choices.');
+      }
     } else {
       const created = graphql(`mutation ($definition: MetafieldDefinitionInput!) { metafieldDefinitionCreate(definition: $definition) { createdDefinition { id } userErrors { field message code } } }`, { definition }, true).metafieldDefinitionCreate;
       if (created.userErrors.length || !created.createdDefinition) throw new Error(JSON.stringify(created.userErrors));
@@ -106,10 +112,10 @@ try {
       console.log(`Saved ${Math.min(i + 25, changes.length)} of ${changes.length} classifications.`);
     }
     const saved = readProducts();
-    for (const p of planned) if (saved.get(p.gid)?.taxonomy?.value !== JSON.stringify(p.categories)) throw new Error(`Verification failed: ${p.handle}`);
+    for (const p of planned) if (saved.get(p.gid)?.taxonomy?.value !== desiredValue(p)) throw new Error(`Verification failed: ${p.handle}`);
     console.log('All written classifications verified.');
   } else {
-    console.log(JSON.stringify(changes.map(c => ({ id: c.ownerId, categories: JSON.parse(c.value) })), null, 2));
+    console.log(JSON.stringify(changes.map(c => ({ id: c.ownerId, [definition.key]: JSON.parse(c.value) })), null, 2));
   }
 } finally {
   rmSync(dir, { recursive: true, force: true });

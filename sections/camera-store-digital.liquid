@@ -1,0 +1,41 @@
+{{ 'camera-store.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{% assign camera_collection = section.settings.collection %}
+<section class="camera-store cs-shelf cs-digital" id="DigitalCameras" aria-labelledby="DigitalHeading-{{ section.id }}">
+  <div class="cs-shell page-width">
+    <div class="cs-section-heading">
+      <div><p class="cs-eyebrow">DIGITAL, TOO.</p><h2 id="DigitalHeading-{{ section.id }}">{{ section.settings.heading | escape }}</h2></div>
+      <a class="cs-text-link" href="{{ camera_collection.url }}?filter.v.availability=1">Shop all digital cameras {% render 'camera-store-icon', icon: 'arrow' %}</a>
+    </div>
+    <p class="cs-section-intro">{{ section.settings.description | escape }}</p>
+    {% assign available_count = 0 %}
+    {% if camera_collection != blank %}
+      {% paginate camera_collection.products by 250 %}
+        <div class="cs-product-grid cs-product-grid--shelf">
+          {% for product in camera_collection.products %}
+            {% if product.available and product.metafields.custom.is_digital_camera.value == true %}
+              {% capture condition %}{% render 'camera-store-condition', product: product %}{% endcapture %}
+              {% assign condition_data = condition | strip | split: '|' %}
+              {% unless condition_data[1] == 'true' %}
+                {% render 'camera-store-card', product: product, category: 'Digital', condition_data: condition_data %}
+                {% assign available_count = available_count | plus: 1 %}
+                {% if available_count == 4 %}{% break %}{% endif %}
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if available_count == 0 %}<p class="cs-section-intro">Our digital selection changes as cameras arrive. <a href="{{ section.settings.contact_url }}">Ask us what’s coming in.</a></p>{% endif %}
+        <noscript><p class="cs-section-intro"><a href="{{ camera_collection.url }}">Browse our complete camera collection</a> for more available gear.</p></noscript>
+      {% endpaginate %}
+    {% endif %}
+  </div>
+</section>
+{% schema %}
+{"name":"Camera store: digital","settings":[
+  {"type":"collection","id":"collection","label":"Digital camera collection"},
+  {"type":"text","id":"heading","label":"Heading","default":"Digital cameras, from the lab."},
+  {"type":"textarea","id":"description","label":"Description","default":"Explore compact digicams, DSLRs, mirrorless cameras, and digital video gear. Check each listing for condition and included accessories."},
+  {"type":"url","id":"contact_url","label":"Contact page"}
+],"presets":[{"name":"Camera store: digital"}]}
+{% endschema %}

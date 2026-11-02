@@ -4,8 +4,8 @@
       "type": "camera-store-hero",
       "settings": {
         "eyebrow": "Good cameras. Real film people.",
-        "heading": "Find your next\nfilm camera.",
-        "description": "New and pre-owned cameras, clear condition notes, and real advice from the people who develop your film.",
+        "heading": "Find your next\ncamera.",
+        "description": "Film and digital cameras, clear condition notes, and real advice from the people who develop your film.",
         "image": "shopify://shop_images/CoastalCameraCatagoryListing039_297b7c42-a7de-4f80-b29c-8024f15fbae2.png",
         "warranty_url": "/pages/used-camera-equipment-grading-system-limited-warranty-coastal-film-lab",
         "contact_url": "/pages/contact-us"
@@ -17,7 +17,8 @@
         "collection": "cameras",
         "heading": "The next roll starts here.",
         "description": "Shop available cameras. Read each listing for condition, included gear, and any known issues.",
-        "contact_url": "/pages/contact-us"
+        "contact_url": "/pages/contact-us",
+        "digital_collection": "digital-cameras"
       }
     },
     "camera_lenses": {
@@ -52,7 +53,7 @@
           "type": "question",
           "settings": {
             "question": "What does the condition grade mean?",
-            "answer": "<p>Our grades run from Mint through Excellent, Good, One-Off, and AS-IS. They describe wear, function, and optical condition. One-Off items have missing functions described in their listings; AS-IS equipment may be untested or nonfunctional and has no returns or warranty.</p><p>The product description is essential: read it for the individual camera’s condition, included items, and known issues. <a href=\"/pages/used-camera-equipment-grading-system-limited-warranty-coastal-film-lab\">See the full grading definitions</a>.</p>"
+            "answer": "<p>Our grades run from Mint through Excellent, Good, One-Off, and AS-IS. They describe wear, function, and optical condition. One-Off items have missing functions described in their listings; AS-IS equipment may be untested or nonfunctional and has no returns or warranty.</p><p>The product description is essential: read it for the individual camera\u2019s condition, included items, and known issues. <a href=\"/pages/used-camera-equipment-grading-system-limited-warranty-coastal-film-lab\">See the full grading definitions</a>.</p>"
           }
         },
         "question_3": {
@@ -66,7 +67,7 @@
           "type": "question",
           "settings": {
             "question": "Where does your camera gear come from?",
-            "answer": "<p>Our camera equipment comes from a very diverse range of sources. Most items are directly purchased from the original owners who have lovingly cared for them over the years and are simply ready for them to find new owners who will enjoy them. Additionally, we do source hard to find cameras directly from used camera stores in Japan and Europe for items that are hard to find in the states. Our global network of experienced camera hunters seek out hidden gems, looking for the most interesting cameras they can find for our store. With all these sources combined we're able to offer a vast range of cameras to fit almost any taste! </p>"
+            "answer": "<p>Our camera equipment comes from a very diverse range of sources. Most items are directly purchased from the original owners who have lovingly cared for them over the years and are simply ready for them to find new owners who will enjoy them. Additionally, we do source hard to find cameras directly from used camera stores in Japan and Europe for items that are hard to find in the states. Our global network of experienced camera hunters seek out hidden gems, looking for the most interesting cameras they can find for our store. With all these sources combined we're able to offer a vast range of cameras to fit almost any taste!\u00a0</p>"
           }
         },
         "question_5": {
@@ -86,8 +87,8 @@
         "question_5"
       ],
       "settings": {
-        "heading": "We’re film people.\nCamera people, too.",
-        "description": "We’re a working film lab in Tampa, Florida. We want the same thing you do: a camera you understand, and a reason to keep shooting.",
+        "heading": "We\u2019re film people.\nCamera people, too.",
+        "description": "We\u2019re a working film lab in Tampa, Florida. We want the same thing you do: a camera you understand, and a reason to keep shooting.",
         "warranty_url": "/pages/used-camera-equipment-grading-system-limited-warranty-coastal-film-lab",
         "contact_url": "/pages/contact-us"
       }
@@ -144,13 +145,23 @@
         "format_4"
       ],
       "settings": {
-        "category_heading": "What kind of photographer are you?"
+        "category_heading": "Explore film cameras."
+      }
+    },
+    "camera_digital": {
+      "type": "camera-store-digital",
+      "settings": {
+        "collection": "digital-cameras",
+        "heading": "Digital cameras, from the lab.",
+        "description": "Explore compact digicams, DSLRs, mirrorless cameras, and digital video gear. Check each listing for condition and included accessories.",
+        "contact_url": "/pages/contact-us"
       }
     }
   },
   "order": [
     "camera_intro",
     "camera_inventory",
+    "camera_digital",
     "camera_formats",
     "camera_lenses",
     "camera_confidence"

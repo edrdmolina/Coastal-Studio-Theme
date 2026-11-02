@@ -81,3 +81,32 @@ for (const [name, categories, expected] of categoryCases) {
 test('missing taxonomy does not infer filter categories from legacy tags', async () => {
   assert.equal((await engine.renderFile('camera-store-category-keys', { product: { ...base, tags: ['SLR', 'medium format'] } })).trim(), '');
 });
+
+test('digital metadata identifies a camera without legacy title or tags', async () => {
+  const product = {...base,title:'X-Pro1',type:'',metafields:{custom:{is_digital_camera:{value:true}}}};
+  assert.equal((await engine.renderFile('camera-store-classification',{product})).trim(),'true|digital|Digital camera');
+  assert.equal((await engine.renderFile('camera-store-category-keys',{product})).trim(),'digital|');
+});
+test('digital and SLR are independent overlapping categories', async () => {
+  const product = {...base,metafields:{custom:{is_digital_camera:{value:true},camera_categories:{value:['SLR']}}}};
+  assert.equal((await engine.renderFile('camera-store-category-keys',{product})).trim(),'slr|digital|');
+});
+test('explicit nondigital metadata takes precedence over an incorrect digital tag', async () => {
+  const product = {...base,tags:['digital'],metafields:{custom:{is_digital_camera:{value:false},camera_categories:{value:['SLR']}}}};
+  assert.equal((await engine.renderFile('camera-store-category-keys',{product})).trim(),'slr|');
+  assert.equal((await engine.renderFile('camera-store-classification',{product})).trim(),'true|other|Film camera');
+});
+test('digital tags alone do not populate the digital filter key', async () => {
+  assert.equal((await engine.renderFile('camera-store-category-keys',{product:{...base,tags:['digital']}})).trim(),'');
+});
+
+test('digital collection facets show availability and price without film chemistry or ISO', async () => {
+  const {readFile} = await import('node:fs/promises');
+  const source = await readFile(new URL('../../snippets/facets.liquid',import.meta.url),'utf8');
+  const block=source.match(/\{%- liquid[\s\S]*?-%\}/)[0];
+  const filters=[{param_name:'filter.v.availability',type:'list',label:'Availability'},{type:'price_range',label:'Price'},{param_name:'filter.p.m.custom.iso',type:'list',label:'ISO'}];
+  const template=block+'{% for filter in displayed_filters %}{{ filter.label }}|{% endfor %}';
+  assert.equal((await engine.parseAndRender(template,{results:{template_suffix:'digital-cameras',filters}})).trim(),'Availability|Price|');
+  assert.equal((await engine.parseAndRender(template,{results:{template_suffix:'',filters}})).trim(),'Availability|Price|ISO|');
+  assert.equal((await engine.parseAndRender(template,{results:{terms:'film',filters}})).trim(),'Availability|Price|ISO|');
+});

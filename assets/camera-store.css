@@ -51,7 +51,7 @@ body:has(.camera-store) .footer a[href^="mailto:"] { overflow-wrap: anywhere; }
 .cs-section-heading .cs-eyebrow { margin-bottom: 1.2rem; }
 .cs-section-heading > p { font-size: 1.5rem; color: var(--cs-muted); }
 .cs-formats, .cs-inventory, .cs-shelf { padding: 3.6rem 0; }
-.cs-inventory, #CameraFinder, .cs-shop-tools, .cs-confidence { scroll-margin-top: 11rem; }
+.cs-inventory, #CameraFinder, #DigitalCameras, .cs-shop-tools, .cs-confidence { scroll-margin-top: 11rem; }
 .cs-category-heading { margin-bottom: 2.4rem; }
 .cs-categories { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--grid-desktop-horizontal-spacing); }
 .cs-category { display: block; text-decoration: none; min-width: 0; text-align: var(--collection-card-text-alignment); }

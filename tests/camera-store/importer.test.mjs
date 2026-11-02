@@ -62,3 +62,20 @@ console.log(JSON.stringify({nodes},null,2));
     assert.equal(JSON.parse(result.stdout.trim()).changes, 0);
   } finally { rmSync(dir, {recursive:true,force:true}); }
 });
+
+test('digital plan preserves true and false booleans independently of camera categories', () => {
+  const dir = mkdtempSync(join(tmpdir(),'coastal-digital-plan-test-'));
+  try {
+    const products=structuredClone([audit.products[0],audit.products[1],audit.products.find(p=>!p.is_camera)]);
+    products[0].is_digital_camera=true;products[1].is_digital_camera=false;
+    const path=join(dir,'digital.json');writeFileSync(path,JSON.stringify({store:audit.store,products}));
+    const result=spawnSync(process.execPath,[script,path,'--digital','--plan'],{encoding:'utf8'});
+    assert.equal(result.status,0,result.stderr);
+    const plan=JSON.parse(result.stdout);
+    assert.equal(plan.definition.key,'is_digital_camera');assert.equal(plan.definition.type,'boolean');
+    assert.deepEqual(plan.products.map(p=>p.is_digital_camera),[true,false]);assert.equal(plan.excluded,1);
+    products[0].is_digital_camera='true';writeFileSync(path,JSON.stringify({store:audit.store,products}));
+    const invalid=spawnSync(process.execPath,[script,path,'--digital','--plan'],{encoding:'utf8'});
+    assert.notEqual(invalid.status,0);assert.match(invalid.stderr,/Missing digital classification/);
+  } finally {rmSync(dir,{recursive:true,force:true});}
+});

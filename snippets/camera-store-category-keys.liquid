@@ -13,3 +13,5 @@
     {%- when 'Large Format' -%}large|
   {%- endcase -%}
 {%- endfor -%}
+
+{%- if product.metafields.custom.is_digital_camera.value == true -%}digital|{%- endif -%}
