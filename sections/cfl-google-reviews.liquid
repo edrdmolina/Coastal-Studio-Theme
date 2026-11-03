@@ -52,12 +52,21 @@
           break
         endif
 
-        assign review_topic = review.topic.value | strip | downcase
+        comment
+          Topics is a list, so one review can suit both pages. It is joined
+          and split back into plain lowercase strings so "contains" compares
+          like with like.
+        endcomment
+        assign review_topics = review.topic.value | join: ',' | downcase | split: ','
+        assign matches = false
+        if review_topics contains topic
+          assign matches = true
+        endif
         if topic != blank
-          if pass == 1 and review_topic != topic
+          if pass == 1 and matches == false
             continue
           endif
-          if pass == 2 and review_topic == topic
+          if pass == 2 and matches
             continue
           endif
         endif
@@ -206,7 +215,7 @@
       "type": "text",
       "id": "topic",
       "label": "Topic",
-      "info": "Reviews with this topic show first, e.g. processing. Leave empty to show all reviews in order."
+      "info": "Reviews tagged with this topic show first, e.g. processing or general. Leave empty to show all reviews in order."
     },
     {
       "type": "range",
