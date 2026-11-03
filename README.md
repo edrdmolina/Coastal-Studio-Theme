@@ -145,6 +145,38 @@ Preserve this task-first hierarchy during short-term edits. New content should e
 
 Enabled app embeds in the committed settings include Globo Product Options, BookEasy, Shopify Forms, Globo Preorder, Judge.me, a font app, and Microsoft Clarity. A local preview can differ from production if the corresponding app or store data is unavailable.
 
+## Google reviews
+
+The **Google reviews** section (`sections/cfl-google-reviews.liquid`, cards in `snippets/cfl-google-review-card.liquid`) shows real Google reviews that staff pick by hand. Nothing loads from Google and there is no widget script. The reviews are plain theme HTML, so they don't slow the page or shift the layout. It sits on the home page after the trust band and on `/pages/film-development` (`templates/page.film-processingv2.json`) just before the FAQ.
+
+**The section renders nothing until at least one review is Active.** That is why it is safe in templates that sync to the live theme. In the theme editor it shows a short note instead.
+
+### Adding a review
+
+Reviews are stored as the `cfl_google_review` metaobject ("Google review"). Its definition already exists in the store, and storefront access is on.
+
+1. In Shopify admin, go to **Content → Metaobjects → Google review → Add entry**.
+2. Copy these from the review on the Google Business Profile:
+   - **Author name**: as Google shows it.
+   - **Rating**: 1–5 stars.
+   - **Review text**: word for word. Don't edit or shorten it; the card cuts long reviews off at six lines by itself.
+   - **Review date**: the day it was posted. Cards show the month and year.
+   - **Review link** (optional, but add it for long reviews): open the review on Google, choose **Share**, and copy the link. The card then shows "Read on Google".
+   - **Topic**: `processing` for reviews about developing and scanning, `general` for anything else. To add another topic, edit the choices on the metaobject definition.
+3. Set the status to **Active** and save. Draft entries never show on the storefront.
+
+With a topic set, the section puts matching reviews first and fills any empty slots with the rest, up to **Maximum reviews**. The film development page uses `processing`. The home page has no topic and shows every review.
+
+### Rating, count, and links
+
+The overall rating (e.g. `4.9`), the number of Google reviews, the "Read all reviews on Google" profile link, and the "Leave us a review" link are section settings in the theme editor. They start empty, and anything left empty is hidden. Copy the rating and count from the Google profile and **update them about once a month** on both pages, so they never fall far behind Google.
+
+The section deliberately emits **no** `Review` or `aggregateRating` structured data. Google ignores self-serving review markup on a business's own LocalBusiness pages and can treat it as spam.
+
+### Possible later phase
+
+A small scheduled job could pull new reviews from the Google Business Profile API and write them into the same `cfl_google_review` metaobject, perhaps as Drafts for staff to approve. The theme would need no changes.
+
 ## Local development preview
 
 ### Prerequisites

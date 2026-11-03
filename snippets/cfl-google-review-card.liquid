@@ -1,0 +1,50 @@
+{% comment %}
+  One Google review card, for the Google reviews section.
+
+  The text is clamped to six lines in CSS so every card in a row stays close to
+  the same height. A review longer than that is cut off with no way to expand
+  it here — that would need script — so whenever a link is on file the card
+  offers "Read on Google" for the whole thing. Copy the link for every long
+  review.
+
+  Usage:
+    {% render 'cfl-google-review-card', review: review, rating: 5, star_id: section.id %}
+
+  review  : a cfl_google_review metaobject
+  rating  : the review's stars, already clamped to 1–5
+  star_id : the section ID, for the shared star <symbol>
+{% endcomment %}
+
+{%- assign fill = rating | times: 20 -%}
+
+<li class="cfl-review">
+  <figure class="cfl-review__figure">
+    <span class="cfl-stars" style="--cfl-stars-fill: {{ fill }}%;" aria-hidden="true">
+      {%- render 'cfl-google-review-stars', star_id: star_id -%}
+    </span>
+    <span class="visually-hidden">Rated {{ rating }} out of 5</span>
+
+    <blockquote
+      class="cfl-review__body"
+      {% if review.review_url.value != blank %}
+        cite="{{ review.review_url.value }}"
+      {% endif %}
+    >
+      <p>{{ review.body.value | escape | newline_to_br }}</p>
+    </blockquote>
+
+    <figcaption class="cfl-review__meta">
+      <span class="cfl-review__author">{{ review.author_name.value | escape }}</span>
+      {%- if review.review_date.value != blank -%}
+        <time class="cfl-review__date" datetime="{{ review.review_date.value | date: '%Y-%m-%d' }}">
+          {{- review.review_date.value | date: '%B %Y' -}}
+        </time>
+      {%- endif -%}
+      {%- if review.review_url.value != blank -%}
+        <a class="cfl-review__link" href="{{ review.review_url.value }}">
+          Read on Google<span class="visually-hidden">: review by {{ review.author_name.value | escape }}</span>
+        </a>
+      {%- endif -%}
+    </figcaption>
+  </figure>
+</li>

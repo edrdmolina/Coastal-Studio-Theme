@@ -1,0 +1,285 @@
+{% comment %}
+  Hand-picked Google reviews: a summary line, then a short run of review cards.
+
+  WHERE THE REVIEWS COME FROM
+  Staff copy real reviews from the lab's Google Business Profile into the
+  "Google review" metaobject (Content > Metaobjects > Google review, type
+  cfl_google_review). Nothing here calls Google, and there is no widget or
+  third-party script: the cards are plain server-rendered HTML, so they cost
+  nothing in page speed and cannot shift the layout after load. The README
+  section "Google reviews" covers how to add one.
+
+  Only entries set to Active are returned to the storefront; a Draft entry can
+  be prepared and checked in the admin before it goes up.
+
+  WHICH REVIEWS SHOW
+  With a topic set, matching reviews come first and the rest fill any remaining
+  slots, so a page never looks thin just because few reviews carry its topic.
+  With no topic, reviews show in the order Shopify returns them. Either way the
+  count stops at "Maximum reviews".
+
+  If there is not a single review to show, the section renders nothing at all —
+  no heading, no empty band. The section is placed in templates that sync
+  straight to the live theme before any reviews have been entered, so the
+  failure mode has to be absence. The theme editor shows a short note instead.
+
+  NO REVIEW SCHEMA, ON PURPOSE
+  There is no aggregateRating or Review JSON-LD here. Google does not show
+  review stars for reviews a LocalBusiness publishes about itself, and treats
+  that markup as self-serving. The overall rating and count are typed in by
+  hand from the Google profile and shown as plain text only.
+{% endcomment %}
+
+{%- liquid
+  assign topic = section.settings.topic | strip | downcase
+  assign max = section.settings.max_reviews
+  assign all_reviews = shop.metaobjects.cfl_google_review.values
+  assign shown = 0
+
+  comment
+    Two passes over the same list, so matching reviews lead and the others
+    follow. Each card is captured as it is built; the section only prints if
+    at least one was.
+  endcomment
+  capture cards
+    for pass in (1..2)
+      if pass == 2 and topic == blank
+        break
+      endif
+
+      for review in all_reviews
+        if shown >= max
+          break
+        endif
+
+        assign review_topic = review.topic.value | strip | downcase
+        if topic != blank
+          if pass == 1 and review_topic != topic
+            continue
+          endif
+          if pass == 2 and review_topic == topic
+            continue
+          endif
+        endif
+
+        if review.author_name.value == blank or review.body.value == blank
+          continue
+        endif
+
+        assign rating = review.rating.value | plus: 0 | at_least: 1 | at_most: 5
+        assign shown = shown | plus: 1
+        render 'cfl-google-review-card', review: review, rating: rating, star_id: section.id
+      endfor
+    endfor
+  endcapture
+
+  assign overall = section.settings.rating | strip | plus: 0
+  assign overall_pct = overall | times: 20 | at_least: 0 | at_most: 100
+-%}
+
+{%- if shown > 0 -%}
+  {{ 'cfl-components.css' | asset_url | stylesheet_tag }}
+
+  {%- style -%}
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    }
+
+    @media screen and (min-width: 750px) {
+      .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top }}px;
+        padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+    }
+  {%- endstyle -%}
+
+  <div class="color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+    {%- comment -%} One star shape, drawn once and reused by every row of stars below. {%- endcomment -%}
+    <svg class="cfl-reviews__defs" aria-hidden="true" focusable="false">
+      <symbol id="cfl-star-{{ section.id }}" viewBox="0 0 20 20">
+        <path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L10 14.9l-5.2 2.8 1-5.9L1.5 7.7l5.9-.8z"/>
+      </symbol>
+    </svg>
+
+    <div class="cfl-reviews">
+      <div class="cfl-reviews__intro">
+        <h2 class="cfl-section-heading" id="cfl-reviews-title-{{ section.id }}">
+          {{- section.settings.heading | escape -}}
+        </h2>
+
+        {%- if section.settings.subheading != blank -%}
+          <p class="cfl-reviews__sub">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+
+        <p class="cfl-reviews__summary">
+          {%- if overall > 0 -%}
+            <span class="cfl-stars cfl-stars--summary" style="--cfl-stars-fill: {{ overall_pct }}%;" aria-hidden="true">
+              {%- render 'cfl-google-review-stars', star_id: section.id -%}
+            </span>
+            <span class="visually-hidden">Rated {{ overall }} out of 5 on Google.</span>
+            <span class="cfl-reviews__score" aria-hidden="true">{{ overall }}</span>
+            {%- if section.settings.review_count != blank -%}
+              <span class="cfl-reviews__dot" aria-hidden="true">·</span>
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if section.settings.review_count != blank -%}
+            <span>{{ section.settings.review_count }} Google reviews</span>
+          {%- else -%}
+            <span>Reviews from Google</span>
+          {%- endif -%}
+
+          {%- comment -%} Google's "G" mark, for attribution. Decorative: the text beside it says Google. {%- endcomment -%}
+          <svg class="cfl-reviews__g" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+        </p>
+      </div>
+
+      {%- comment -%}
+        Focusable so the sideways scroll on phones can be reached and moved with
+        the arrow keys. On desktop the list is a plain grid and nothing scrolls.
+      {%- endcomment -%}
+      <div
+        class="cfl-reviews__scroll"
+        role="region"
+        aria-labelledby="cfl-reviews-title-{{ section.id }}"
+        tabindex="0"
+      >
+        <ul class="cfl-reviews__list" role="list">
+          {{- cards -}}
+        </ul>
+      </div>
+
+      {%- if section.settings.profile_url != blank or section.settings.write_review_url != blank -%}
+        <div class="cfl-reviews__actions">
+          {%- if section.settings.profile_url != blank -%}
+            <a class="button button--secondary" href="{{ section.settings.profile_url }}">
+              Read all reviews on Google
+            </a>
+          {%- endif -%}
+          {%- if section.settings.write_review_url != blank -%}
+            <a class="cfl-reviews__write" href="{{ section.settings.write_review_url }}">Leave us a review</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- elsif request.design_mode -%}
+  <div class="page-width" style="padding: 2.4rem 0;">
+    <p style="margin: 0; padding: 1.6rem; border: 0.1rem dashed rgba(48, 30, 23, 0.4); border-radius: 0.8rem; text-align: center;">
+      <strong>Google reviews:</strong> nothing to show yet, so this section is hidden on the live store. Add reviews in
+      Content &rarr; Metaobjects &rarr; Google review, and set each one to Active.
+    </p>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Google reviews",
+  "class": "section",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows reviews entered in Content → Metaobjects → Google review. Hidden on the store until at least one review is Active."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What our customers say"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Supporting sentence"
+    },
+    {
+      "type": "text",
+      "id": "topic",
+      "label": "Topic",
+      "info": "Reviews with this topic show first, e.g. processing. Leave empty to show all reviews in order."
+    },
+    {
+      "type": "range",
+      "id": "max_reviews",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "label": "Maximum reviews",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Summary from Google"
+    },
+    {
+      "type": "text",
+      "id": "rating",
+      "label": "Overall rating",
+      "info": "Copy from the Google profile, e.g. 4.9. Leave empty to hide the stars and score. Check it monthly."
+    },
+    {
+      "type": "number",
+      "id": "review_count",
+      "label": "Number of Google reviews",
+      "info": "Leave empty to hide the count."
+    },
+    {
+      "type": "url",
+      "id": "profile_url",
+      "label": "Google profile link",
+      "info": "Adds a \"Read all reviews on Google\" button."
+    },
+    {
+      "type": "url",
+      "id": "write_review_url",
+      "label": "Write-a-review link",
+      "info": "Adds a \"Leave us a review\" link. Find it in Google Business Profile under Ask for reviews."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "accent-2"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Google reviews"
+    }
+  ]
+}
+{% endschema %}

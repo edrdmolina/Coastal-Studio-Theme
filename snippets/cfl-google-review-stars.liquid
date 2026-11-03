@@ -1,0 +1,26 @@
+{% comment %}
+  Five stars, drawn twice and stacked: an empty row underneath and a mustard row
+  on top, clipped to --cfl-stars-fill (set on the parent .cfl-stars). That one
+  percentage covers both a whole-star review and a 4.9 overall score without
+  any partial-star artwork.
+
+  Decorative only. The parent hides it from screen readers and puts the rating
+  in words next to it.
+
+  Usage:
+    <span class="cfl-stars" style="--cfl-stars-fill: 80%;" aria-hidden="true">
+      {% render 'cfl-google-review-stars', star_id: section.id %}
+    </span>
+
+  star_id is the section ID; the star shape is a <symbol> the section draws
+  once with the id "cfl-star-{star_id}".
+{% endcomment %}
+
+{%- capture row -%}
+  {%- for i in (1..5) -%}
+    <svg viewBox="0 0 20 20" focusable="false"><use href="#cfl-star-{{ star_id }}"/></svg>
+  {%- endfor -%}
+{%- endcapture -%}
+
+<span class="cfl-stars__row cfl-stars__row--empty">{{ row }}</span>
+<span class="cfl-stars__row cfl-stars__row--full">{{ row }}</span>

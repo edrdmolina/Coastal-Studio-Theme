@@ -15,6 +15,7 @@
     - cfl-trust-band        : four reassurances for a first-time visitor
     - cfl-client-gallery    : client work at the top of the home page
     - cfl-local-business    : LocalBusiness JSON-LD for the Tampa lab
+    - cfl-google-reviews    : hand-picked Google reviews (section + card snippets)
 
   Uses the theme's existing color scheme variables so these blend with
   whatever scheme the surrounding section is set to.
@@ -2961,5 +2962,257 @@ a.cfl-ticker__photo:focus-visible {
   .cfl-ticker__button img,
   .cfl-ticker__photo img {
     transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Google reviews
+ * ------------------------------------------------------------------ */
+
+/*
+  Cards are paper white on the cream ground, with the same thin border and
+  soft shadow as the rest of the theme. Mustard appears only in the stars.
+*/
+.cfl-reviews {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* The <symbol> sheet: in the DOM so <use> can find it, but takes no space. */
+.cfl-reviews__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.cfl-reviews__intro {
+  max-width: 70rem;
+  margin: 0 auto 2.8rem;
+  text-align: center;
+}
+
+.cfl-reviews__sub {
+  max-width: 62ch;
+  margin: 0 auto 1.2rem;
+  font-size: 1.6rem;
+  line-height: 1.55;
+}
+
+.cfl-reviews__summary {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem 0.8rem;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.cfl-reviews__score {
+  font-weight: 700;
+}
+
+.cfl-reviews__g {
+  width: 1.8rem;
+  height: 1.8rem;
+  flex: none;
+}
+
+/* ---- Stars ---- */
+
+.cfl-stars {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.cfl-stars__row {
+  display: inline-flex;
+  gap: 0.2rem;
+  white-space: nowrap;
+}
+
+.cfl-stars__row svg {
+  width: 1.8rem;
+  height: 1.8rem;
+  flex: none;
+  fill: currentColor;
+}
+
+.cfl-stars--summary .cfl-stars__row svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.cfl-stars__row--empty {
+  color: rgba(48, 30, 23, 0.18);
+}
+
+.cfl-stars__row--full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--cfl-stars-fill, 100%);
+  overflow: hidden;
+  color: #e8af21;
+}
+
+/* ---- Cards ---- */
+
+.cfl-reviews__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.4rem;
+}
+
+.cfl-review {
+  display: flex;
+}
+
+.cfl-review__figure {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  margin: 0;
+  padding: 2.4rem;
+  background: #fcfcfc;
+  color: #301e17;
+  border: 0.1rem solid rgba(48, 30, 23, 0.12);
+  border-radius: 0.8rem;
+  box-shadow: 0.2rem 0.2rem 0.5rem rgba(48, 30, 23, 0.1);
+}
+
+.cfl-review__body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-style: normal;
+}
+
+/* Six lines, then an ellipsis. Long reviews are finished on Google. */
+.cfl-review__body p {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  overflow: hidden;
+}
+
+.cfl-review__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 1rem;
+  margin-top: auto;
+  padding-top: 1.2rem;
+  border-top: 0.1rem solid rgba(48, 30, 23, 0.12);
+  font-size: 1.4rem;
+}
+
+.cfl-review__author {
+  font-family: var(--font-subheading-family);
+  font-size: calc(var(--font-heading-scale) * 1.4rem);
+}
+
+.cfl-review__date {
+  opacity: 0.8;
+}
+
+.cfl-review__link,
+.cfl-reviews__write {
+  color: var(--cfl-link);
+  text-underline-offset: 0.3rem;
+  text-decoration-thickness: 0.1rem;
+}
+
+.cfl-review__link {
+  margin-left: auto;
+}
+
+.cfl-review__link:hover,
+.cfl-reviews__write:hover {
+  text-decoration-thickness: 0.2rem;
+}
+
+/* ---- Actions ---- */
+
+.cfl-reviews__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem 2.4rem;
+  margin-top: 3.2rem;
+}
+
+/* Darkened seafoam outline, as on the sale banner: the brand teal fails on cream. */
+.cfl-reviews .button--secondary {
+  --color-button-text: 0, 119, 124;
+}
+
+.cfl-reviews__write {
+  font-size: 1.5rem;
+}
+
+.cfl-reviews__scroll:focus-visible {
+  outline: 0.2rem solid var(--cfl-accent-dark);
+  outline-offset: 0.4rem;
+  border-radius: 0.8rem;
+}
+
+/*
+  Phones and small tablets: one row that scrolls sideways, each card a little
+  narrower than the screen so the next one peeks in and says "there's more".
+  The vertical padding keeps the card shadows from being clipped by the
+  scroll container.
+*/
+@media screen and (max-width: 989px) {
+  .cfl-reviews {
+    padding: 0;
+  }
+
+  .cfl-reviews__intro,
+  .cfl-reviews__actions {
+    padding: 0 1.5rem;
+  }
+
+  .cfl-reviews__scroll {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.5rem;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .cfl-reviews__list {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: min(82%, 36rem);
+    gap: 1.6rem;
+    padding: 0.4rem 1.5rem 1.2rem;
+  }
+
+  .cfl-review {
+    scroll-snap-align: start;
+  }
+
+  .cfl-review__figure {
+    padding: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cfl-reviews__scroll {
+    scroll-behavior: smooth;
   }
 }
