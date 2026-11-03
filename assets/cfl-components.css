@@ -896,23 +896,19 @@
  * ------------------------------------------------------------------ */
 
 /*
-  Deliberately not full-bleed. The Shopify Forms "Stay in touch" pill is pinned
-  bottom-left on every page; an edge-to-edge bar would cover it or fight it on
-  z-index. Insetting from the left leaves that corner free on desktop, and on
-  mobile the bar sits above the pill instead.
+  Spans the width of the window with an even gap on both sides. It used to be
+  inset from the left (and lifted on phones) to clear the Shopify Forms "Stay
+  in touch" pill in the bottom-left corner. That embed was turned off on
+  2026-10-26 (see PERFORMANCE-TODO.md). If it is ever switched back on, bring
+  back a left inset of about 20rem on desktop and a bottom of about 7rem on
+  phones, and check on a real phone.
 */
 .cfl-order-bar {
   position: fixed;
   z-index: 4;
   left: 1.2rem;
   right: 1.2rem;
-  /*
-    Sits above the Forms "Stay in touch" pill, which anchors to the bottom-left
-    on phones and would otherwise cover the primary button. Confirmed on a real
-    device — a resized desktop window does not reproduce it, so do not trust
-    emulated widths when changing this value.
-  */
-  bottom: 7rem;
+  bottom: 1.2rem;
 
   background: #301e17;
   color: #fff8ef;
@@ -925,7 +921,7 @@
     Re-declaring it there would tie on specificity with `--show` and, being
     later in the file, would win — pinning the bar off screen on desktop.
   */
-  --cfl-bar-hidden: translateY(calc(100% + 8rem));
+  --cfl-bar-hidden: translateY(calc(100% + 3rem));
 
   /* Transform-only reveal, so the bar is never a blank box mid-transition. */
   transform: var(--cfl-bar-hidden);
@@ -934,8 +930,7 @@
 
 @media screen and (min-width: 750px) {
   .cfl-order-bar {
-    /* Clears the Forms pill, which sits in the bottom-left corner. */
-    left: 20rem;
+    left: 1.6rem;
     right: 1.6rem;
     bottom: 1.6rem;
     --cfl-bar-hidden: translateY(calc(100% + 3rem));
