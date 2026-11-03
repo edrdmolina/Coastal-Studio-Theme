@@ -41,8 +41,8 @@
         </time>
       {%- endif -%}
       {%- if review.review_url.value != blank -%}
-        <a class="cfl-review__link" href="{{ review.review_url.value }}">
-          Read on Google<span class="visually-hidden">: review by {{ review.author_name.value | escape }}</span>
+        <a class="cfl-review__link" href="{{ review.review_url.value }}" target="_blank" rel="noopener">
+          Read on Google<span class="visually-hidden">: review by {{ review.author_name.value | escape }}. {{ 'accessibility.link_messages.new_window' | t }}</span>
         </a>
       {%- endif -%}
     </figcaption>

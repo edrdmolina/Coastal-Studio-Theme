@@ -211,12 +211,14 @@
       {%- if section.settings.profile_url != blank or section.settings.write_review_url != blank -%}
         <div class="cfl-reviews__actions">
           {%- if section.settings.profile_url != blank -%}
-            <a class="button button--secondary" href="{{ section.settings.profile_url }}">
-              Read all reviews on Google
+            <a class="button button--secondary" href="{{ section.settings.profile_url }}" target="_blank" rel="noopener">
+              Read all reviews on Google<span class="visually-hidden">. {{ 'accessibility.link_messages.new_window' | t }}</span>
             </a>
           {%- endif -%}
           {%- if section.settings.write_review_url != blank -%}
-            <a class="cfl-reviews__write" href="{{ section.settings.write_review_url }}">Leave us a review</a>
+            <a class="cfl-reviews__write" href="{{ section.settings.write_review_url }}" target="_blank" rel="noopener">
+              Leave us a review<span class="visually-hidden">. {{ 'accessibility.link_messages.new_window' | t }}</span>
+            </a>
           {%- endif -%}
         </div>
       {%- endif -%}
