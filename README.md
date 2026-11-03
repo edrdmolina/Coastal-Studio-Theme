@@ -165,7 +165,7 @@ Reviews are stored as the `cfl_google_review` metaobject ("Google review"). Its 
    - **Topics**: `processing` for reviews about developing and scanning (film development page), `general` for the home page. Pick both when a review suits both. To add another topic, edit the choices on the metaobject definition.
 3. Set the status to **Active** and save. Draft entries never show on the storefront.
 
-With a topic set, the section puts matching reviews first and fills any empty slots with the rest, up to **Maximum reviews**. The home page uses `general` (up to 9) and the film development page uses `processing` (up to 6). If a page has more tagged reviews than its maximum, which ones show depends on Shopify's order, so keep the tagged count at or under the maximum.
+With a topic set, the section puts matching reviews first and fills any empty slots with the rest, up to **Maximum reviews**. The home page uses `general` and shows **6 picked at random** on each visit from every general review ("Show a random selection" is on), so adding more general reviews just widens the pool. The film development page uses `processing` (up to 6). If a page has more tagged reviews than its maximum, which ones show depends on Shopify's order, so keep the tagged count at or under the maximum.
 
 ### Rating, count, and links
 

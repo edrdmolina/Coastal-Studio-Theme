@@ -18,6 +18,16 @@
   With no topic, reviews show in the order Shopify returns them. Either way the
   count stops at "Maximum reviews".
 
+  RANDOM PICK
+  With "Show a random selection" on, every review with the topic (up to 20) is
+  printed, CSS shows only the first "Maximum reviews" of them, and a few lines
+  of inline script shuffle the cards as the page is read, so each visit shows
+  a different set. It has to happen in the browser: Shopify caches the page,
+  so anything picked in Liquid would be the same pick for everyone until the
+  cache clears. The script runs before the cards are drawn and the number of
+  visible cards never changes, so nothing jumps. Without script the first set
+  simply shows.
+
   If there is not a single review to show, the section renders nothing at all —
   no heading, no empty band. The section is placed in templates that sync
   straight to the live theme before any reviews have been entered, so the
@@ -33,6 +43,15 @@
 {%- liquid
   assign topic = section.settings.topic | strip | downcase
   assign max = section.settings.max_reviews
+  comment
+    With the random pick on, the first pass keeps every matching review (up to
+    20) so the browser has a pool to choose from; filling with other topics
+    still stops at the maximum.
+  endcomment
+  assign pool_max = max
+  if section.settings.shuffle
+    assign pool_max = 20
+  endif
   assign all_reviews = shop.metaobjects.cfl_google_review.values
   assign shown = 0
 
@@ -47,8 +66,13 @@
         break
       endif
 
+      assign limit = max
+      if pass == 1
+        assign limit = pool_max
+      endif
+
       for review in all_reviews
-        if shown >= max
+        if shown >= limit
           break
         endif
 
@@ -159,10 +183,30 @@
         aria-labelledby="cfl-reviews-title-{{ section.id }}"
         tabindex="0"
       >
-        <ul class="cfl-reviews__list" role="list">
+        <ul class="cfl-reviews__list" id="cfl-reviews-list-{{ section.id }}" role="list">
           {{- cards -}}
         </ul>
       </div>
+
+      {%- if shown > max -%}
+        <style>
+          #cfl-reviews-list-{{ section.id }} > .cfl-review:nth-child(n + {{ max | plus: 1 }}) {
+            display: none;
+          }
+        </style>
+        <script>
+          (function () {
+            var list = document.getElementById('cfl-reviews-list-{{ section.id }}');
+            if (!list) return;
+            var cards = Array.prototype.slice.call(list.children);
+            for (var i = cards.length - 1; i > 0; i--) {
+              var j = Math.floor(Math.random() * (i + 1));
+              var t = cards[i]; cards[i] = cards[j]; cards[j] = t;
+            }
+            cards.forEach(function (card) { list.appendChild(card); });
+          })();
+        </script>
+      {%- endif -%}
 
       {%- if section.settings.profile_url != blank or section.settings.write_review_url != blank -%}
         <div class="cfl-reviews__actions">
@@ -225,6 +269,13 @@
       "step": 1,
       "label": "Maximum reviews",
       "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "shuffle",
+      "label": "Show a random selection",
+      "info": "Shows \"Maximum reviews\" picked at random from every review with the topic, so each visit shows a different set.",
+      "default": false
     },
     {
       "type": "header",
