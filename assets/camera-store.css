@@ -93,7 +93,7 @@ body:has(.camera-store) .footer a[href^="mailto:"] { overflow-wrap: anywhere; }
 .cs-reset { min-height: 4.4rem; padding: .8rem 0; border: 0; background: transparent; text-decoration: underline; text-underline-offset: .3rem; font-size: 1.4rem !important; }
 .cs-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-desktop-vertical-spacing) var(--grid-desktop-horizontal-spacing); }
 .cs-product { height: 100%; display: flex; flex-direction: column; min-width: 0; text-align: var(--product-card-text-alignment); border: var(--product-card-border-width) solid rgba(var(--color-foreground), var(--product-card-border-opacity)); border-radius: var(--product-card-corner-radius); }
-.cs-product__image { position: relative; display: block; aspect-ratio: 1; overflow: hidden; border-radius: var(--product-card-corner-radius); }
+.cs-product__image { position: relative; display: block; aspect-ratio: 3 / 2; overflow: hidden; border-radius: var(--product-card-corner-radius); }
 .cs-product__image > img, .cs-product__image > svg { width: 100%; height: 100%; object-fit: cover; transition: transform var(--duration-long); }
 .cs-product:hover .cs-product__image > img { transform: scale(1.03); }
 .cs-product__badge { position: absolute; bottom: 1rem; left: 1rem; background: rgb(var(--color-button)); color: rgb(var(--color-foreground)); font-size: 1.3rem; padding: .5rem 1rem; border-radius: var(--badge-corner-radius); }
