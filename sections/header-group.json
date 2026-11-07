@@ -14,15 +14,6 @@
     "announcement_bar_Y7TRWm": {
       "type": "announcement-bar",
       "blocks": {
-        "announcement_sale_oct26": {
-          "type": "announcement",
-          "settings": {
-            "text": "15% off film processing on $50+ — ends Fri, Nov 6",
-            "link": "shopify://collections/develop-and-scan",
-            "starts_at": "2026-10-30T06:30:00-04:00",
-            "ends_at": "2026-11-07T00:00:00-05:00"
-          }
-        },
         "announcement_PURbWW": {
           "type": "announcement",
           "settings": {
@@ -43,7 +34,6 @@
         }
       },
       "block_order": [
-        "announcement_sale_oct26",
         "announcement_PURbWW",
         "announcement_DBGYrE"
       ],
