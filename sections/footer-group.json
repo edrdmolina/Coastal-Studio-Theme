@@ -91,7 +91,11 @@
         "premium_subheading": "Extra large scans, hand-edited to your color profile.",
         "premium_primary_label": "Order Premium",
         "premium_secondary_label": "All Premium formats",
-        "premium_secondary_link": "shopify://collections/premium-film-service"
+        "premium_secondary_link": "shopify://collections/premium-film-service",
+        "landing_heading": "$20 off your first $50+",
+        "landing_subheading": "Code FIRSTROLLFREE is added for you.",
+        "landing_primary_label": "Start your order",
+        "landing_link": "#film"
       }
     }
   },

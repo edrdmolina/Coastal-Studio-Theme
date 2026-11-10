@@ -19,6 +19,12 @@
   alone it spends the whole premium page pulling visitors back down a tier.
   Keyed on the template suffix rather than the page handle so renaming the page
   in the admin does not quietly switch the bar back.
+
+  On the mail-in landing page (template suffix mail-your-film) it carries that
+  page's first-order offer instead and scrolls to the format cards (#film),
+  which apply the discount code. Left alone it would send Instagram visitors to
+  the 35mm product without the code. Price and secondary button are hidden
+  there because each format has its own price on the cards.
 {%- endcomment -%}
 
 {%- liquid
@@ -61,8 +67,23 @@
     endif
   endif
 
+  assign bar_href = bar_product.url
+  assign bar_show_price = section.settings.show_price
+
   if bar_product == blank
     assign show_bar = false
+  endif
+
+  if template.name == 'page' and template.suffix == 'mail-your-film'
+    assign bar_heading = section.settings.landing_heading
+    assign bar_sub = section.settings.landing_subheading
+    assign bar_primary_label = section.settings.landing_primary_label
+    assign bar_href = section.settings.landing_link | default: '#film'
+    assign bar_secondary_label = blank
+    assign bar_show_price = false
+    if section.settings.enabled
+      assign show_bar = true
+    endif
   endif
 -%}
 
@@ -83,14 +104,14 @@
       </div>
 
       <div class="cfl-order-bar__actions">
-        {%- if section.settings.show_price and bar_product.price > 0 -%}
+        {%- if bar_show_price and bar_product.price > 0 -%}
           {%- assign bar_price = bar_product.price | money -%}
           <span class="cfl-order-bar__price">
             {{- 'products.product.price.from_price_html' | t: price: bar_price -}}
           </span>
         {%- endif -%}
 
-        <a href="{{ bar_product.url }}" class="button cfl-order-bar__cta">
+        <a href="{{ bar_href }}" class="button cfl-order-bar__cta">
           {{ bar_primary_label }}
         </a>
 
@@ -301,6 +322,38 @@
       "type": "url",
       "id": "premium_secondary_link",
       "label": "Premium secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Mail-in landing page"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used only on /pages/mail-your-film (template mail-your-film). The button should go to the format cards, which apply the first-order code."
+    },
+    {
+      "type": "text",
+      "id": "landing_heading",
+      "label": "Landing heading",
+      "default": "$20 off your first $50+"
+    },
+    {
+      "type": "text",
+      "id": "landing_subheading",
+      "label": "Landing subheading",
+      "default": "Code FIRSTROLLFREE is added for you."
+    },
+    {
+      "type": "text",
+      "id": "landing_primary_label",
+      "label": "Landing button label",
+      "default": "Start your order"
+    },
+    {
+      "type": "text",
+      "id": "landing_link",
+      "label": "Landing button link",
+      "default": "#film"
     }
   ],
   "enabled_on": {

@@ -1,0 +1,201 @@
+{% comment %}
+  "How mailing it works" on /pages/mail-your-film: numbered steps beside a
+  worked cost example.
+
+  The example is calculated from live prices so it can't drift: the roll price
+  comes from the chosen product, the label from the label product's cheapest
+  option (the mailer), the discount and return shipping from the settings
+  below. If the example product is unset the box is left out.
+{% endcomment %}
+
+{{ 'cfl-mail-in.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="cfl-mail color-{{ section.settings.color_scheme }} gradient">
+  <div class="cfl-mail__steps-wrap page-width section-{{ section.id }}-padding">
+    <div>
+      {%- if section.settings.heading != blank -%}
+        <h2 class="cfl-mail__h2">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      <ol class="cfl-mail__steps" role="list">
+        {%- for block in section.blocks -%}
+          <li class="cfl-mail__step" {{ block.shopify_attributes }}>
+            <span class="cfl-mail__step-num" aria-hidden="true">{{ forloop.index }}</span>
+            <div>
+              <h3 class="cfl-mail__step-title">{{ block.settings.title }}</h3>
+              <div class="cfl-mail__step-body">{{ block.settings.text }}</div>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ol>
+    </div>
+
+    {%- assign roll = section.settings.example_product -%}
+    {%- if roll != blank -%}
+      {%- liquid
+        assign qty = section.settings.example_rolls
+        assign rolls_total = roll.price | times: qty
+        assign discount = section.settings.discount_amount | times: 100
+        if rolls_total < discount
+          assign discount = rolls_total
+        endif
+
+        assign label_price = 0
+        if section.settings.label_product != blank
+          assign label_price = section.settings.label_product.price
+        endif
+
+        assign return_price = section.settings.return_price | times: 100 | round
+
+        assign total = rolls_total | minus: discount | plus: label_price | plus: return_price
+        assign per_roll = total | divided_by: qty
+      -%}
+      <div class="cfl-mail__example">
+        <h3 class="cfl-mail__example-title">{{ section.settings.example_title }}</h3>
+        <dl class="cfl-mail__example-rows">
+          <div><dt>Develop and scan</dt><dd>{{ rolls_total | money }}</dd></div>
+          {%- if discount > 0 -%}
+            <div><dt>First-order discount</dt><dd>&minus;{{ discount | money }}</dd></div>
+          {%- endif -%}
+          {%- if label_price > 0 -%}
+            <div><dt>Prepaid label</dt><dd>{{ label_price | money }}</dd></div>
+          {%- endif -%}
+          {%- if return_price > 0 -%}
+            <div><dt>Negatives returned, rolled</dt><dd>{{ return_price | money }}</dd></div>
+          {%- endif -%}
+          <div class="cfl-mail__example-total">
+            <dt>Total, about {{ per_roll | money_without_trailing_zeros }} a roll</dt>
+            <dd>{{ total | money }}</dd>
+          </div>
+        </dl>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Mail-in landing: steps",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "How mailing it works"
+    },
+    {
+      "type": "header",
+      "content": "Cost example"
+    },
+    {
+      "type": "text",
+      "id": "example_title",
+      "label": "Title",
+      "default": "Three rolls of 35mm color, mailed in"
+    },
+    {
+      "type": "product",
+      "id": "example_product",
+      "label": "Roll product",
+      "info": "Leave empty to hide the example."
+    },
+    {
+      "type": "range",
+      "id": "example_rolls",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Number of rolls",
+      "default": 3
+    },
+    {
+      "type": "number",
+      "id": "discount_amount",
+      "label": "Discount in dollars",
+      "info": "Match the first-order code. 0 hides the line.",
+      "default": 20
+    },
+    {
+      "type": "product",
+      "id": "label_product",
+      "label": "Shipping label product",
+      "info": "Uses its cheapest option."
+    },
+    {
+      "type": "text",
+      "id": "return_price",
+      "label": "Return shipping in dollars",
+      "info": "Economy return under the free-shipping threshold, e.g. 9.99. 0 hides the line.",
+      "default": "9.99"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "accent-2"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mail-in landing: steps"
+    }
+  ]
+}
+{% endschema %}
