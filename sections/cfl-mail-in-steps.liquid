@@ -11,6 +11,17 @@
 {{ 'cfl-mail-in.css' | asset_url | stylesheet_tag }}
 
 {%- style -%}
+  /*
+    The theme puts a gap of page background (white) between sections. Here the
+    next section (Google reviews) shares this section's cream, so the gap shows
+    as a white stripe; close it so the two read as one band.
+  */
+  {%- if section.settings.join_next -%}
+    #shopify-section-{{ section.id }} + .section {
+      margin-top: 0;
+    }
+  {%- endif -%}
+
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
@@ -146,6 +157,13 @@
       "label": "Return shipping in dollars",
       "info": "Economy return under the free-shipping threshold, e.g. 9.99. 0 hides the line.",
       "default": "9.99"
+    },
+    {
+      "type": "checkbox",
+      "id": "join_next",
+      "label": "Remove the gap below this section",
+      "info": "Use when the next section has the same background color.",
+      "default": true
     },
     {
       "type": "color_scheme",

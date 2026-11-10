@@ -102,6 +102,15 @@
     "ticker": {
       "type": "cfl-film-ticker",
       "blocks": {
+        "frame_hofn": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/Hofn-Iceland-Horses.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": "Three horses grazing in a green field in Höfn, Iceland, with mountains and a glacier behind them"
+          }
+        },
         "frame_1": {
           "type": "frame",
           "settings": {
@@ -221,6 +230,7 @@
         }
       },
       "block_order": [
+        "frame_hofn",
         "frame_1",
         "frame_RyxFyJ",
         "frame_2",
