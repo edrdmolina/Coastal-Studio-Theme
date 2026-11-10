@@ -189,6 +189,33 @@
   </div>
 </div>
 
+{%- comment -%}
+  Apply the code as soon as someone lands, so it is on their cart however they
+  reach a product (format card, footer link, coming back later). The format
+  card links apply it as well, so this is a backstop, not the only path.
+  /discount/CODE stores the code on the cart; redirecting to /cart.js keeps the
+  response small. Shopify only takes it off at checkout if the order is under
+  the minimum or the customer has ordered processing before.
+{%- endcomment -%}
+{%- if code != blank and request.design_mode == false -%}
+  <script>
+    (function () {
+      var KEY = 'cfl-mail-code-applied';
+      try {
+        if (window.sessionStorage.getItem(KEY) === '1') return;
+      } catch (e) {}
+      fetch('/discount/{{ code_encoded }}?redirect=%2Fcart.js', { credentials: 'same-origin' })
+        .then(function (res) {
+          if (!res.ok) return;
+          try {
+            window.sessionStorage.setItem(KEY, '1');
+          } catch (e) {}
+        })
+        .catch(function () {});
+    })();
+  </script>
+{%- endif -%}
+
 {%- assign mouseflow_id = section.settings.mouseflow_id | strip -%}
 {%- if mouseflow_id != blank and request.design_mode == false -%}
   <script>
