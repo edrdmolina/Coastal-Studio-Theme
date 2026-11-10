@@ -61,6 +61,9 @@
         assign qty = section.settings.example_rolls
         assign rolls_total = roll.price | times: qty
         assign discount = section.settings.discount_amount | times: 100
+        if section.settings.discount_percent > 0
+          assign discount = rolls_total | times: section.settings.discount_percent | divided_by: 100
+        endif
         if rolls_total < discount
           assign discount = rolls_total
         endif
@@ -80,7 +83,7 @@
         <dl class="cfl-mail__example-rows">
           <div><dt>Develop and scan</dt><dd>{{ rolls_total | money }}</dd></div>
           {%- if discount > 0 -%}
-            <div><dt>First-order discount</dt><dd>&minus;{{ discount | money }}</dd></div>
+            <div><dt>{{ section.settings.discount_label | default: 'Discount' }}</dt><dd>&minus;{{ discount | money }}</dd></div>
           {%- endif -%}
           {%- if label_price > 0 -%}
             <div><dt>Prepaid label</dt><dd>{{ label_price | money }}</dd></div>
@@ -144,6 +147,23 @@
       "label": "Discount in dollars",
       "info": "Match the first-order code. 0 hides the line.",
       "default": 20
+    },
+    {
+      "type": "range",
+      "id": "discount_percent",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "label": "Discount in percent",
+      "info": "For a percent-off sale. When above 0 it replaces the dollar amount.",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "discount_label",
+      "label": "Discount line label",
+      "default": "First-order discount"
     },
     {
       "type": "product",

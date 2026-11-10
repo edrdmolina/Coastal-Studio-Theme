@@ -85,6 +85,20 @@
       assign show_bar = true
     endif
   endif
+
+  # The sale version of the mail-in page. The sale is an automatic discount,
+  # so the button only needs to reach the format cards; no code involved.
+  if template.name == 'page' and template.suffix == 'mail-your-film-sale'
+    assign bar_heading = section.settings.sale_heading
+    assign bar_sub = section.settings.sale_subheading
+    assign bar_primary_label = section.settings.sale_primary_label
+    assign bar_href = section.settings.sale_link | default: '#film'
+    assign bar_secondary_label = blank
+    assign bar_show_price = false
+    if section.settings.enabled
+      assign show_bar = true
+    endif
+  endif
 -%}
 
 {%- if show_bar -%}
@@ -353,6 +367,38 @@
       "type": "text",
       "id": "landing_link",
       "label": "Landing button link",
+      "default": "#film"
+    },
+    {
+      "type": "header",
+      "content": "Mail-in sale page"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used only on the sale version of the mail-in page (template mail-your-film-sale)."
+    },
+    {
+      "type": "text",
+      "id": "sale_heading",
+      "label": "Sale heading",
+      "default": "10% off every roll"
+    },
+    {
+      "type": "text",
+      "id": "sale_subheading",
+      "label": "Sale subheading",
+      "default": "Taken off in your cart. No code needed."
+    },
+    {
+      "type": "text",
+      "id": "sale_primary_label",
+      "label": "Sale button label",
+      "default": "Start your order"
+    },
+    {
+      "type": "text",
+      "id": "sale_link",
+      "label": "Sale button link",
       "default": "#film"
     }
   ],

@@ -85,6 +85,8 @@
 {%- liquid
   assign code = section.settings.discount_code | strip
   assign code_encoded = code | url_encode
+  assign pct_off = section.settings.percent_off | default: 0
+  assign pct_keep = 100 | minus: pct_off
 -%}
 
 <div class="cfl-mail color-{{ section.settings.color_scheme }} gradient">
@@ -145,11 +147,17 @@
             assign card_product = block.settings.product
             assign target = blank
             assign price_text = block.settings.price_text
+            assign was_text = blank
 
             if card_product != blank
               assign target = card_product.url
               if price_text == blank
-                assign price_text = card_product.price | money_without_trailing_zeros
+                if pct_off > 0
+                  assign was_text = card_product.price | money_without_trailing_zeros
+                  assign price_text = card_product.price | times: pct_keep | divided_by: 100 | money_without_trailing_zeros
+                else
+                  assign price_text = card_product.price | money_without_trailing_zeros
+                endif
               endif
             elsif block.settings.link != blank
               assign target = block.settings.link
@@ -175,7 +183,13 @@
             <a class="cfl-mail__card" href="{{ href }}">
               <span class="cfl-mail__card-label">{{ label }}</span>
               {%- if price_text != blank -%}
-                <span class="cfl-mail__card-price">{{ price_text }}</span>
+                <span class="cfl-mail__card-price">
+                  {%- if was_text != blank -%}
+                    <s class="cfl-mail__card-was"><span class="visually-hidden">Regular price </span>{{ was_text }}</s>
+                    <span class="visually-hidden">Sale price </span>
+                  {%- endif -%}
+                  {{- price_text -}}
+                </span>
               {%- endif -%}
             </a>
           </li>
@@ -184,6 +198,12 @@
 
       {%- if section.settings.cards_note != blank -%}
         <p class="cfl-mail__note">{{ section.settings.cards_note }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.extra_link_label != blank and section.settings.extra_link != blank -%}
+        <p class="cfl-mail__note">
+          <a class="cfl-mail__extra-link" href="{{ section.settings.extra_link }}">{{ section.settings.extra_link_label }}</a>
+        </p>
       {%- endif -%}
     </div>
   </div>
@@ -307,6 +327,27 @@
       "id": "cards_note",
       "label": "Note under the cards",
       "default": "Per roll, developed and scanned. Any three rolls reach the $50 minimum."
+    },
+    {
+      "type": "range",
+      "id": "percent_off",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "label": "Sale percent on the cards",
+      "info": "For a sale: cards show the regular price struck through and the sale price. Match the Shopify discount. 0 shows regular prices. Cards with Price text are not changed.",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "extra_link_label",
+      "label": "Link under the cards"
+    },
+    {
+      "type": "url",
+      "id": "extra_link",
+      "label": "Link under the cards: URL"
     },
     {
       "type": "header",

@@ -1,0 +1,427 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "padding_top": 28,
+        "padding_bottom": 28
+      }
+    },
+    "hero": {
+      "type": "cfl-mail-in-hero",
+      "blocks": {
+        "turnaround": {
+          "type": "shopify://apps/twin-checkn/blocks/turnaround-times/019ea3ef-f4a8-701d-a2bc-b3e271678126",
+          "settings": {
+            "layout": "sentence",
+            "period": "14",
+            "sentence_metric": "Dev & Scan",
+            "sentence_template": "Averaging [days] days, from when your film arrives",
+            "sentence_show_icon": true,
+            "sentence_icon_color": "#00777c",
+            "sentence_alignment": "left",
+            "sentence_fallback_text": "Turnaround is usually 3–7 business days from when your film arrives",
+            "heading": "Current Turnaround Times",
+            "hidden_metrics": "",
+            "show_trend": false,
+            "show_roll_count": false
+          }
+        },
+        "f_35c": {
+          "type": "format",
+          "settings": {
+            "label": "35mm color",
+            "product": "develop-and-scan-35mm-c41"
+          }
+        },
+        "f_35bw": {
+          "type": "format",
+          "settings": {
+            "label": "35mm B&W",
+            "product": "develop-and-scan-35mm-bw"
+          }
+        },
+        "f_disp": {
+          "type": "format",
+          "settings": {
+            "label": "Disposable camera",
+            "product": "develop-and-scan-disposable"
+          }
+        },
+        "f_120c": {
+          "type": "format",
+          "settings": {
+            "label": "Medium format color",
+            "product": "develop-and-scan-120-c41"
+          }
+        },
+        "f_120bw": {
+          "type": "format",
+          "settings": {
+            "label": "Medium format B&W",
+            "product": "develop-and-scan-120-bw"
+          }
+        },
+        "f_more": {
+          "type": "format",
+          "settings": {
+            "label": "110, APS and more",
+            "link": "shopify://collections/develop-and-scan",
+            "price_text": "From $19.80"
+          }
+        }
+      },
+      "block_order": [
+        "turnaround",
+        "f_35c",
+        "f_35bw",
+        "f_disp",
+        "f_120c",
+        "f_120bw",
+        "f_more"
+      ],
+      "settings": {
+        "tag": "Limited-time sale",
+        "heading": "Mail us your film. 10% off every roll.",
+        "offer": "10% off all develop and scan and develop only. Taken off in your cart, no code needed. Shipping not included.",
+        "discount_code": "",
+        "code_note": "",
+        "rating": "4.9",
+        "review_count": 182,
+        "reviews_url": "https://g.page/r/CbRDmCb9Ug2OEAE",
+        "cards_heading": "What are you sending?",
+        "cards_note": "Per roll, developed and scanned. Sale prices shown.",
+        "hide_menu": true,
+        "mouseflow_id": "",
+        "color_scheme": "accent-2",
+        "padding_top": 32,
+        "padding_bottom": 48,
+        "percent_off": 10,
+        "extra_link_label": "Just need negatives? Develop only is 10% off too, from $7.20",
+        "extra_link": "shopify://collections/develop-only"
+      }
+    },
+    "ticker": {
+      "type": "cfl-film-ticker",
+      "blocks": {
+        "frame_hofn": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/Hofn-Iceland-Horses.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": "Three horses grazing in a green field in Höfn, Iceland, with mountains and a glacier behind them"
+          }
+        },
+        "frame_1": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/000159810008_1_Large_3b1f1547-b0b7-4bc9-8750-5c3eade8ce28.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_RyxFyJ": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/005.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
+        "frame_2": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/000128890007_Large_db8c8ff1-65b8-41ba-9046-bdb8f25527fa.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_L7aEDK": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/003.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
+        "frame_4": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/000128860001.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_qnAkKt": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/002_1.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
+        "frame_NBk47V": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/YellowstoneRiver.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_yWRq6W": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/006.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
+        "frame_HmQTMQ": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/LongChurchRoad.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_86i3N8": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/002.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
+        "frame_RDBiLn": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/YellowstoneBison.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        },
+        "frame_aRw8ni": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/004.jpg",
+            "photographer": "Tiffany Newman",
+            "link": "https://www.instagram.com/bytiffanynewman/",
+            "alt": ""
+          }
+        },
+        "frame_EWz49B": {
+          "type": "frame",
+          "settings": {
+            "image": "shopify://shop_images/Latrabjarg.jpg",
+            "photographer": "Eddy Molina",
+            "link": "https://www.colorblindexposures.com/",
+            "alt": ""
+          }
+        }
+      },
+      "block_order": [
+        "frame_hofn",
+        "frame_1",
+        "frame_RyxFyJ",
+        "frame_2",
+        "frame_L7aEDK",
+        "frame_4",
+        "frame_qnAkKt",
+        "frame_NBk47V",
+        "frame_yWRq6W",
+        "frame_HmQTMQ",
+        "frame_86i3N8",
+        "frame_RDBiLn",
+        "frame_aRw8ni",
+        "frame_EWz49B"
+      ],
+      "settings": {
+        "heading": "Landscapes on film",
+        "heading_size": "h2",
+        "intro": "",
+        "frames_per_strip": 24,
+        "strip_height": 36,
+        "button_left": "",
+        "button_right": "",
+        "color_scheme": "background-1",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "steps": {
+      "type": "cfl-mail-in-steps",
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "title": "Order online",
+            "text": "<p>Pick your film and scan size, and choose what happens to your negatives.</p>"
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "title": "Send your film",
+            "text": "<p>Add a prepaid label (from $9.99) and we email you a link to make it. No printer? Pick UPS and any UPS Store can print it. Or ship it yourself with any carrier.</p>"
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "title": "Get your scans",
+            "text": "<p>We email a private Google Drive link, live for a year. Negatives come back for $9.99, free on orders of $100 or more. Don't need them? We discard them and there's no return shipping.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3"
+      ],
+      "settings": {
+        "heading": "How mailing it works",
+        "example_title": "Three rolls of 35mm color, mailed in",
+        "example_product": "develop-and-scan-35mm-c41",
+        "example_rolls": 3,
+        "discount_amount": 0,
+        "label_product": "in-bound-label",
+        "return_price": "9.99",
+        "color_scheme": "accent-2",
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "discount_percent": 10,
+        "discount_label": "Sale, 10% off"
+      }
+    },
+    "reviews": {
+      "type": "cfl-google-reviews",
+      "settings": {
+        "heading": "Rated 4.9 on Google",
+        "topic": "processing",
+        "rating": "4.9",
+        "review_count": 182,
+        "profile_url": "https://g.page/r/CbRDmCb9Ug2OEAE",
+        "write_review_url": "",
+        "max_reviews": 3,
+        "shuffle": false,
+        "color_scheme": "accent-2",
+        "padding_top": 24,
+        "padding_bottom": 48
+      }
+    },
+    "faq": {
+      "type": "collapsible-content",
+      "blocks": {
+        "q_discount": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Do I need a code?",
+            "icon": "question_mark",
+            "row_content": "<p>No. The 10% comes off every develop and scan and develop only roll automatically in your cart while the sale runs. It can't be combined with other discount codes, and it doesn't cover shipping or add-ons.</p>",
+            "page": ""
+          }
+        },
+        "q_film": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "What film can you develop?",
+            "icon": "question_mark",
+            "row_content": "<p>C-41 color and black &amp; white, from 35mm and disposables to 120, 110 and APS. We no longer process E-6 or ECN-2.</p>",
+            "page": ""
+          }
+        },
+        "q_pack": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "How should I pack it?",
+            "icon": "question_mark",
+            "row_content": "<p>Rolls in a sealed Ziploc, then a padded mailer or small box, not a paper envelope. Put a slip with your name and order number inside.</p>",
+            "page": ""
+          }
+        },
+        "q_negs": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "Do I get my negatives back?",
+            "icon": "question_mark",
+            "row_content": "<p>If you want them. When you order, choose rolled up (free), standard sleeves ($1) or archival sleeves ($3) for each roll. Or choose discard and skip return shipping.</p>",
+            "page": ""
+          }
+        },
+        "q_time": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "How long does it take?",
+            "icon": "question_mark",
+            "row_content": "<p>The average at the top of this page is live, counted in calendar days (weekends included) from when we check in your film. Add the time your package spends in the mail each way.</p>",
+            "page": ""
+          }
+        },
+        "q_lost": {
+          "type": "collapsible_row",
+          "settings": {
+            "heading": "What if my film gets lost in the mail?",
+            "icon": "question_mark",
+            "row_content": "<p>It's rare. If your film never reaches us, we refund your order in full, including the label. We can't replace the film itself, so pack carefully and keep your tracking number.</p>",
+            "page": ""
+          }
+        }
+      },
+      "block_order": [
+        "q_discount",
+        "q_film",
+        "q_pack",
+        "q_negs",
+        "q_time",
+        "q_lost"
+      ],
+      "settings": {
+        "caption": "",
+        "heading": "First time? Quick answers",
+        "heading_size": "h1",
+        "heading_alignment": "left",
+        "layout": "none",
+        "color_scheme": "",
+        "container_color_scheme": "",
+        "open_first_collapsible_row": false,
+        "image_ratio": "adapt",
+        "desktop_layout": "image_second",
+        "padding_top": 36,
+        "padding_bottom": 12
+      }
+    },
+    "closing": {
+      "type": "cfl-mail-in-closing",
+      "settings": {
+        "heading": "Got a few rolls lying around?",
+        "text": "Send them in while every roll is 10% off.",
+        "button_label": "Start your order",
+        "button_link": "#film",
+        "padding_top": 24,
+        "padding_bottom": 48
+      }
+    }
+  },
+  "order": [
+    "main",
+    "hero",
+    "ticker",
+    "steps",
+    "reviews",
+    "faq",
+    "closing"
+  ]
+}

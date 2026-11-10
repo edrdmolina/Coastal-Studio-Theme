@@ -95,7 +95,11 @@
         "landing_heading": "$20 off your first $50+",
         "landing_subheading": "Code FIRSTROLLFREE is added for you.",
         "landing_primary_label": "Start your order",
-        "landing_link": "#film"
+        "landing_link": "#film",
+        "sale_heading": "10% off every roll",
+        "sale_subheading": "Taken off in your cart. No code needed.",
+        "sale_primary_label": "Start your order",
+        "sale_link": "#film"
       }
     }
   },

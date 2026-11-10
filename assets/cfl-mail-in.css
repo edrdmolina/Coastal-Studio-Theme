@@ -728,3 +728,16 @@
     transition: none;
   }
 }
+
+/* Sale cards: regular price struck through, smaller and muted. */
+.cfl-mail__card-was {
+  margin-right: 0.4em;
+  font-size: 0.65em;
+  color: var(--cfl-mail-muted, #5a463d);
+  text-decoration-thickness: 1px;
+}
+
+.cfl-mail__extra-link {
+  color: var(--cfl-mail-action, #00777c);
+  text-underline-offset: 0.2em;
+}
