@@ -34,6 +34,39 @@
     .header .header__search {
       display: none;
     }
+
+    /*
+      Phones: with the drawer gone, its empty grid column pushed the logo in
+      and the theme hides the account icon below 750px (it normally lives in
+      the drawer). Logo left, account and cart right, 44px targets.
+    */
+    @media screen and (max-width: 749px) {
+      .header-wrapper .header {
+        grid-template-areas: 'heading icons';
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 10px 12px 10px 20px;
+      }
+
+      .header-wrapper .header__heading-link {
+        margin: 0;
+        padding: 0;
+      }
+
+      .header-wrapper .header__heading-logo {
+        width: auto;
+        height: 36px;
+      }
+
+      .header-wrapper .header__icons .header__icon,
+      .header-wrapper .header__icon--cart .icon {
+        width: 44px;
+        height: 44px;
+      }
+
+      .header-wrapper .header__icon--account {
+        display: flex !important;
+      }
+    }
   {%- endif -%}
 
   .section-{{ section.id }}-padding {

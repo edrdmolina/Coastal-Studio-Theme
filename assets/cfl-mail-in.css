@@ -397,6 +397,320 @@
   outline-offset: 3px;
 }
 
+/* ---------- Reused sections: fixes at every width ---------- */
+
+/*
+  A visually-hidden label inside a review card has no positioned ancestor, so
+  it is placed against the page rather than the card and ends up past the
+  right edge of the screen on phones, widening the whole page sideways.
+  Giving the scroll area a position keeps it inside.
+*/
+.cfl-reviews__scroll {
+  position: relative;
+}
+
+/* ---------- Phones ---------- */
+
+/*
+  The phone mockup is drawn in px, and this theme's 1rem is 13px (62.5% times
+  the 130% body scale), not 10px, so the rem sizes above come out about 30%
+  larger than the mockup on a phone. Below 750px the sizes are set in px from
+  the mockup. Tablet and desktop keep the rem sizes above.
+
+  This stylesheet loads only with the cfl-mail-in-* sections, so the rules for
+  the reused sections (film ticker, Google reviews, FAQ, order bar) apply on
+  the mail-in page only.
+*/
+@media screen and (max-width: 749px) {
+  /* Hero */
+  .cfl-mail__hero {
+    gap: 24px;
+  }
+
+  .cfl-mail__intro {
+    gap: 14px;
+  }
+
+  .cfl-mail__tag {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .cfl-mail__title {
+    font-size: 42px;
+    line-height: 1.08;
+  }
+
+  .cfl-mail__offer {
+    font-size: 17px;
+  }
+
+  .cfl-mail__note {
+    font-size: 14px;
+  }
+
+  .cfl-mail__facts {
+    gap: 8px;
+    padding-top: 4px;
+    font-size: 15px;
+  }
+
+  .cfl-mail__fact {
+    gap: 8px;
+  }
+
+  /* The app's sentence wraps on phones; keep the second line under the text, not the icon. */
+  .cfl-mail__fact--app .tw-sentence__line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cfl-mail__fact--app .tw-sentence__icon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+
+  /* Format cards */
+  .cfl-mail__picker {
+    gap: 12px;
+  }
+
+  .cfl-mail__picker-title,
+  .cfl-mail__h2 {
+    font-size: 24px;
+  }
+
+  .cfl-mail__cards {
+    gap: 10px;
+  }
+
+  .cfl-mail__card {
+    gap: 6px;
+    min-height: 92px;
+    padding: 14px;
+    border-radius: 8px;
+  }
+
+  .cfl-mail__card-label {
+    font-size: 16px;
+  }
+
+  .cfl-mail__card-price {
+    font-size: 24px;
+  }
+
+  /* Steps and cost example */
+  .cfl-mail__steps-wrap {
+    gap: 20px;
+  }
+
+  .cfl-mail__steps {
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .cfl-mail__step {
+    gap: 14px;
+  }
+
+  .cfl-mail__step-num {
+    flex-basis: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .cfl-mail__step-title {
+    margin-bottom: 4px;
+    font-size: 18px;
+  }
+
+  .cfl-mail__step-body {
+    font-size: 15px;
+  }
+
+  .cfl-mail__example {
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+
+  .cfl-mail__example-title {
+    margin-bottom: 6px;
+    font-size: 17px;
+  }
+
+  .cfl-mail__example-total {
+    font-size: 17px;
+  }
+
+  /* Closing panel */
+  .cfl-mail__closing {
+    gap: 12px;
+    padding: 28px 20px;
+    border-radius: 8px;
+  }
+
+  .cfl-mail__closing-title {
+    font-size: 32px;
+  }
+
+  .cfl-mail__closing-text {
+    font-size: 16px;
+  }
+
+  .cfl-mail__button {
+    min-height: 54px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 19px;
+  }
+
+  /* Film ticker heading: left, in the subheading face, like the other headings. */
+  .cfl-ticker-section .cfl-section-heading {
+    padding: 0 20px;
+    font-family: var(--font-subheading-family);
+    font-size: 24px;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  /* Google reviews: three cards stacked, as in the mockup, instead of a sideways row. */
+  .cfl-reviews .cfl-reviews__intro {
+    margin-bottom: 12px;
+    padding: 0 20px;
+    text-align: left;
+  }
+
+  .cfl-reviews .cfl-reviews__intro h2 {
+    margin-bottom: 4px;
+    font-family: var(--font-subheading-family);
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .cfl-reviews .cfl-reviews__sub,
+  .cfl-reviews .cfl-reviews__summary {
+    justify-content: flex-start;
+    font-size: 15px;
+  }
+
+  .cfl-reviews .cfl-reviews__scroll {
+    overflow: visible;
+  }
+
+  .cfl-reviews .cfl-reviews__list {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 20px;
+  }
+
+  .cfl-reviews .cfl-review__figure {
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .cfl-reviews .cfl-review__body p {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .cfl-reviews .cfl-review__meta {
+    padding-top: 8px;
+    font-size: 13px;
+  }
+
+  .cfl-reviews .cfl-review__author {
+    font-size: 15px;
+  }
+
+  .cfl-reviews .cfl-reviews__actions {
+    margin-top: 16px;
+    padding: 0 20px;
+  }
+
+  /* FAQ */
+  .collapsible-content .collapsible-content__heading {
+    margin-bottom: 6px;
+    font-family: var(--font-subheading-family);
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .collapsible-content .accordion summary {
+    padding: 14px 0;
+  }
+
+  .collapsible-content .accordion .icon-accordion {
+    display: none;
+  }
+
+  .collapsible-content .accordion__title {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .collapsible-content .accordion__content {
+    padding: 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /*
+    Order bar: one row (offer, button, close) as in the mockup, instead of the
+    theme's phone layout, which stacks a full-width button under the heading
+    and is about 160px tall. Selectors carry an extra class because
+    cfl-components.css loads after this file.
+  */
+  .cfl-order-bar[data-cfl-order-bar] {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    border-radius: 10px;
+  }
+
+  .cfl-order-bar .cfl-order-bar__inner {
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding: 10px 4px 10px 14px;
+  }
+
+  .cfl-order-bar .cfl-order-bar__heading {
+    font-size: 16px;
+  }
+
+  .cfl-order-bar .cfl-order-bar__sub {
+    display: block;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .cfl-order-bar .cfl-order-bar__actions {
+    width: auto;
+    margin-left: auto;
+  }
+
+  .cfl-order-bar .cfl-order-bar__cta.button {
+    width: auto;
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  .cfl-order-bar .cfl-order-bar__dismiss {
+    position: static;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 44px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cfl-mail__card {
     transition: none;
