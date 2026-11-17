@@ -1,0 +1,145 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "event_date": {
+          "type": "text",
+          "settings": {
+            "text": "Saturday, December 5 · 10 AM – 3 PM",
+            "text_style": "uppercase"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "intro": {
+          "type": "custom_liquid",
+          "settings": {
+            "custom_liquid": "<div class=\"product__description rte\">\n  <p>Get your warm and fuzzy, retro Christmas card photos taken on real film at Coastal Film Lab!</p>\n  <p>We're bringing back the charm of old-school Christmas card photos with a quick, fun photo session and plenty of nostalgic holiday vibes.</p>\n  <h2 class=\"h4\">What's included</h2>\n  <p>For {{ product.price | money_without_trailing_zeros }}, you'll receive:</p>\n  <ul>\n    <li>15-minute photo session</li>\n    <li>12 photos shot on film</li>\n    <li>All your photos delivered in an online gallery</li>\n    <li>6 physical 4×6 prints</li>\n  </ul>\n  <p>Appointments are limited and expected to fill quickly. Reserve your preferred time slot before they're gone!</p>\n</div>"
+          }
+        },
+        "appointment_picker": {
+          "type": "appointment_picker",
+          "settings": {
+            "product_list": [
+              "christmas-card-photos"
+            ],
+            "heading": "Choose your session time",
+            "note": "Your session is confirmed once your order is paid. Bringing a bigger group? Add back-to-back times to your cart.",
+            "mon_open": "closed",
+            "mon_close": "18:00",
+            "tue_open": "closed",
+            "tue_close": "18:00",
+            "wed_open": "closed",
+            "wed_close": "18:00",
+            "thu_open": "closed",
+            "thu_close": "18:00",
+            "fri_open": "closed",
+            "fri_close": "18:00",
+            "sat_open": "closed",
+            "sat_close": "18:00",
+            "sun_open": "closed",
+            "sun_close": "18:00",
+            "date_hours": "2026-12-05 = 10:00-15:00",
+            "slot_minutes": 15,
+            "variant_lengths": "",
+            "start_every": "15",
+            "buffer_minutes": 0,
+            "days_ahead": 30,
+            "notice_hours": 1,
+            "calendar_id": "c_74d6842f1d4475f8eeeeb427aaf20df3f81e8b4c6fa40f1641557e716255e2e4@group.calendar.google.com"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "disabled": true,
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": false
+          }
+        },
+        "nostalgia": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "A little holiday nostalgia",
+            "icon": "snowflake",
+            "content": "<p>Whether you're coming with your partner, family, friends, or just yourself, this is a fun way to capture the holiday season.</p><p>We'll take care of the photography, film developing, and printing so you can enjoy your photos both digitally and in print.</p>"
+          }
+        },
+        "ready": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "When will my photos be ready?",
+            "icon": "stopwatch",
+            "content": "<p>Your online gallery will be ready by Wednesday, December 9. Choose your six favorites from the gallery for printing.</p><p>Your 4×6 prints will be ready for pickup within 3 business days of making your final selections.</p>"
+          }
+        },
+        "more_time": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Need more time?",
+            "icon": "question_mark",
+            "content": "<p>Each session is 15 minutes long. If you're bringing a larger group or have more photos in mind, book multiple back-to-back sessions: pick a time, add it to your cart, then come back and add the next one.</p>"
+          }
+        },
+        "location": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Where",
+            "icon": "map_pin",
+            "content": "<p>Coastal Film Lab<br>1704 N Nebraska Ave<br>Tampa, FL 33602</p>"
+          }
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        }
+      },
+      "block_order": [
+        "event_date",
+        "title",
+        "price",
+        "intro",
+        "appointment_picker",
+        "quantity_selector",
+        "buy_buttons",
+        "nostalgia",
+        "ready",
+        "more_time",
+        "location",
+        "share"
+      ],
+      "settings": {
+        "show_label_upsell": true,
+        "enable_sticky_info": true,
+        "color_scheme": "background-1",
+        "media_size": "medium",
+        "constrain_to_viewport": false,
+        "media_fit": "contain",
+        "gallery_layout": "thumbnail_slider",
+        "media_position": "left",
+        "image_zoom": "none",
+        "mobile_thumbnails": "hide",
+        "hide_variants": true,
+        "enable_video_looping": false,
+        "padding_top": 24,
+        "padding_bottom": 100
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

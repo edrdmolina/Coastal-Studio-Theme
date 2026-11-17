@@ -25,6 +25,7 @@ This folder isn't theme code. Shopify's GitHub sync ignores folders that aren't 
 | Products that use this picker | The picker only appears on these products. Everything else on the template is unchanged. |
 | Heading / Note under the picker | Customer-facing text. The note defaults to "Your appointment is confirmed once your order is paid." |
 | Monday opens … Sunday closes | Booking hours for each day. Pick **Closed** for days off. |
+| Special dates | One line per date, e.g. `2026-12-05 = 10:00-15:00` or `2026-12-24 = closed`. Replaces that date's weekly hours. For a one-day event, set every day to **Closed** and list the event date here (see the Christmas Card Photos template). |
 | Appointment length | How long each booking lasts. Start times are this far apart. |
 | Break between appointments | Gap kept clear before and after each booking. |
 | How far ahead customers can book (days) | Days shown in the day strip. |

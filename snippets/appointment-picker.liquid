@@ -93,6 +93,7 @@
       "bufferMinutes": {{ bs.buffer_minutes | json }},
       "daysAhead": {{ bs.days_ahead | json }},
       "noticeHours": {{ bs.notice_hours | json }},
+      "dateHours": {{ bs.date_hours | json }},
       "hours": [
         {%- for key in day_keys -%}
           {%- assign open_id = key | append: '_open' -%}

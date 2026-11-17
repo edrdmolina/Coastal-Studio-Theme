@@ -149,24 +149,47 @@ if (!customElements.get('appointment-picker')) {
         const step = Number(startEvery) || slot + (Number(bufferMinutes) || 0);
         const earliest = Date.now() + (Number(noticeHours) || 0) * 3600000;
         const today = this.zone.parts(Date.now());
+        const dateHours = this.parseDateHours();
         const days = [];
 
         for (let i = 0; i < (Number(daysAhead) || 21); i++) {
           const date = new Date(Date.UTC(today.year, today.month - 1, today.day + i));
-          const [open, close] = (hours[date.getUTCDay()] || []).map(toMinutes);
-          if (open === null || close === null || close <= open) continue;
-
           const y = date.getUTCFullYear();
           const m = date.getUTCMonth() + 1;
           const d = date.getUTCDate();
+          const key = `${y}-${pad(m)}-${pad(d)}`;
+          const [open, close] = (dateHours[key] || hours[date.getUTCDay()] || []).map(toMinutes);
+          if (open === null || close === null || close <= open) continue;
+
           const slots = [];
           for (let t = open; t + slot <= close; t += step) {
             const start = this.zone.instant(y, m, d, t);
             if (start >= earliest) slots.push({ start, end: start + slot * 60000, busy: false });
           }
-          if (slots.length) days.push({ key: `${y}-${pad(m)}-${pad(d)}`, noon: this.zone.instant(y, m, d, 720), slots });
+          if (slots.length) days.push({ key, noon: this.zone.instant(y, m, d, 720), slots });
         }
         return days;
+      }
+
+      // "Special dates": lines like "2026-12-05 = 10:00-15:00" or
+      // "2026-12-24 = closed". Each replaces that date's weekly hours, so a
+      // one-day event can set every weekday to Closed and list its date here.
+      // Lines that don't parse are ignored.
+      parseDateHours() {
+        const out = {};
+        String(this.config.dateHours || '')
+          .split(/\r?\n/)
+          .forEach((line) => {
+            const match = /^\s*(\d{4}-\d{2}-\d{2})\s*=\s*(.+?)\s*$/.exec(line);
+            if (!match) return;
+            if (/^closed$/i.test(match[2])) {
+              out[match[1]] = ['closed', 'closed'];
+              return;
+            }
+            const range = /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/.exec(match[2]);
+            if (range) out[match[1]] = [range[1], range[2]];
+          });
+        return out;
       }
 
       whenNearViewport(callback) {
