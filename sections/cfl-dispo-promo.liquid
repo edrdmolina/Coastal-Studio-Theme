@@ -1,0 +1,142 @@
+{% comment %}
+  Home page promo for the Coastal Disposable Camera.
+
+  Left: every design's transparent cut-out, fanned over the circular Coastal
+  mark (cut-outs are found by the alt text "<Design> Coastal Disposable
+  camera, front", as on the product page). Right: the pitch, quick facts, pack
+  prices and a link to the product.
+
+  Renders nothing unless the chosen product is available on the storefront,
+  so a draft or sold-out product hides the section by itself.
+
+  Pack prices are worked out from the product price and the per-camera
+  discounts below. Those must match the automatic discounts in Shopify admin
+  and the product page's pack builder (sections/cfl-dispo-buy.liquid).
+{% endcomment %}
+
+{%- assign promo_product = section.settings.product -%}
+{%- if promo_product != blank and promo_product.available -%}
+  {{ 'cfl-dispo-promo.css' | asset_url | stylesheet_tag }}
+
+  {%- liquid
+    assign base = promo_product.price
+    assign t2_off = section.settings.tier2_off | times: 100
+    assign t2_total = base | minus: t2_off | times: section.settings.tier2_qty
+    assign t3_off = section.settings.tier3_off | times: 100
+    assign t3_total = base | minus: t3_off | times: section.settings.tier3_qty
+  -%}
+
+  <section
+    class="cfl-dispo-promo color-{{ section.settings.color_scheme }} gradient"
+    aria-labelledby="cfl-dispo-promo-{{ section.id }}"
+  >
+    <div class="cfl-dispo-promo__inner page-width">
+      <a class="cfl-dispo-promo__art" href="{{ promo_product.url }}" tabindex="-1" aria-hidden="true">
+        <img
+          class="cfl-dispo-promo__mark"
+          src="{{ 'cfl-icon-full-color.svg' | asset_url }}"
+          alt=""
+          width="385"
+          height="398"
+          loading="lazy"
+        >
+        {%- assign shown = 0 -%}
+        {%- for variant in promo_product.variants -%}
+          {%- if shown >= 3 -%}{%- break -%}{%- endif -%}
+          {%- liquid
+            assign cutout_alt = variant.title | append: ' Coastal Disposable camera, front'
+            assign cutout = blank
+            for media in promo_product.media
+              if media.alt == cutout_alt
+                assign cutout = media
+              endif
+            endfor
+          -%}
+          {%- if cutout != blank -%}
+            {%- assign shown = shown | plus: 1 -%}
+            {{
+              cutout.preview_image
+              | image_url: width: 900
+              | image_tag:
+                widths: '360, 540, 720, 900',
+                sizes: '(min-width: 990px) 30vw, 70vw',
+                loading: 'lazy',
+                alt: '',
+                class: 'cfl-dispo-promo__cam',
+                data-slot: shown
+            }}
+          {%- endif -%}
+        {%- endfor -%}
+      </a>
+
+      <div class="cfl-dispo-promo__copy">
+        {%- if section.settings.tag != blank -%}
+          <p class="cfl-dispo-promo__tag">{{ section.settings.tag }}</p>
+        {%- endif -%}
+        <h2 class="cfl-dispo-promo__title" id="cfl-dispo-promo-{{ section.id }}">{{ section.settings.heading }}</h2>
+        {%- if section.settings.text != blank -%}
+          <div class="cfl-dispo-promo__text">{{ section.settings.text }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.facts != blank -%}
+          {%- assign facts = section.settings.facts | newline_to_br | split: '<br />' -%}
+          <ul class="cfl-dispo-promo__facts" role="list">
+            {%- for fact in facts -%}
+              {%- assign fact = fact | strip -%}
+              {%- if fact != blank -%}
+                <li>{{ fact }}</li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        <dl class="cfl-dispo-promo__prices">
+          <div>
+            <dt>Single</dt>
+            <dd>{{ base | money_without_trailing_zeros }}</dd>
+          </div>
+          {%- if section.settings.tier2_qty > 1 -%}
+            <div>
+              <dt>{{ section.settings.tier2_qty }}-Pack</dt>
+              <dd>{{ t2_total | money_without_trailing_zeros }}</dd>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.tier3_qty > section.settings.tier2_qty -%}
+            <div>
+              <dt>{{ section.settings.tier3_qty }}-Pack</dt>
+              <dd>{{ t3_total | money_without_trailing_zeros }}</dd>
+            </div>
+          {%- endif -%}
+        </dl>
+
+        <a class="button button--primary cfl-dispo-promo__button" href="{{ promo_product.url }}">
+          {{- section.settings.button_label -}}
+        </a>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Disposable promo",
+  "tag": "div",
+  "class": "section",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "accent-2" },
+    { "type": "text", "id": "tag", "label": "Tag", "default": "New" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "The Coastal Disposable" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "textarea", "id": "facts", "label": "Quick facts", "info": "One per line." },
+    { "type": "header", "content": "Pack prices" },
+    { "type": "paragraph", "content": "Must match the automatic discounts in Shopify admin and the product page." },
+    { "type": "number", "id": "tier2_qty", "label": "Pack 2 cameras", "default": 3 },
+    { "type": "number", "id": "tier2_off", "label": "Pack 2 discount per camera ($)", "default": 3 },
+    { "type": "number", "id": "tier3_qty", "label": "Pack 3 cameras", "default": 5 },
+    { "type": "number", "id": "tier3_off", "label": "Pack 3 discount per camera ($)", "default": 5 },
+    { "type": "text", "id": "button_label", "label": "Button", "default": "Pick your pack" }
+  ],
+  "presets": [{ "name": "Disposable promo" }]
+}
+{% endschema %}

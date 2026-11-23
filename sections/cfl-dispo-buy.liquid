@@ -1,0 +1,528 @@
+{% comment %}
+  First screen of the Coastal Disposable Camera product page
+  (templates/product.coastal-disposable.json).
+
+  Left: the product photos. Right: a two-step pack builder.
+    1. Pick a pack (1, 3 or 5 cameras by default).
+    2. Split that pack across the designs (the product's variants) with
+       steppers, so one pack can mix designs.
+  An optional checkbox adds a prepaid "Ship To Coastal" inbound label.
+
+  PACK PRICES ARE NOT SET HERE. They come from two automatic discounts in
+  Shopify admin (Discounts): "Coastal Disposable 3-Pack ($3 off each)" and
+  "Coastal Disposable 5-Pack ($5 off each)". The tier settings below only
+  describe those discounts on the page. If you change a discount, change the
+  matching tier here too, or the page will quote a price checkout won't honour.
+
+  Design cards use the transparent cut-out photo whose alt text is
+  "<Design> Coastal Disposable camera, front", and fall back to the variant's
+  own image. Cart adds go through /cart/add.js, then the shopper goes to the
+  cart, where the automatic discount is already shown.
+{% endcomment %}
+
+{{ 'cfl-dispo.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cfl-dispo.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign base = product.price
+  assign tiers = '1'
+  assign tier_offs = '0'
+  if section.settings.tier2_qty > 1
+    assign tiers = tiers | append: ',' | append: section.settings.tier2_qty
+    assign tier_offs = tier_offs | append: ',' | append: section.settings.tier2_off
+  endif
+  if section.settings.tier3_qty > section.settings.tier2_qty
+    assign tiers = tiers | append: ',' | append: section.settings.tier3_qty
+    assign tier_offs = tier_offs | append: ',' | append: section.settings.tier3_off
+  endif
+  assign tiers = tiers | split: ','
+  assign tier_offs = tier_offs | split: ','
+
+  assign default_pack = section.settings.default_pack | append: ''
+  unless tiers contains default_pack
+    assign default_pack = tiers.first
+  endunless
+
+  assign label_variant = blank
+  if section.settings.label_product != blank
+    for v in section.settings.label_product.variants
+      if v.title == section.settings.label_variant
+        assign label_variant = v
+      endif
+    endfor
+    if label_variant == blank
+      assign label_variant = section.settings.label_product.selected_or_first_available_variant
+    endif
+  endif
+
+  assign available_count = 0
+  for variant in product.variants
+    if variant.available
+      assign available_count = available_count | plus: 1
+    endif
+  endfor
+-%}
+
+<section
+  id="cfl-dispo-buy"
+  class="cfl-dispo color-{{ section.settings.color_scheme }} gradient"
+  aria-labelledby="cfl-dispo-title-{{ section.id }}"
+>
+  <div class="cfl-dispo__hero page-width">
+    {%- comment -%}
+      The stage: one design at a time as a transparent cut-out floating over
+      the circular Coastal mark, Gelatin Labs style. Cut-outs are found by alt text
+      ("<Design> Coastal Disposable camera, front" / ", back"); a design
+      without them falls back to its variant photo.
+    {%- endcomment -%}
+    {%- liquid
+      assign first_variant = product.selected_or_first_available_variant
+    -%}
+    <div class="cfl-dispo__stage" data-cfl-dispo-stage>
+      <div class="cfl-dispo__stage-art">
+        <img
+          class="cfl-dispo__disc"
+          src="{{ 'cfl-icon-full-color.svg' | asset_url }}"
+          alt=""
+          width="385"
+          height="398"
+          aria-hidden="true"
+        >
+        {%- for variant in product.variants -%}
+          {%- liquid
+            assign front_alt = variant.title | append: ' Coastal Disposable camera, front'
+            assign back_alt = variant.title | append: ' Coastal Disposable camera, back'
+            assign front = variant.featured_media
+            assign back = blank
+            for media in product.media
+              if media.alt == front_alt
+                assign front = media
+              elsif media.alt == back_alt
+                assign back = media
+              endif
+            endfor
+            if variant.id == first_variant.id
+              assign loading = 'eager'
+              assign priority = 'high'
+            else
+              assign loading = 'lazy'
+              assign priority = 'auto'
+            endif
+          -%}
+          <figure
+            class="cfl-dispo__float"
+            data-cfl-dispo-float="{{ variant.id }}"
+            {% unless variant.id == first_variant.id %}hidden{% endunless %}
+          >
+            <div class="cfl-dispo__bob">
+              {%- if front -%}
+                {{
+                  front.preview_image
+                  | image_url: width: 1400
+                  | image_tag:
+                    widths: '600, 900, 1200, 1400',
+                    sizes: '(min-width: 990px) 48vw, 92vw',
+                    loading: loading,
+                    fetchpriority: priority,
+                    alt: front.alt,
+                    class: 'cfl-dispo__cutout',
+                    data-side: 'front'
+                }}
+              {%- endif -%}
+              {%- if back -%}
+                {{
+                  back.preview_image
+                  | image_url: width: 1400
+                  | image_tag:
+                    widths: '600, 900, 1200, 1400',
+                    sizes: '(min-width: 990px) 48vw, 92vw',
+                    loading: 'lazy',
+                    alt: back.alt,
+                    class: 'cfl-dispo__cutout',
+                    data-side: 'back',
+                    hidden: true
+                }}
+              {%- endif -%}
+            </div>
+            <span class="cfl-dispo__shadow" aria-hidden="true"></span>
+            <figcaption class="visually-hidden">{{ variant.title }}</figcaption>
+          </figure>
+        {%- endfor -%}
+      </div>
+
+      <div class="cfl-dispo__stage-controls">
+        <div class="cfl-dispo__sides" role="group" aria-label="Camera side">
+          <button type="button" class="cfl-dispo__side" data-cfl-dispo-side="front" aria-pressed="true">Front</button>
+          <button type="button" class="cfl-dispo__side" data-cfl-dispo-side="back" aria-pressed="false">Back</button>
+        </div>
+
+        {%- if product.variants.size > 1 -%}
+          <ul class="cfl-dispo__swatches" role="list" aria-label="See each design">
+            {%- for variant in product.variants -%}
+              {%- liquid
+                assign front_alt = variant.title | append: ' Coastal Disposable camera, front'
+                assign swatch = variant.featured_media
+                for media in product.media
+                  if media.alt == front_alt
+                    assign swatch = media
+                  endif
+                endfor
+              -%}
+              <li>
+                <button
+                  type="button"
+                  class="cfl-dispo__swatch"
+                  data-cfl-dispo-show="{{ variant.id }}"
+                  aria-pressed="{% if variant.id == first_variant.id %}true{% else %}false{% endif %}"
+                >
+                  {%- if swatch -%}
+                    {{ swatch.preview_image | image_url: width: 240 | image_tag: loading: 'lazy', alt: '' }}
+                  {%- endif -%}
+                  <span>{{ variant.title }}</span>
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="cfl-dispo__buy">
+      {%- if section.settings.tag != blank -%}
+        <p class="cfl-dispo__tag">{{ section.settings.tag }}</p>
+      {%- endif -%}
+
+      <h1 class="cfl-dispo__title" id="cfl-dispo-title-{{ section.id }}">
+        {{- section.settings.heading | default: product.title -}}
+      </h1>
+
+      {%- if section.settings.intro != blank -%}
+        <div class="cfl-dispo__intro">{{ section.settings.intro }}</div>
+      {%- endif -%}
+
+      {%- assign facts = section.settings.facts | newline_to_br | split: '<br />' -%}
+      {%- if section.settings.facts != blank -%}
+        <ul class="cfl-dispo__facts" role="list">
+          {%- for fact in facts -%}
+            {%- assign fact = fact | strip -%}
+            {%- if fact != blank -%}
+              <li>{{ fact }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      <form
+        class="cfl-dispo__form"
+        action="{{ routes.cart_add_url }}"
+        method="post"
+        data-cfl-dispo-form
+        data-cart-url="{{ routes.cart_url }}"
+        data-money-format="{{ shop.money_format | escape }}"
+        data-base-price="{{ base }}"
+      >
+        <fieldset class="cfl-dispo__step">
+          <legend class="cfl-dispo__legend">
+            <span class="cfl-dispo__step-num" aria-hidden="true">1</span>
+            {{ section.settings.pack_heading }}
+          </legend>
+
+          <div class="cfl-dispo__packs">
+            {%- for qty_s in tiers -%}
+              {%- liquid
+                assign qty = qty_s | plus: 0
+                assign off = tier_offs[forloop.index0] | plus: 0 | times: 100
+                assign each = base | minus: off
+                assign total = each | times: qty
+                assign saved = off | times: qty
+                if qty == 1
+                  assign pack_name = section.settings.tier1_name
+                elsif forloop.index == 2
+                  assign pack_name = section.settings.tier2_name
+                else
+                  assign pack_name = section.settings.tier3_name
+                endif
+              -%}
+              <label class="cfl-dispo__pack">
+                <input
+                  type="radio"
+                  name="cfl-dispo-pack"
+                  value="{{ qty }}"
+                  data-each="{{ each }}"
+                  data-saved="{{ saved }}"
+                  {% if qty_s == default_pack %}checked{% endif %}
+                >
+                <span class="cfl-dispo__pack-body">
+                  {%- if forloop.index == section.settings.badge_tier -%}
+                    <span class="cfl-dispo__badge">{{ section.settings.badge_text }}</span>
+                  {%- endif -%}
+                  <span class="cfl-dispo__pack-name">{{ pack_name }}</span>
+                  <span class="cfl-dispo__pack-price">{{ total | money_without_trailing_zeros }}</span>
+                  <span class="cfl-dispo__pack-each">
+                    {%- if qty == 1 -%}
+                      1 camera
+                    {%- else -%}
+                      {{ qty }} cameras · {{ each | money_without_trailing_zeros }} each
+                    {%- endif -%}
+                  </span>
+                  {%- if saved > 0 -%}
+                    <span class="cfl-dispo__pack-save">Save {{ saved | money_without_trailing_zeros }}</span>
+                  {%- endif -%}
+                </span>
+              </label>
+            {%- endfor -%}
+          </div>
+        </fieldset>
+
+        <fieldset class="cfl-dispo__step">
+          <legend class="cfl-dispo__legend">
+            <span class="cfl-dispo__step-num" aria-hidden="true">2</span>
+            {{ section.settings.design_heading }}
+          </legend>
+          <p class="cfl-dispo__hint" data-cfl-dispo-count aria-live="polite">
+            {{ section.settings.design_hint }}
+          </p>
+
+          {%- assign default_qty = default_pack | plus: 0 -%}
+          <ul class="cfl-dispo__designs" role="list">
+            {%- for variant in product.variants -%}
+              {%- liquid
+                assign cutout_alt = variant.title | append: ' Coastal Disposable camera, front'
+                assign card_media = variant.featured_media
+                for media in product.media
+                  if media.alt == cutout_alt
+                    assign card_media = media
+                  endif
+                endfor
+
+                comment
+                  Spread the default pack across the in-stock designs: 3 → 1/1/1, 5 → 2/2/1.
+                endcomment
+                assign start_qty = 0
+                if variant.available and available_count > 0
+                  assign avail_index = 0
+                  for v in product.variants
+                    if v.id == variant.id
+                      break
+                    endif
+                    if v.available
+                      assign avail_index = avail_index | plus: 1
+                    endif
+                  endfor
+                  assign start_qty = default_qty | divided_by: available_count
+                  assign remainder = default_qty | modulo: available_count
+                  if avail_index < remainder
+                    assign start_qty = start_qty | plus: 1
+                  endif
+                endif
+              -%}
+              <li
+                class="cfl-dispo__design{% unless variant.available %} is-sold-out{% endunless %}"
+                data-cfl-dispo-design
+                data-variant-id="{{ variant.id }}"
+              >
+                <div class="cfl-dispo__design-img">
+                  {%- if card_media -%}
+                    {{ card_media.preview_image | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 990px) 12vw, 30vw', loading: 'lazy', alt: '' }}
+                  {%- endif -%}
+                </div>
+                <p class="cfl-dispo__design-name" id="cfl-dispo-name-{{ variant.id }}">{{ variant.title }}</p>
+                {%- if variant.available -%}
+                  <div class="cfl-dispo__stepper" role="group" aria-labelledby="cfl-dispo-name-{{ variant.id }}">
+                    <button type="button" class="cfl-dispo__step-btn" data-cfl-dispo-minus aria-label="One fewer {{ variant.title }}">−</button>
+                    <input type="hidden" name="items[{{ forloop.index0 }}][id]" value="{{ variant.id }}">
+                    <input
+                      class="cfl-dispo__qty"
+                      type="number"
+                      name="items[{{ forloop.index0 }}][quantity]"
+                      value="{{ start_qty }}"
+                      min="0"
+                      max="{{ tiers.last }}"
+                      inputmode="numeric"
+                      aria-label="{{ variant.title }} quantity"
+                      data-cfl-dispo-qty
+                    >
+                    <button type="button" class="cfl-dispo__step-btn" data-cfl-dispo-plus aria-label="One more {{ variant.title }}">+</button>
+                  </div>
+                {%- else -%}
+                  <p class="cfl-dispo__sold-out">Sold out</p>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </fieldset>
+
+        {%- liquid
+          assign prints_product = section.settings.prints_product
+          assign xl_variant = section.settings.xl_product.selected_or_first_available_variant
+          assign has_prints = false
+          if prints_product != blank and prints_product.available
+            assign has_prints = true
+          endif
+        -%}
+        {%- if has_prints or xl_variant.available -%}
+          <fieldset class="cfl-dispo__step">
+            <legend class="cfl-dispo__legend">
+              <span class="cfl-dispo__step-num" aria-hidden="true">3</span>
+              {{ section.settings.upgrade_heading }}
+            </legend>
+            {%- if section.settings.upgrade_hint != blank -%}
+              <p class="cfl-dispo__hint">{{ section.settings.upgrade_hint }}</p>
+            {%- endif -%}
+
+            {%- if has_prints -%}
+              <div class="cfl-dispo__options" role="radiogroup" aria-label="{{ section.settings.prints_label | escape }}">
+                <label class="cfl-dispo__option">
+                  <input type="radio" name="cfl-dispo-prints" value="" data-price="0" checked>
+                  <span class="cfl-dispo__option-body">
+                    <span class="cfl-dispo__option-name">{{ section.settings.scans_only_label }}</span>
+                    <span class="cfl-dispo__option-price">Included</span>
+                  </span>
+                </label>
+                {%- for variant in prints_product.variants -%}
+                  {%- unless variant.available -%}{%- continue -%}{%- endunless -%}
+                  <label class="cfl-dispo__option">
+                    <input type="radio" name="cfl-dispo-prints" value="{{ variant.id }}" data-price="{{ variant.price }}">
+                    <span class="cfl-dispo__option-body">
+                      <span class="cfl-dispo__option-name">{{ variant.title }}</span>
+                      <span class="cfl-dispo__option-price">+{{ variant.price | money_without_trailing_zeros }} per camera</span>
+                    </span>
+                  </label>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+
+            {%- if xl_variant.available -%}
+              <label class="cfl-dispo__addon cfl-dispo__addon--solid">
+                <input type="checkbox" name="cfl-dispo-xl" value="{{ xl_variant.id }}" data-cfl-dispo-xl data-price="{{ xl_variant.price }}">
+                <span>
+                  <strong>{{ section.settings.xl_heading }} +{{ xl_variant.price | money_without_trailing_zeros }} per camera</strong>
+                  <span class="cfl-dispo__addon-text">{{ section.settings.xl_text }}</span>
+                </span>
+              </label>
+            {%- endif -%}
+          </fieldset>
+        {%- endif -%}
+
+        {%- if label_variant != blank and label_variant.available -%}
+          <label class="cfl-dispo__addon">
+            <input type="checkbox" name="cfl-dispo-label" value="{{ label_variant.id }}" data-cfl-dispo-label data-price="{{ label_variant.price }}">
+            <span>
+              <strong>{{ section.settings.label_heading }} +{{ label_variant.price | money_without_trailing_zeros }}</strong>
+              <span class="cfl-dispo__addon-text">{{ section.settings.label_text }}</span>
+            </span>
+          </label>
+        {%- endif -%}
+
+        <div class="cfl-dispo__summary">
+          <p class="cfl-dispo__total">
+            <span class="visually-hidden">Total: </span>
+            <span data-cfl-dispo-total></span>
+            <span class="cfl-dispo__total-note" data-cfl-dispo-total-note></span>
+          </p>
+          <button
+            type="submit"
+            class="button button--primary cfl-dispo__submit"
+            data-cfl-dispo-submit
+            {% if available_count == 0 %}disabled{% endif %}
+          >
+            {%- if available_count == 0 -%}
+              Sold out
+            {%- else -%}
+              Add to cart
+            {%- endif -%}
+          </button>
+          <p class="cfl-dispo__error" role="alert" data-cfl-dispo-error hidden></p>
+          {%- if section.settings.note != blank -%}
+            <p class="cfl-dispo__note">{{ section.settings.note }}</p>
+          {%- endif -%}
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{%- liquid
+  if product.selected_or_first_available_variant.featured_media
+    assign seo_media = product.selected_or_first_available_variant.featured_media
+  else
+    assign seo_media = product.featured_media
+  endif
+-%}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "url": {{ request.origin | append: product.url | json }},
+    {%- if seo_media %}
+    "image": [{{ seo_media | image_url: width: 1920 | prepend: 'https:' | json }}],
+    {%- endif %}
+    "description": {{ product.description | strip_html | strip | json }},
+    "brand": { "@type": "Brand", "name": {{ product.vendor | json }} },
+    "offers": [
+      {%- for variant in product.variants -%}
+        {
+          "@type": "Offer",
+          "name": {{ variant.title | json }},
+          {%- if variant.sku != blank %}
+          "sku": {{ variant.sku | json }},
+          {%- endif %}
+          "availability": "http://schema.org/{% if variant.available %}InStock{% else %}OutOfStock{% endif %}",
+          "price": {{ variant.price | divided_by: 100.00 | json }},
+          "priceCurrency": {{ cart.currency.iso_code | json }},
+          "url": {{ request.origin | append: variant.url | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Disposable pack builder",
+  "tag": "div",
+  "class": "section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "text", "id": "tag", "label": "Tag", "default": "Develop + scan included" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Leave empty to use the product title." },
+    { "type": "richtext", "id": "intro", "label": "Intro" },
+    { "type": "textarea", "id": "facts", "label": "Quick facts", "info": "One per line." },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "header", "content": "Packs" },
+    { "type": "paragraph", "content": "These only describe the pack prices. The prices themselves come from the automatic discounts in Shopify admin. Keep both in step." },
+    { "type": "text", "id": "pack_heading", "label": "Step 1 heading", "default": "Pick your pack" },
+    { "type": "text", "id": "tier1_name", "label": "Single name", "default": "Single" },
+    { "type": "text", "id": "tier2_name", "label": "Pack 2 name", "default": "3-Pack" },
+    { "type": "number", "id": "tier2_qty", "label": "Pack 2 cameras", "default": 3 },
+    { "type": "number", "id": "tier2_off", "label": "Pack 2 discount per camera ($)", "default": 3 },
+    { "type": "text", "id": "tier3_name", "label": "Pack 3 name", "default": "5-Pack" },
+    { "type": "number", "id": "tier3_qty", "label": "Pack 3 cameras", "default": 5 },
+    { "type": "number", "id": "tier3_off", "label": "Pack 3 discount per camera ($)", "default": 5 },
+    { "type": "number", "id": "default_pack", "label": "Pack selected on load (cameras)", "default": 3 },
+    { "type": "range", "id": "badge_tier", "label": "Badge on pack", "min": 0, "max": 3, "step": 1, "default": 2, "info": "0 hides the badge." },
+    { "type": "text", "id": "badge_text", "label": "Badge text", "default": "Most popular" },
+    { "type": "header", "content": "Designs" },
+    { "type": "text", "id": "design_heading", "label": "Step 2 heading", "default": "Mix your designs" },
+    { "type": "text", "id": "design_hint", "label": "Hint", "default": "Split your pack however you like." },
+    { "type": "header", "content": "Upgrades (step 3)" },
+    { "type": "paragraph", "content": "Upgrades apply to every camera in the order: one of each per camera goes in the cart." },
+    { "type": "text", "id": "upgrade_heading", "label": "Step 3 heading", "default": "Upgrade your rolls" },
+    { "type": "text", "id": "upgrade_hint", "label": "Hint", "default": "Applies to every camera in your order." },
+    { "type": "product", "id": "prints_product", "label": "Prints product", "info": "Each variant becomes a choice." },
+    { "type": "text", "id": "prints_label", "label": "Prints choice label (screen readers)", "default": "What you get back" },
+    { "type": "text", "id": "scans_only_label", "label": "No-prints choice", "default": "Digital scans" },
+    { "type": "product", "id": "xl_product", "label": "XL scans product" },
+    { "type": "text", "id": "xl_heading", "label": "XL scans heading", "default": "Extra Large Scans" },
+    { "type": "text", "id": "xl_text", "label": "XL scans text" },
+    { "type": "header", "content": "Return label add-on" },
+    { "type": "product", "id": "label_product", "label": "Label product" },
+    { "type": "text", "id": "label_variant", "label": "Label size (variant name)", "default": "Small Box" },
+    { "type": "text", "id": "label_heading", "label": "Add-on heading", "default": "Add a prepaid return label" },
+    { "type": "text", "id": "label_text", "label": "Add-on text" },
+    { "type": "header", "content": "Footer" },
+    { "type": "text", "id": "note", "label": "Note under the button" }
+  ]
+}
+{% endschema %}

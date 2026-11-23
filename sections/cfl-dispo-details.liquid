@@ -1,0 +1,163 @@
+{% comment %}
+  Everything below the pack builder on the Coastal Disposable Camera page:
+  how it works (Step blocks), the designs (built from the product's variants),
+  questions (Question blocks) and a closing link back up to the pack builder.
+
+  The designs row shows each variant's own photo and, beside it, the product
+  image that comes straight after it in the product's media order (the back of
+  the camera). Keep each design's front and back photos next to each other in
+  Shopify admin.
+{% endcomment %}
+
+{{ 'cfl-dispo.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign specs = section.blocks | where: 'type', 'spec'
+  assign steps = section.blocks | where: 'type', 'step'
+  assign faqs = section.blocks | where: 'type', 'faq'
+-%}
+
+<div class="cfl-dispo-details color-{{ section.settings.color_scheme }} gradient">
+  {%- if specs.size > 0 -%}
+    <section class="cfl-dispo-details__band page-width" aria-labelledby="cfl-dispo-inside-{{ section.id }}">
+      <h2 class="cfl-dispo-details__heading" id="cfl-dispo-inside-{{ section.id }}">{{ section.settings.specs_heading }}</h2>
+      {%- if section.settings.specs_text != blank -%}
+        <div class="cfl-dispo-details__lede">{{ section.settings.specs_text }}</div>
+      {%- endif -%}
+      <ul class="cfl-dispo-details__specs" role="list">
+        {%- for block in specs -%}
+          <li class="cfl-dispo-details__spec" {{ block.shopify_attributes }}>
+            {%- if block.settings.value != blank -%}
+              <p class="cfl-dispo-details__spec-value">{{ block.settings.value }}</p>
+            {%- endif -%}
+            <h3 class="cfl-dispo-details__spec-title">{{ block.settings.title }}</h3>
+            <div class="cfl-dispo-details__spec-text">{{ block.settings.text }}</div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+
+  {%- if steps.size > 0 -%}
+    <section class="cfl-dispo-details__band page-width" aria-labelledby="cfl-dispo-how-{{ section.id }}">
+      <h2 class="cfl-dispo-details__heading" id="cfl-dispo-how-{{ section.id }}">{{ section.settings.steps_heading }}</h2>
+      <ol class="cfl-dispo-details__steps" role="list">
+        {%- for block in steps -%}
+          <li class="cfl-dispo-details__step" {{ block.shopify_attributes }}>
+            <span class="cfl-dispo-details__step-num" aria-hidden="true">{{ forloop.index }}</span>
+            <h3 class="cfl-dispo-details__step-title">{{ block.settings.title }}</h3>
+            <div class="cfl-dispo-details__step-text">{{ block.settings.text }}</div>
+          </li>
+        {%- endfor -%}
+      </ol>
+    </section>
+  {%- endif -%}
+
+  {%- if section.settings.show_designs and product.variants.size > 1 -%}
+    <section class="cfl-dispo-details__band page-width" aria-labelledby="cfl-dispo-designs-{{ section.id }}">
+      <h2 class="cfl-dispo-details__heading" id="cfl-dispo-designs-{{ section.id }}">{{ section.settings.designs_heading }}</h2>
+      {%- if section.settings.designs_text != blank -%}
+        <div class="cfl-dispo-details__lede">{{ section.settings.designs_text }}</div>
+      {%- endif -%}
+      <ul class="cfl-dispo-details__designs" role="list">
+        {%- for variant in product.variants -%}
+          {%- liquid
+            assign front = variant.featured_media
+            assign back = blank
+            if front
+              assign back = product.media[front.position]
+              unless back.alt contains 'back'
+                assign back = blank
+              endunless
+            endif
+          -%}
+          <li class="cfl-dispo-details__design">
+            <div class="cfl-dispo-details__design-imgs">
+              {%- if front -%}
+                {{ front.preview_image | image_url: width: 900 | image_tag: widths: '450, 675, 900', sizes: '(min-width: 990px) 16vw, 45vw', loading: 'lazy', alt: front.alt }}
+              {%- endif -%}
+              {%- if back -%}
+                {{ back.preview_image | image_url: width: 900 | image_tag: widths: '450, 675, 900', sizes: '(min-width: 990px) 16vw, 45vw', loading: 'lazy', alt: back.alt }}
+              {%- endif -%}
+            </div>
+            <h3 class="cfl-dispo-details__design-name">{{ variant.title }}</h3>
+            {%- unless variant.available -%}
+              <p class="cfl-dispo-details__design-status">Sold out for now</p>
+            {%- endunless -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+
+  {%- if faqs.size > 0 -%}
+    <section class="cfl-dispo-details__band cfl-dispo-details__band--narrow page-width" aria-labelledby="cfl-dispo-faq-{{ section.id }}">
+      <h2 class="cfl-dispo-details__heading" id="cfl-dispo-faq-{{ section.id }}">{{ section.settings.faq_heading }}</h2>
+      <div class="cfl-dispo-details__faqs">
+        {%- for block in faqs -%}
+          <details class="cfl-dispo-details__faq" {{ block.shopify_attributes }}>
+            <summary>{{ block.settings.question }}</summary>
+            <div class="cfl-dispo-details__answer rte">{{ block.settings.answer }}</div>
+          </details>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- if section.settings.cta_heading != blank -%}
+    <section class="cfl-dispo-details__cta page-width" aria-labelledby="cfl-dispo-cta-{{ section.id }}">
+      <h2 class="cfl-dispo-details__cta-heading" id="cfl-dispo-cta-{{ section.id }}">{{ section.settings.cta_heading }}</h2>
+      {%- if section.settings.cta_label != blank -%}
+        <a class="button button--primary" href="#cfl-dispo-buy">{{ section.settings.cta_label }}</a>
+      {%- endif -%}
+    </section>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Disposable details",
+  "tag": "div",
+  "class": "section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "text", "id": "specs_heading", "label": "What's inside heading", "default": "What's inside" },
+    { "type": "richtext", "id": "specs_text", "label": "What's inside text" },
+    { "type": "text", "id": "steps_heading", "label": "How it works heading", "default": "How it works" },
+    { "type": "checkbox", "id": "show_designs", "label": "Show the designs", "default": true },
+    { "type": "text", "id": "designs_heading", "label": "Designs heading", "default": "Three designs" },
+    { "type": "richtext", "id": "designs_text", "label": "Designs text" },
+    { "type": "text", "id": "faq_heading", "label": "Questions heading", "default": "Questions" },
+    { "type": "text", "id": "cta_heading", "label": "Closing heading" },
+    { "type": "text", "id": "cta_label", "label": "Closing button", "default": "Pick your pack" }
+  ],
+  "blocks": [
+    {
+      "type": "spec",
+      "name": "Spec",
+      "settings": [
+        { "type": "text", "id": "value", "label": "Big value", "info": "e.g. 400 or 35mm" },
+        { "type": "text", "id": "title", "label": "Title" },
+        { "type": "richtext", "id": "text", "label": "Text" }
+      ]
+    },
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title" },
+        { "type": "richtext", "id": "text", "label": "Text" }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Answer" }
+      ]
+    }
+  ]
+}
+{% endschema %}

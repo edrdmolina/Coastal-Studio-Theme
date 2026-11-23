@@ -1,0 +1,186 @@
+/*
+  Home page promo for the Coastal Disposable (sections/cfl-dispo-promo).
+  Same palette rules as cfl-dispo.css: teal actions, mustard only as the tag.
+*/
+
+.cfl-dispo-promo__inner {
+  display: grid;
+  gap: 2.4rem;
+  align-items: center;
+  padding-top: 4.8rem;
+  padding-bottom: 4.8rem;
+}
+
+@media screen and (min-width: 990px) {
+  .cfl-dispo-promo__inner {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 6.4rem;
+    padding-top: 7.2rem;
+    padding-bottom: 7.2rem;
+  }
+}
+
+/* ---------- Art: three cameras fanned over the Coastal mark ---------- */
+
+.cfl-dispo-promo__art {
+  position: relative;
+  display: block;
+  aspect-ratio: 6 / 5;
+}
+
+.cfl-dispo-promo__mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: auto;
+  height: 96%;
+  transform: translate(-50%, -50%);
+}
+
+.cfl-dispo-promo__cam {
+  position: absolute;
+  left: 50%;
+  width: 50%;
+  height: auto;
+  filter: drop-shadow(0 1rem 1.4rem rgba(48, 30, 24, 0.22));
+  transition: transform 0.35s ease;
+}
+
+/* Back left, back right, then front and centre. */
+.cfl-dispo-promo__cam[data-slot='1'] {
+  top: 30%;
+  z-index: 1;
+  transform: translateX(-86%) rotate(-12deg);
+}
+
+.cfl-dispo-promo__cam[data-slot='2'] {
+  top: 30%;
+  z-index: 1;
+  transform: translateX(-14%) rotate(10deg);
+}
+
+.cfl-dispo-promo__cam[data-slot='3'] {
+  top: 47%;
+  z-index: 2;
+  width: 56%;
+  transform: translateX(-50%) rotate(-3deg);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .cfl-dispo-promo__art:hover .cfl-dispo-promo__cam[data-slot='1'] {
+    transform: translateX(-92%) rotate(-16deg);
+  }
+
+  .cfl-dispo-promo__art:hover .cfl-dispo-promo__cam[data-slot='2'] {
+    transform: translateX(-8%) rotate(14deg);
+  }
+
+  .cfl-dispo-promo__art:hover .cfl-dispo-promo__cam[data-slot='3'] {
+    transform: translateX(-50%) translateY(-0.8rem) rotate(-3deg);
+  }
+}
+
+/* ---------- Copy ---------- */
+
+.cfl-dispo-promo__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.6rem;
+}
+
+.cfl-dispo-promo__tag {
+  margin: 0;
+  padding: 0.4rem 1rem;
+  border-radius: 0.4rem;
+  background: #e8af22;
+  color: #301e18;
+  font-family: var(--font-subheading-family);
+  font-size: 1.4rem;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.cfl-dispo-promo__title {
+  margin: 0;
+  font-family: 'Seawave', var(--font-heading-family);
+  font-weight: normal;
+  font-size: clamp(3.4rem, 7vw, 5.2rem);
+  line-height: 1.06;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.cfl-dispo-promo__text p {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.55;
+}
+
+.cfl-dispo-promo__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cfl-dispo-promo__facts li {
+  padding: 0.4rem 1.1rem;
+  border: 1px solid #d9cfc4;
+  border-radius: 0.4rem;
+  background: #fffdf9;
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+
+.cfl-dispo-promo__prices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(9.6rem, max-content));
+  gap: 1rem;
+  margin: 0.4rem 0 0;
+}
+
+@media screen and (max-width: 480px) {
+  .cfl-dispo-promo__prices {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+}
+
+.cfl-dispo-promo__prices div {
+  padding: 1rem 1.2rem;
+  border: 1.5px solid #d9cfc4;
+  border-radius: 0.8rem;
+  background: #fffdf9;
+}
+
+.cfl-dispo-promo__prices dt {
+  font-size: 1.4rem;
+  color: #5a463d;
+}
+
+.cfl-dispo-promo__prices dd {
+  margin: 0;
+  font-family: var(--font-subheading-family);
+  font-size: 2.4rem;
+  line-height: 1.15;
+  color: #00777c;
+}
+
+.cfl-dispo-promo .cfl-dispo-promo__button {
+  margin-top: 0.4rem;
+  background-color: #00777c;
+  color: #fff8ef;
+}
+
+.cfl-dispo-promo .cfl-dispo-promo__button:hover {
+  background-color: #005a5e;
+}
+
+@media screen and (max-width: 749px) {
+  .cfl-dispo-promo .cfl-dispo-promo__button {
+    width: 100%;
+  }
+}
