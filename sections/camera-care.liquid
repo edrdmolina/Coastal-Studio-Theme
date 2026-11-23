@@ -1,0 +1,347 @@
+{% comment %}
+  /pages/camera-repair: what the lab still does for cameras now that full
+  repairs are no longer taken in.
+
+  Replaces an image banner, two custom-liquid blocks and a five-row multirow.
+  The custom-liquid blocks pasted whole HTML documents into the page, and their
+  global `body` and `*` rules switched the entire page to a generic sans-serif,
+  stripped margins, and hid the hero's primary button label. One of them also
+  linked "Shop Cameras" to an expired preview domain.
+
+  Built on camera-store.css so the page reads as a sibling of /pages/cameras.
+  Service prices come from the linked product, so they cannot drift from what
+  checkout charges.
+{% endcomment %}
+
+{{ 'camera-store.css' | asset_url | stylesheet_tag }}
+{{ 'camera-care.css' | asset_url | stylesheet_tag }}
+{{ 'component-accordion.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign s = section.settings
+  assign cameras_url = s.cameras_url | default: '/pages/cameras'
+  assign take5 = s.take5_product
+  assign service_blocks = section.blocks | where: 'type', 'service'
+  assign question_blocks = section.blocks | where: 'type', 'question'
+-%}
+
+<div class="camera-store cc">
+  <div class="cs-shell page-width">
+    <nav class="cs-breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a><span aria-hidden="true">/</span><span>Camera care</span>
+    </nav>
+
+    {%- comment -%} Intro {%- endcomment -%}
+    <div class="cs-hero cc-hero">
+      <div class="cs-hero__copy">
+        <p class="cs-eyebrow">{{ s.eyebrow | escape }}</p>
+        <h1>{{ s.heading | escape | newline_to_br }}</h1>
+        <p class="cs-hero__description">{{ s.description | escape }}</p>
+        <div class="cs-actions">
+          <a class="button button--primary cs-button" href="#CameraServices">
+            {{- s.primary_label | escape }} {% render 'camera-store-icon', icon: 'arrow' -%}
+          </a>
+          <a class="cs-text-link" href="#CameraRefurbished">Shop tested cameras</a>
+        </div>
+      </div>
+      <div class="cs-hero__media cc-hero__media global-media-settings">
+        {%- if s.hero_image != blank -%}
+          {{
+            s.hero_image
+            | image_url: width: 1400
+            | image_tag:
+              widths: '480, 750, 1000, 1400',
+              sizes: '(min-width: 990px) 46vw, 100vw',
+              loading: 'eager',
+              fetchpriority: 'high',
+              alt: s.hero_alt | default: s.hero_image.alt
+          }}
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'cs-placeholder' }}
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} Services {%- endcomment -%}
+    <section class="cc-services" id="CameraServices" aria-labelledby="CameraServicesHeading-{{ section.id }}">
+      <div class="cs-section-heading">
+        <div>
+          <p class="cs-eyebrow">{{ s.services_eyebrow | escape }}</p>
+          <h2 id="CameraServicesHeading-{{ section.id }}">{{ s.services_heading | escape }}</h2>
+        </div>
+        {%- if s.services_text != blank -%}
+          <p>{{ s.services_text | escape }}</p>
+        {%- endif -%}
+      </div>
+
+      <ul class="cc-cards" role="list">
+        {%- for block in service_blocks -%}
+          {%- liquid
+            assign b = block.settings
+            assign product = b.product
+            assign url = b.link | default: product.url
+          -%}
+          <li class="cc-card" {{ block.shopify_attributes }}>
+            <div class="cc-card__media global-media-settings">
+              {%- if b.image != blank -%}
+                {{
+                  b.image
+                  | image_url: width: 800
+                  | image_tag:
+                    widths: '400, 600, 800',
+                    sizes: '(min-width: 1100px) 22vw, (min-width: 750px) 45vw, 92vw',
+                    loading: 'lazy',
+                    alt: b.image_alt | default: b.image.alt
+                }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'cs-placeholder' }}
+              {%- endif -%}
+            </div>
+            <div class="cc-card__body">
+              {%- if b.eyebrow != blank -%}
+                <p class="cc-card__eyebrow">{{ b.eyebrow | escape }}</p>
+              {%- endif -%}
+              <h3 class="cc-card__title">{{ b.title | escape }}</h3>
+              <p class="cc-card__text">{{ b.text | escape }}</p>
+              <dl class="cc-card__facts">
+                {%- if product != blank -%}
+                  <div>
+                    <dt>Price</dt>
+                    <dd>
+                      {%- if product.price_varies -%}From {% endif -%}
+                      {{- product.price | money -}}
+                    </dd>
+                  </div>
+                {%- endif -%}
+                {%- if b.detail != blank -%}
+                  <div>
+                    <dt>{{ b.detail_label | default: 'Timing' | escape }}</dt>
+                    <dd>{{ b.detail | escape }}</dd>
+                  </div>
+                {%- endif -%}
+              </dl>
+              {%- if url != blank and b.button_label != blank -%}
+                <a class="button button--primary cs-button cc-card__cta" href="{{ url }}">
+                  {{- b.button_label | escape -}}
+                </a>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+
+    {%- comment -%} Full repairs: what to do instead {%- endcomment -%}
+    <section class="cc-repair" aria-labelledby="CameraRepairHeading-{{ section.id }}">
+      <div class="cc-repair__copy">
+        <p class="cs-eyebrow">{{ s.repair_eyebrow | escape }}</p>
+        <h2 id="CameraRepairHeading-{{ section.id }}">{{ s.repair_heading | escape }}</h2>
+        <p class="cc-repair__lede">{{ s.repair_text | escape }}</p>
+        <ol class="cc-steps" role="list">
+          <li>
+            <h3>{{ s.step_1_title | escape }}</h3>
+            <p>{{ s.step_1_text | escape }}</p>
+          </li>
+          <li>
+            <h3>{{ s.step_2_title | escape }}</h3>
+            <p>{{ s.step_2_text | escape }}</p>
+          </li>
+          <li>
+            <h3>{{ s.step_3_title | escape }}</h3>
+            <p>{{ s.step_3_text | escape }}</p>
+          </li>
+        </ol>
+        {%- if take5 != blank -%}
+          <a class="button button--primary cs-button" href="{{ take5.url }}">
+            Book a Take-5 {% render 'camera-store-icon', icon: 'arrow' -%}
+          </a>
+        {%- endif -%}
+      </div>
+      {%- if s.repair_image != blank -%}
+        <div class="cc-repair__media global-media-settings">
+          {{
+            s.repair_image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '500, 800, 1200',
+              sizes: '(min-width: 750px) 45vw, 92vw',
+              loading: 'lazy',
+              alt: s.repair_alt | default: s.repair_image.alt
+          }}
+        </div>
+      {%- endif -%}
+    </section>
+
+    {%- comment -%} Refurbished cameras {%- endcomment -%}
+    <section class="cc-refurb" id="CameraRefurbished" aria-labelledby="CameraRefurbHeading-{{ section.id }}">
+      {%- if s.refurb_image != blank -%}
+        <div class="cc-refurb__media global-media-settings">
+          {{
+            s.refurb_image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '500, 800, 1200',
+              sizes: '(min-width: 750px) 45vw, 92vw',
+              loading: 'lazy',
+              alt: s.refurb_alt | default: s.refurb_image.alt
+          }}
+        </div>
+      {%- endif -%}
+      <div class="cc-refurb__copy">
+        <p class="cs-eyebrow">{{ s.refurb_eyebrow | escape }}</p>
+        <h2 id="CameraRefurbHeading-{{ section.id }}">{{ s.refurb_heading | escape }}</h2>
+        <p>{{ s.refurb_text | escape }}</p>
+        {%- assign checks = s.refurb_checks | newline_to_br | split: '<br />' -%}
+        <h3 class="cc-refurb__checks-title">{{ s.refurb_checks_title | escape }}</h3>
+        <ul class="cc-checks" role="list">
+          {%- for line in checks -%}
+            {%- assign item = line | strip -%}
+            {%- if item != blank -%}
+              <li>{% render 'camera-store-icon', icon: 'check' %}<span>{{ item | escape }}</span></li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+        {%- if s.refurb_note != blank -%}
+          <p class="cc-refurb__note">{{ s.refurb_note | escape }}</p>
+        {%- endif -%}
+        <div class="cs-actions">
+          <a class="button button--primary cs-button" href="{{ cameras_url }}">
+            Shop cameras {% render 'camera-store-icon', icon: 'arrow' -%}
+          </a>
+          {%- if s.warranty_url != blank -%}
+            <a class="cs-text-link" href="{{ s.warranty_url }}">Grading &amp; warranty policy</a>
+          {%- endif -%}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  {%- if s.strip_image != blank -%}
+    <div class="cc-strip" aria-hidden="true">
+      {{
+        s.strip_image
+        | image_url: width: 1920
+        | image_tag: widths: '960, 1440, 1920', sizes: '100vw', loading: 'lazy', alt: ''
+      }}
+    </div>
+  {%- endif -%}
+
+  <div class="cs-shell page-width">
+    {%- if question_blocks.size > 0 -%}
+      <section class="cs-faq" aria-labelledby="CameraFaqHeading-{{ section.id }}">
+        <div class="cs-faq__intro">
+          <p class="cs-eyebrow">Good questions</p>
+          <h2 id="CameraFaqHeading-{{ section.id }}">{{ s.faq_heading | escape | newline_to_br }}</h2>
+          {%- if s.contact_url != blank -%}
+            <a class="cs-text-link" href="{{ s.contact_url }}">Ask the lab {% render 'camera-store-icon', icon: 'arrow' %}</a>
+          {%- endif -%}
+        </div>
+        <div class="cs-faq__questions">
+          {%- for block in question_blocks -%}
+            <div class="accordion" {{ block.shopify_attributes }}>
+              <details id="CameraCareQuestion-{{ section.id }}-{{ block.id }}">
+                <summary>
+                  <h3 class="accordion__title inline-richtext h4">{{ block.settings.question | escape }}</h3>
+                  {%- render 'icon-caret' -%}
+                </summary>
+                <div class="cs-faq__answer accordion__content rte">{{ block.settings.answer }}</div>
+              </details>
+            </div>
+          {%- endfor -%}
+        </div>
+      </section>
+    {%- endif -%}
+
+    {%- if take5 != blank and s.closing_text != blank -%}
+      <div class="cs-closing">
+        <p>{{ s.closing_text | escape | newline_to_br }}</p>
+        <a class="button button--primary cs-button" href="{{ take5.url }}">
+          Book a Take-5 {% render 'camera-store-icon', icon: 'arrow' -%}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Camera care",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "header", "content": "Intro" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Camera repair & care" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Let's keep you\nshooting." },
+    { "type": "textarea", "id": "description", "label": "Description" },
+    { "type": "text", "id": "primary_label", "label": "Button label", "default": "See services & prices" },
+    { "type": "image_picker", "id": "hero_image", "label": "Photograph" },
+    { "type": "text", "id": "hero_alt", "label": "Photograph alt text" },
+
+    { "type": "header", "content": "Services" },
+    { "type": "text", "id": "services_eyebrow", "label": "Eyebrow", "default": "In-house services" },
+    { "type": "text", "id": "services_heading", "label": "Heading", "default": "What we still do." },
+    { "type": "textarea", "id": "services_text", "label": "Text" },
+
+    { "type": "header", "content": "Full repairs" },
+    { "type": "text", "id": "repair_eyebrow", "label": "Eyebrow", "default": "Bigger problems" },
+    { "type": "text", "id": "repair_heading", "label": "Heading", "default": "Need a full repair?" },
+    { "type": "textarea", "id": "repair_text", "label": "Text" },
+    { "type": "text", "id": "step_1_title", "label": "Step 1 title" },
+    { "type": "text", "id": "step_1_text", "label": "Step 1 text" },
+    { "type": "text", "id": "step_2_title", "label": "Step 2 title" },
+    { "type": "text", "id": "step_2_text", "label": "Step 2 text" },
+    { "type": "text", "id": "step_3_title", "label": "Step 3 title" },
+    { "type": "text", "id": "step_3_text", "label": "Step 3 text" },
+    { "type": "product", "id": "take5_product", "label": "Take-5 product", "info": "Used by the Book a Take-5 buttons." },
+    { "type": "image_picker", "id": "repair_image", "label": "Image" },
+    { "type": "text", "id": "repair_alt", "label": "Image alt text" },
+
+    { "type": "header", "content": "Refurbished cameras" },
+    { "type": "text", "id": "refurb_eyebrow", "label": "Eyebrow", "default": "Now our focus" },
+    { "type": "text", "id": "refurb_heading", "label": "Heading" },
+    { "type": "textarea", "id": "refurb_text", "label": "Text" },
+    { "type": "text", "id": "refurb_checks_title", "label": "Checklist title", "default": "Every camera is checked for" },
+    { "type": "textarea", "id": "refurb_checks", "label": "Checklist", "info": "One item per line." },
+    { "type": "textarea", "id": "refurb_note", "label": "Note" },
+    { "type": "url", "id": "cameras_url", "label": "Camera store page" },
+    { "type": "url", "id": "warranty_url", "label": "Grading and warranty page" },
+    { "type": "image_picker", "id": "refurb_image", "label": "Image" },
+    { "type": "text", "id": "refurb_alt", "label": "Image alt text" },
+    { "type": "image_picker", "id": "strip_image", "label": "Decorative strip below", "info": "Full-width banner image. Hidden from screen readers." },
+
+    { "type": "header", "content": "Questions" },
+    { "type": "textarea", "id": "faq_heading", "label": "Heading", "default": "Before you\nbook." },
+    { "type": "url", "id": "contact_url", "label": "Contact page" },
+    { "type": "textarea", "id": "closing_text", "label": "Closing line" }
+  ],
+  "blocks": [
+    {
+      "type": "service",
+      "name": "Service",
+      "limit": 6,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text" },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+        { "type": "text", "id": "title", "label": "Title" },
+        { "type": "textarea", "id": "text", "label": "Text" },
+        { "type": "product", "id": "product", "label": "Product", "info": "Shows its price and links the button to it." },
+        { "type": "text", "id": "detail_label", "label": "Detail label", "default": "Timing" },
+        { "type": "text", "id": "detail", "label": "Detail", "info": "For example: About one business week." },
+        { "type": "text", "id": "button_label", "label": "Button label" },
+        { "type": "url", "id": "link", "label": "Button link", "info": "Optional. Defaults to the product." }
+      ]
+    },
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Answer" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Camera care" }]
+}
+{% endschema %}

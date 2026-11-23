@@ -1,0 +1,100 @@
+/* /pages/camera-repair (sections/camera-care.liquid).
+   Builds on camera-store.css: type, eyebrows, buttons, FAQ and closing come from there. */
+
+.cc { padding-bottom: 2rem; }
+.cc-services, .cc-repair, .cc-refurb { scroll-margin-top: 11rem; }
+
+/* Intro: the bench photo is square, so let it stand a little taller than the store's hero. */
+.cc-hero .cc-hero__media { aspect-ratio: 1.2; border-radius: var(--media-radius); }
+.cc-hero .cc-hero__media > img { object-position: center; }
+.cc-hero .cc-hero__media { position: relative; }
+.cc-hero .cc-hero__media > img { position: absolute; inset: 0; }
+
+/* Services */
+.cc-services { padding: 3.6rem 0; border-top: .1rem solid var(--cs-line); }
+.cc-services .cs-section-heading > p { max-width: 42ch; }
+.cc-cards {
+  list-style: none;
+  margin: 2.8rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--grid-desktop-vertical-spacing) var(--grid-desktop-horizontal-spacing);
+}
+.cc-card { display: flex; flex-direction: column; min-width: 0; }
+.cc-card__media { aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--media-radius); background: rgba(var(--color-foreground), .04); }
+.cc-card__media { position: relative; }
+/* Absolute so the photo's own height can't stretch the 4:3 frame. */
+.cc-card__media > img, .cc-card__media > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+.cc-card__body { display: flex; flex-direction: column; flex: 1; padding-top: 1.8rem; }
+.cc-card__eyebrow { font-size: 1.2rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cfl-accent-dark); }
+.camera-store .cc-card__title { font-size: calc(var(--font-heading-scale) * 2rem); margin-top: .6rem; }
+.camera-store .cc-card__text { margin-top: 1rem; color: var(--cs-muted); font-size: 1.5rem; }
+.cc-card__facts { margin: 1.6rem 0 0; padding: 1.2rem 0 0; border-top: .1rem solid var(--cs-line); display: flex; flex-wrap: wrap; gap: 1rem 2.4rem; font-size: 1.4rem; line-height: 1.4; }
+.cc-card__facts dt { font-size: 1.1rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cs-muted); }
+.cc-card__facts dd { margin: .2rem 0 0; font-weight: 600; }
+/* Push the button to the bottom so a row of cards lines up. */
+.camera-store .cc-card__cta { margin-top: auto; width: 100%; }
+.cc-card__body > :nth-last-child(2) { margin-bottom: 2rem; }
+.cc-card__facts:empty { display: none; }
+
+/* Full repairs */
+.cc-repair, .cc-refurb {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2.8rem, 4vw, 5.6rem);
+  padding: 3.6rem 0;
+  border-top: .1rem solid var(--cs-line);
+}
+.cc-repair h2, .cc-refurb h2 { margin: 1.2rem 0 1.6rem; }
+.cc-repair__lede, .cc-refurb__copy > p { max-width: 52ch; color: var(--cs-muted); }
+.cc-repair__media, .cc-refurb__media { overflow: hidden; border-radius: var(--media-radius); }
+.cc-repair__media img, .cc-refurb__media img { display: block; width: 100%; height: auto; }
+
+.cc-steps { list-style: none; margin: 2.4rem 0 2.8rem; padding: 0; counter-reset: cc-step; display: grid; gap: 1.6rem; }
+.cc-steps li { counter-increment: cc-step; display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); column-gap: 1.6rem; }
+.cc-steps li::before {
+  content: counter(cc-step);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  border: .15rem solid var(--cfl-accent-dark);
+  border-radius: 50%;
+  color: var(--cfl-accent-dark);
+  font-weight: 600;
+}
+.camera-store .cc-steps h3 { font-size: calc(var(--font-heading-scale) * 1.7rem); }
+.cc-steps p { color: var(--cs-muted); font-size: 1.5rem; }
+
+/* Refurbished cameras */
+.camera-store .cc-refurb__checks-title { margin-top: 2.4rem; font-size: calc(var(--font-heading-scale) * 1.6rem); }
+.cc-checks { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem 2.4rem; }
+.cc-checks li { display: flex; align-items: flex-start; gap: .8rem; font-size: 1.5rem; }
+.camera-store .cc-checks svg { width: 2rem; height: 2rem; margin-top: .3rem; color: var(--cfl-accent-dark); }
+.camera-store .cc-refurb__note { margin-top: 2rem; font-size: 1.5rem; }
+
+/* Decorative strip: show the whole row of cameras, never crop it. */
+.cc-strip { margin: 1.6rem 0; line-height: 0; }
+.cc-strip img { display: block; width: 100%; height: auto; }
+
+@media (max-width: 1099px) {
+  .cc-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 749px) {
+  .cc-hero .cc-hero__media { aspect-ratio: 1.2; }
+  .cc-cards { grid-template-columns: 1fr; gap: 3.6rem; }
+  /* Shorter photos so four stacked cards don't turn into a long scroll. */
+  .cc-card__media { aspect-ratio: 16 / 9; }
+  .cc-repair, .cc-refurb { grid-template-columns: 1fr; gap: 2.8rem; }
+  /* Keep copy first on the repair block; the refurb photo leads its own block. */
+  .cc-repair__media { order: 2; }
+  .cc-repair .cs-button, .cc-refurb .cs-button { width: 100%; }
+  .cc-checks { grid-template-columns: 1fr; }
+  /* The strip is very wide; let it run larger than the screen and centre it. */
+  .cc-strip { overflow: hidden; }
+  .cc-strip img { width: 180%; max-width: none; margin-left: -40%; }
+}
