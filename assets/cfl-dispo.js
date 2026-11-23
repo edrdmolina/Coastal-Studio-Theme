@@ -43,28 +43,84 @@
       });
     }
 
+    // Hidden cut-outs start as loading="lazy", so the browser would only fetch
+    // them when shown and the entrance animation would play on an empty
+    // image. warm() starts the download early and asks the browser to decode
+    // it ahead of time.
+    function warm(img) {
+      if (!img) return;
+      if (img.loading === 'lazy') img.loading = 'eager';
+      if (!img._cflWarm && img.decode) {
+        img._cflWarm = true;
+        img.decode().catch(function () {});
+      }
+    }
+
+    // Resolves once the image has downloaded (or failed).
+    function loaded(img) {
+      if (!img || (img.complete && img.naturalWidth)) return Promise.resolve();
+      return new Promise(function (resolve) {
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }
+
+    function wait(ms) {
+      return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    }
+
+    function imageFor(fig, wantedSide) {
+      return fig.querySelector('[data-side="' + wantedSide + '"]') || fig.querySelector('[data-side="front"]');
+    }
+
+    // Swap straight away when the image is already here. Otherwise wait a
+    // moment for it, so the swap doesn't land on a blank frame, but never
+    // hold a click up for long on a slow connection.
+    function ready(img) {
+      warm(img);
+      return Promise.race([loaded(img), wait(350)]);
+    }
+
+    var pending = 0;
+
     function show(variantId) {
       variantId = String(variantId);
       if (variantId === current) return;
       var target = stage.querySelector('[data-cfl-dispo-float="' + variantId + '"]');
       if (!target) return;
       current = variantId;
-      floats.forEach(function (fig) {
-        fig.hidden = fig !== target;
-      });
-      // Restart the entrance animation on the newly shown camera.
-      target.classList.remove('is-entering');
-      void target.offsetWidth;
-      target.classList.add('is-entering');
       swatches.forEach(function (btn) {
         btn.setAttribute('aria-pressed', btn.dataset.cflDispoShow === variantId ? 'true' : 'false');
+      });
+      var ticket = ++pending;
+      ready(imageFor(target, side)).then(function () {
+        // A later click wins.
+        if (ticket !== pending) return;
+        floats.forEach(function (fig) {
+          fig.hidden = fig !== target;
+        });
+        // Restart the entrance animation on the newly shown camera.
+        target.classList.remove('is-entering');
+        void target.offsetWidth;
+        target.classList.add('is-entering');
       });
     }
 
     sideButtons.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        side = btn.dataset.cflDispoSide;
-        applySide();
+        var wanted = btn.dataset.cflDispoSide;
+        var fig = stage.querySelector('[data-cfl-dispo-float="' + current + '"]');
+        side = wanted;
+        sideButtons.forEach(function (b) {
+          b.setAttribute('aria-pressed', b.dataset.cflDispoSide === side ? 'true' : 'false');
+        });
+        ready(fig && imageFor(fig, wanted)).then(function () {
+          if (side === wanted) applySide();
+        });
+      });
+      btn.addEventListener('pointerenter', function () {
+        var fig = stage.querySelector('[data-cfl-dispo-float="' + current + '"]');
+        if (fig) warm(imageFor(fig, btn.dataset.cflDispoSide));
       });
     });
 
@@ -72,10 +128,39 @@
       btn.addEventListener('click', function () {
         show(btn.dataset.cflDispoShow);
       });
+      // Start the fetch the moment someone reaches for a swatch.
+      ['pointerenter', 'touchstart', 'focus'].forEach(function (type) {
+        btn.addEventListener(type, function () {
+          var fig = stage.querySelector('[data-cfl-dispo-float="' + btn.dataset.cflDispoShow + '"]');
+          if (fig) warm(imageFor(fig, side));
+        }, { passive: true });
+      });
     });
 
     var visible = stage.querySelector('[data-cfl-dispo-float]:not([hidden])');
     if (visible) current = visible.dataset.cflDispoFloat;
+
+    // Once the page has finished loading, quietly fetch the other designs'
+    // fronts together, then every back, so switching is instant. Each batch
+    // waits at most a moment, so a stuck image can't hold up the next one.
+    function warmAll() {
+      var fronts = stage.querySelectorAll('[data-cfl-dispo-float] [data-side="front"]');
+      var backs = stage.querySelectorAll('[data-cfl-dispo-float] [data-side="back"]');
+      function batch(list) {
+        Array.prototype.forEach.call(list, warm);
+        return Promise.race([
+          Promise.all(Array.prototype.map.call(list, loaded)),
+          wait(1500)
+        ]);
+      }
+      batch(fronts).then(function () { batch(backs); });
+    }
+    function idle(fn) {
+      if (window.requestIdleCallback) window.requestIdleCallback(fn, { timeout: 2000 });
+      else setTimeout(fn, 200);
+    }
+    if (document.readyState === 'complete') idle(warmAll);
+    else window.addEventListener('load', function () { idle(warmAll); });
 
     return { show: show };
   }

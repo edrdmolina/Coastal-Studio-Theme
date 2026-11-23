@@ -120,8 +120,8 @@
                   front.preview_image
                   | image_url: width: 1400
                   | image_tag:
-                    widths: '600, 900, 1200, 1400',
-                    sizes: '(min-width: 990px) 48vw, 92vw',
+                    widths: '450, 600, 750, 900, 1100, 1400',
+                    sizes: '(min-width: 990px) min(38vw, 560px), 68vw',
                     loading: loading,
                     fetchpriority: priority,
                     alt: front.alt,
@@ -134,8 +134,8 @@
                   back.preview_image
                   | image_url: width: 1400
                   | image_tag:
-                    widths: '600, 900, 1200, 1400',
-                    sizes: '(min-width: 990px) 48vw, 92vw',
+                    widths: '450, 600, 750, 900, 1100, 1400',
+                    sizes: '(min-width: 990px) min(38vw, 560px), 68vw',
                     loading: 'lazy',
                     alt: back.alt,
                     class: 'cfl-dispo__cutout',
