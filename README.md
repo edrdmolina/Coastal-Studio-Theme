@@ -177,6 +177,22 @@ The section deliberately emits **no** `Review` or `aggregateRating` structured d
 
 A small scheduled job could pull new reviews from the Google Business Profile API and write them into the same `cfl_google_review` metaobject, perhaps as Drafts for staff to approve. The theme would need no changes.
 
+## Complementary products
+
+The default product template (`templates/product.json`) has a **Pairs well with** block right under the buy buttons. It shows up to 4 products that staff pair with the product by hand, for example a camera with batteries, film, and a strap. Film, cameras, batteries, accessories, and any service without its own template use this template. Processing products have their own templates and don't show the block.
+
+**The block renders nothing until a product has pairings.** Shopify returns no complementary products for an unpaired product, and the block removes itself. That is why it is safe in a template that syncs to the live theme.
+
+To set pairings:
+
+1. In Shopify admin, open **Apps → Search & Discovery → Product recommendations**.
+2. Search for the product and choose **Edit**.
+3. Under **Complementary products**, add the products to show, in the order they should appear, and save.
+
+Pairings go one way: pairing a camera with a battery doesn't pair the battery with the camera. They can take a few minutes to show on the storefront.
+
+Quick add is **off** on purpose. A pairing can point to a service product, and Globo puts required options on those (Negative Condition, Scan Size, Rush). An add-to-cart button on the card would skip them, so every card links to the product page instead.
+
 ## Local development preview
 
 ### Prerequisites

@@ -1,0 +1,75 @@
+/* ------------------------------------------------------------------ *
+ * Develop & Scan prompt on film product pages (snippets/cfl-develop-cta)
+ * Cream card with a darkened-teal outline, matching .cfl-label-upsell.
+ * ------------------------------------------------------------------ */
+
+.cfl-develop-cta {
+  margin: 2.4rem 0 0;
+  padding: 2rem 1.8rem;
+  border: 0.2rem solid var(--cfl-accent-dark, #00777c);
+  border-radius: 0.8rem;
+  /* Warm cream; brown text on it measures well above AA. */
+  background: #fff8ef;
+  color: #301e17;
+}
+
+.cfl-develop-cta__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-subheading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.cfl-develop-cta__intro {
+  margin: 0 0 0.8rem;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+
+.cfl-develop-cta__price {
+  margin: 0 0 1.6rem;
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+
+/*
+  Studio paints secondary labels in brand teal (1.81:1 on cream). Same fix as
+  the label upsell: brown label (≥15:1), darkened teal border (5.07:1).
+*/
+.cfl-develop-cta__button.button--secondary {
+  width: 100%;
+  min-height: 4.8rem;
+  padding: 1.2rem 1.4rem;
+  line-height: 1.25;
+  text-align: center;
+  color: #301e17;
+  border-color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-develop-cta__note {
+  margin: 0.8rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+
+/* Inline-flex + min-height gives the small link a 44px tap target. */
+.cfl-develop-cta__note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 4.4rem;
+  color: var(--cfl-link, #00777c);
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+  text-decoration-thickness: 0.1rem;
+}
+
+.cfl-develop-cta__note a:hover {
+  text-decoration-thickness: 0.2rem;
+}
+
+.cfl-develop-cta__note a:focus-visible {
+  outline: 0.2rem solid rgb(var(--color-foreground, 48, 30, 23));
+  outline-offset: 0.2rem;
+}

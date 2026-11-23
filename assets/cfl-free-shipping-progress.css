@@ -1,0 +1,110 @@
+/* Free US Economy shipping progress (snippets/cfl-free-shipping-progress.liquid).
+   Text uses the section's foreground (darkroom brown on the light schemes);
+   the bar is seafoam teal with a brown outline so the track edge stays visible.
+   Meaning never relies on colour: the message says the amount left, the bar
+   has an aria-valuetext, and the qualified state adds a checkmark. */
+
+.cfl-fsp {
+  --cfl-fsp-teal: #7ccab9;
+  --cfl-fsp-cream: #fff8ef;
+  color: rgb(var(--color-foreground));
+  text-align: left;
+}
+
+.cfl-fsp__message {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.4;
+}
+
+.cfl-fsp__message strong {
+  font-weight: 700;
+}
+
+.cfl-fsp__note {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 1.2rem;
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+.cfl-fsp--qualified .cfl-fsp__message {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.6rem;
+  align-items: start;
+}
+
+.cfl-fsp--qualified .cfl-fsp__note {
+  grid-column: 2;
+}
+
+.cfl-fsp__icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-top: 0.2rem;
+  padding: 0.1rem;
+  border-radius: 50%;
+  background: var(--cfl-fsp-teal);
+  color: #301e17;
+}
+
+.cfl-fsp__track {
+  position: relative;
+  height: 0.8rem;
+  margin-top: 0.8rem;
+  overflow: hidden;
+  border: 1px solid rgba(var(--color-foreground), 0.55);
+  border-radius: 0.4rem;
+  background: var(--cfl-fsp-cream);
+}
+
+.cfl-fsp__bar {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  background: var(--cfl-fsp-teal);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cfl-fsp__bar {
+    transition: width 0.3s ease;
+  }
+}
+
+/* Cart page: sits under the estimated total in the subtotal block. */
+.cfl-fsp--page {
+  margin: 1.6rem 0 0;
+}
+
+/* Add-to-cart popup: tighter, sits between the product and the buttons. */
+.cfl-fsp--notification {
+  margin: 0 0 1.2rem;
+  padding: 1rem 1.2rem;
+  border-radius: 0.4rem;
+  background: var(--cfl-fsp-cream);
+  color: #301e17;
+}
+
+.cfl-fsp--notification .cfl-fsp__message {
+  font-size: 1.3rem;
+}
+
+.cfl-fsp--notification .cfl-fsp__note {
+  color: rgba(48, 30, 23, 0.75);
+}
+
+.cfl-fsp--notification .cfl-fsp__track {
+  border-color: rgba(48, 30, 23, 0.55);
+  background: #fcfcfc;
+}
+
+@media (forced-colors: active) {
+  .cfl-fsp__track {
+    border-color: CanvasText;
+  }
+
+  .cfl-fsp__bar {
+    background: Highlight;
+  }
+}

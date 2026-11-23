@@ -1,0 +1,13 @@
+{% comment %}
+  Wrapper so assets/cart-notification.js can re-fetch the free-shipping message
+  with the updated cart after each add (Section Rendering API). Not for the
+  theme editor: no presets. Styles are loaded by snippets/cart-notification.liquid.
+{% endcomment %}
+{%- render 'cfl-free-shipping-progress', context: 'notification' -%}
+
+{% schema %}
+{
+  "name": "Free shipping progress",
+  "settings": []
+}
+{% endschema %}

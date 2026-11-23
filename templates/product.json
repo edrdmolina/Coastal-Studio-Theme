@@ -94,6 +94,19 @@
             "show_dynamic_checkout": true,
             "show_gift_card_recipient": true
           }
+        },
+        "complementary": {
+          "type": "complementary",
+          "settings": {
+            "block_heading": "Pairs well with",
+            "make_collapsible_row": false,
+            "icon": "price_tag",
+            "product_list_limit": 4,
+            "products_per_page": 2,
+            "pagination_style": "counter",
+            "image_ratio": "square",
+            "enable_quick_add": false
+          }
         }
       },
       "block_order": [
@@ -106,7 +119,8 @@
         "variant_picker_f3GDc6",
         "appointment_picker",
         "quantity_selector",
-        "buy_buttons"
+        "buy_buttons",
+        "complementary"
       ],
       "settings": {
         "show_label_upsell": true,

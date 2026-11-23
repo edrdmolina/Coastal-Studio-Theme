@@ -36,6 +36,8 @@ class CartNotification extends HTMLElement {
 
   renderContents(parsedState) {
     this.cartItemKey = parsedState.key;
+    // Adds can now come from the suggestions inside the open popup.
+    const wasOpen = this.notification.classList.contains('active');
     this.getSectionsToRender().forEach((section) => {
       document.getElementById(section.id).innerHTML = this.getSectionInnerHTML(
         parsedState.sections[section.id],
@@ -44,7 +46,16 @@ class CartNotification extends HTMLElement {
     });
 
     if (this.header) this.header.reveal();
-    this.open();
+
+    if (wasOpen) {
+      // open() waits for a slide-in transition that won't run when already
+      // open, and the button that was pressed has just been replaced. Put
+      // focus back on the dialog so it isn't lost to <body>.
+      this.notification.focus();
+      trapFocus(this.notification);
+    } else {
+      this.open();
+    }
   }
 
   getSectionsToRender() {
@@ -59,11 +70,22 @@ class CartNotification extends HTMLElement {
       {
         id: 'cart-icon-bubble',
       },
+      {
+        id: 'cfl-cart-notification-upsell',
+      },
+      {
+        // Fifth section: Shopify's /cart/add returns at most five.
+        id: 'cfl-free-shipping-progress',
+      },
     ];
   }
 
   getSectionInnerHTML(html, selector = '.shopify-section') {
-    return new DOMParser().parseFromString(html, 'text/html').querySelector(selector).innerHTML;
+    // A section that fails to render comes back null; leave its slot empty
+    // rather than throwing and never opening the popup.
+    if (!html) return '';
+    const element = new DOMParser().parseFromString(html, 'text/html').querySelector(selector);
+    return element ? element.innerHTML : '';
   }
 
   handleBodyClick(evt) {
@@ -76,6 +98,10 @@ class CartNotification extends HTMLElement {
   }
 
   setActiveElement(element) {
+    // Keep the original trigger (e.g. the product page's Add to cart) when an
+    // add comes from inside the popup: that button is about to be re-rendered,
+    // and close() returns focus to this element.
+    if (element && this.notification.contains(element)) return;
     this.activeElement = element;
   }
 }

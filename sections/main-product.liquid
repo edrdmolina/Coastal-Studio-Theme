@@ -499,6 +499,13 @@
                 {%- if section.settings.show_label_upsell -%}
                   {% render 'cfl-label-upsell', product: product %}
                 {%- endif -%}
+                {%- comment -%}
+                  Cross-sells. Each snippet gates itself: cfl-film-reload shows
+                  only on 'Film Processing' products, cfl-develop-cta only on
+                  product.type 'Film', so at most one renders.
+                {%- endcomment -%}
+                {% render 'cfl-film-reload', product: product %}
+                {% render 'cfl-develop-cta', product: product %}
               {%- when 'rating' -%}
                 {%- if product.metafields.reviews.rating.value != blank -%}
                   <div class="rating-wrapper">

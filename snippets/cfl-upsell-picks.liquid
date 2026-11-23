@@ -1,0 +1,166 @@
+{% comment %}
+  Chooses cross-sell products for the current cart. Shared by the cart popup
+  and the cart page so both surfaces suggest the same things.
+
+  Prints plain text, not markup: comma-separated "handle:mode" entries, best
+  first. Capture it and split it in the caller — `render` cannot hand values
+  back any other way.
+
+    mode = add   one-tap add is safe: the product has a single default variant
+                 and no processing options to choose.
+    mode = link  send the customer to the product page. Used for processing,
+                 where Globo Product Options choices (scan size, extras) must
+                 be made on the page. Never add these from a card.
+
+  Order of preference:
+    1. Complementary products a merchandiser set for a cart item in Shopify's
+       Search & Discovery app (metafield
+       shopify--discovery--product_recommendation.complementary_products).
+    2. Processing in the cart -> best-selling 35mm film (in stock only).
+    3. Film or a disposable camera in the cart, no processing yet -> the
+       matching Develop & Scan page (link).
+
+  No discounts are implied anywhere; this only picks products.
+
+  Accepts:
+    - limit {Number} Maximum entries to print. Default 3.
+
+  Usage:
+    {%- capture cfl_picks -%}{% render 'cfl-upsell-picks', limit: 3 %}{%- endcapture -%}
+    {%- assign cfl_pick_list = cfl_picks | strip | split: ',' -%}
+    {%- for entry in cfl_pick_list -%}
+      {%- assign parts = entry | split: ':' -%}
+      {%- assign pick = all_products[parts[0]] -%}
+      {%- assign pick_mode = parts[1] -%}
+      ...
+    {%- endfor -%}
+{% endcomment %}
+
+{%- liquid
+  assign max = limit | default: 3
+
+  comment
+    In-store best sellers, in order (Shopify sales, last 90 days to 2026-11-23).
+    Out-of-stock handles are skipped below, so later entries are backups.
+  endcomment
+  assign film_handles = 'kodak-ultramax-400-36exp-35mm-color-negative-film,kodak-gold-200-36exp-35mm-color-negative-film,kodak-ektacolor-400-35mm-color-negative-film-copy,kodak-ektar-100-35mm,kodak-professional-pro-image-100-35mm-36-exp-color-negative-film,kodak-ektacolor-pro-160-35mm-color-negative-film-single-roll' | split: ','
+  assign inbound_tags = 'Film Processing,scan only' | split: ','
+  assign skip_handles = '|in-bound-label|'
+
+  assign in_cart = '|'
+  assign has_processing = false
+  assign develop_handles = ''
+
+  for item in cart.items
+    assign in_cart = in_cart | append: item.product.handle | append: '|'
+
+    for inbound_tag in inbound_tags
+      if item.product.tags contains inbound_tag
+        assign has_processing = true
+      endif
+    endfor
+
+    comment
+      Map film the customer is buying to the processing page that develops it.
+      Formats we can't map confidently get no suggestion rather than a wrong one.
+    endcomment
+    if item.product.type == 'Film'
+      assign tags = item.product.tags
+      assign dev = ''
+      if tags contains 'Camera'
+        if tags contains 'Disposable' or tags contains 'disposable'
+          assign dev = 'develop-and-scan-disposable'
+        endif
+      elsif tags contains '35mm'
+        if tags contains 'Black And White' or tags contains 'Black and White'
+          assign dev = 'develop-and-scan-35mm-bw'
+        elsif tags contains 'Color Negative'
+          assign dev = 'develop-and-scan-35mm-c41'
+        endif
+      elsif tags contains '120'
+        if tags contains 'Color Negative'
+          assign dev = 'develop-and-scan-120-c41'
+        endif
+      endif
+      if dev != ''
+        assign develop_handles = develop_handles | append: dev | append: ','
+      endif
+    endif
+  endfor
+
+  assign out = ''
+  assign picked = '|'
+  assign count = 0
+
+  # 1. Merchandiser-curated complements.
+  for item in cart.items
+    assign complements = item.product.metafields['shopify--discovery--product_recommendation'].complementary_products.value
+    for candidate in complements
+      if count >= max
+        break
+      endif
+      assign key = '|' | append: candidate.handle | append: '|'
+      if candidate.available == false or in_cart contains key or picked contains key or skip_handles contains key or candidate.gift_card?
+        continue
+      endif
+      assign mode = 'link'
+      if candidate.has_only_default_variant
+        assign mode = 'add'
+        for inbound_tag in inbound_tags
+          if candidate.tags contains inbound_tag
+            assign mode = 'link'
+          endif
+        endfor
+      endif
+      assign out = out | append: candidate.handle | append: ':' | append: mode | append: ','
+      assign picked = picked | append: candidate.handle | append: '|'
+      assign count = count | plus: 1
+    endfor
+  endfor
+
+  # 2. Processing in the cart -> film.
+  if has_processing
+    for handle in film_handles
+      if count >= max
+        break
+      endif
+      assign key = '|' | append: handle | append: '|'
+      if in_cart contains key or picked contains key
+        continue
+      endif
+      assign candidate = all_products[handle]
+      if candidate == blank or candidate.available == false
+        continue
+      endif
+      assign mode = 'link'
+      if candidate.has_only_default_variant
+        assign mode = 'add'
+      endif
+      assign out = out | append: handle | append: ':' | append: mode | append: ','
+      assign picked = picked | append: handle | append: '|'
+      assign count = count | plus: 1
+    endfor
+  endif
+
+  # 3. Film but no processing yet -> matching Develop & Scan page.
+  unless has_processing
+    assign develop_list = develop_handles | split: ','
+    for handle in develop_list
+      if count >= max
+        break
+      endif
+      assign key = '|' | append: handle | append: '|'
+      if picked contains key
+        continue
+      endif
+      assign candidate = all_products[handle]
+      if candidate == blank or candidate.available == false
+        continue
+      endif
+      assign out = out | append: handle | append: ':link,'
+      assign picked = picked | append: handle | append: '|'
+      assign count = count | plus: 1
+    endfor
+  endunless
+-%}
+{{- out | remove_last: ',' -}}

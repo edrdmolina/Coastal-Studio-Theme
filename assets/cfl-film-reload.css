@@ -1,0 +1,140 @@
+/* ------------------------------------------------------------------ *
+ * Film reload cross-sell (film-processing product pages)
+ * Rendered by snippets/cfl-film-reload.liquid, directly under the label
+ * upsell. Same card language as .cfl-label-upsell in cfl-components.css, with
+ * a thinner, neutral border so the two stacked boxes don't compete.
+ * ------------------------------------------------------------------ */
+
+.cfl-film-reload {
+  margin: 2.4rem 0 0;
+  padding: 2rem 1.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.16);
+  border-radius: 0.8rem;
+  background: rgba(var(--color-foreground), 0.03);
+
+  /*
+    The product info column is far narrower than the viewport on mid-size
+    screens, so the row layout keys off this box's width, not the viewport.
+  */
+  container-type: inline-size;
+  container-name: cfl-reload;
+}
+
+.cfl-film-reload__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-subheading-family);
+  font-size: calc(var(--font-heading-scale) * 1.8rem);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.cfl-film-reload__intro {
+  margin: 0 0 1.6rem;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+
+.cfl-film-reload__list {
+  display: grid;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0;
+}
+
+/* product-form is a custom element and defaults to inline. */
+.cfl-film-reload__form {
+  display: block;
+}
+
+/*
+  Narrow by default (phones, and the ~240px column at some tablet widths):
+  thumbnail on the left, name and price beside it, Add button under the text.
+  Long film names wrap rather than squeezing the button.
+*/
+.cfl-film-reload__card {
+  display: grid;
+  grid-template-columns: 5.6rem minmax(0, 1fr);
+  grid-template-areas:
+    'media text'
+    'media action';
+  column-gap: 1.2rem;
+  row-gap: 0.8rem;
+  align-items: start;
+  margin: 0;
+}
+
+.cfl-film-reload__media {
+  grid-area: media;
+  width: 5.6rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  background: rgb(var(--color-background));
+}
+
+.cfl-film-reload__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cfl-film-reload__text {
+  grid-area: text;
+  min-width: 0;
+}
+
+.cfl-film-reload__name {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.cfl-film-reload__price {
+  margin: 0.2rem 0 0;
+  font-size: 1.4rem;
+  line-height: 1.35;
+  /* 0.75 over the brown foreground measures 6.91:1 on the card. */
+  opacity: 0.75;
+}
+
+.cfl-film-reload__button {
+  grid-area: action;
+  justify-self: start;
+  /* Studio's 12rem minimum is more than a one-word label needs here. */
+  min-width: 8.8rem;
+  min-height: 4.4rem;
+  padding: 0 2rem;
+}
+
+/* Once there's room, put the button at the end of the row. */
+@container cfl-reload (min-width: 40rem) {
+  .cfl-film-reload__card {
+    grid-template-columns: 6.4rem minmax(0, 1fr) auto;
+    grid-template-areas: 'media text action';
+    align-items: center;
+  }
+
+  .cfl-film-reload__media {
+    width: 6.4rem;
+  }
+
+  .cfl-film-reload__button {
+    justify-self: end;
+  }
+}
+
+/*
+  Same contrast correction as the label upsell: Studio paints secondary labels
+  in teal (1.86:1 on the card). Brown label, darkened teal border.
+*/
+.cfl-film-reload__button.button--secondary {
+  color: rgb(var(--color-foreground));
+  border-color: var(--cfl-accent-dark);
+}
+
+/* The theme strokes the spinner in the (teal) button text colour. */
+.cfl-film-reload__button.loading > .loading__spinner .path {
+  stroke: rgb(var(--color-foreground));
+}

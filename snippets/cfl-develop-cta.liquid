@@ -1,0 +1,79 @@
+{% comment %}
+  Points someone buying film to the Develop & Scan service that develops it.
+
+  A link, not an add-to-cart: processing products need Globo Product Options
+  choices (scan size, extras) made on their own page, so they can't be added
+  from here.
+
+  Film is mapped to a processing product by tag. The mapping matches the cart's
+  copy in snippets/cfl-upsell-picks.liquid, so change both together. Formats we
+  can't map with confidence (slide/E-6, ECN-2, reloadable cameras, 120 B&W,
+  anything untagged) render nothing rather than a wrong suggestion. Nothing
+  renders either if the processing product is missing or unavailable.
+
+  Only shows on product.type 'Film', so it never appears on a processing
+  product alongside cfl-film-reload.
+
+  Accepts:
+    - product {Object} The product being viewed. Required.
+
+  Usage, from sections/main-product.liquid in the buy_buttons block:
+    {% render 'cfl-develop-cta', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign develop_product = blank
+
+  if product.type == 'Film'
+    assign tags = product.tags
+    assign develop_handle = ''
+
+    if tags contains 'Camera'
+      if tags contains 'Disposable' or tags contains 'disposable'
+        assign develop_handle = 'develop-and-scan-disposable'
+      endif
+    elsif tags contains '35mm'
+      if tags contains 'Black And White' or tags contains 'Black and White'
+        assign develop_handle = 'develop-and-scan-35mm-bw'
+      elsif tags contains 'Color Negative'
+        assign develop_handle = 'develop-and-scan-35mm-c41'
+      endif
+    elsif tags contains '120'
+      if tags contains 'Color Negative'
+        assign develop_handle = 'develop-and-scan-120-c41'
+      endif
+    endif
+
+    if develop_handle != ''
+      assign candidate = all_products[develop_handle]
+      if candidate != blank and candidate.available
+        assign develop_product = candidate
+      endif
+    endif
+  endif
+-%}
+
+{%- if develop_product != blank -%}
+  {{ 'cfl-develop-cta.css' | asset_url | stylesheet_tag }}
+
+  {%- assign develop_heading_id = 'cfl-develop-cta-heading-' | append: product.id -%}
+  <aside class="cfl-develop-cta" aria-labelledby="{{ develop_heading_id }}">
+    <h2 class="cfl-develop-cta__title" id="{{ develop_heading_id }}">When you've shot it, send it to us</h2>
+    <p class="cfl-develop-cta__intro">
+      Develop &amp; Scan: we develop it here and email you a Google Drive link to color-corrected scans.
+    </p>
+    <p class="cfl-develop-cta__price">
+      {%- if develop_product.price_varies -%}
+        From {{ develop_product.price_min | money }}
+      {%- else -%}
+        {{ develop_product.price_min | money }}
+      {%- endif -%}
+    </p>
+    <a class="button button--secondary cfl-develop-cta__button" href="{{ develop_product.url }}">
+      See {{ develop_product.title | escape }} options
+    </a>
+    <p class="cfl-develop-cta__note">
+      <a href="{{ pages['mail-in'].url | default: '/pages/mail-in' }}">How mail-in works</a>
+    </p>
+  </aside>
+{%- endif -%}

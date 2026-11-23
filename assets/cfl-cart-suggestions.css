@@ -1,0 +1,180 @@
+/*
+  Cart page suggestions (sections/cfl-cart-suggestions.liquid).
+
+  Mobile first: two-thirds of cart adds happen on a phone, so the base layout
+  is a stacked list of compact rows — thumbnail, name and price, then the
+  action — that keeps the subtotal and checkout close below. Wider screens
+  lay the same rows out side by side.
+*/
+
+.cfl-cart-suggestions {
+  display: block;
+}
+
+.cfl-cart-suggestions__panel {
+  padding: 1.6rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.15);
+  border-radius: 1rem;
+  background: rgba(var(--color-foreground), 0.03);
+}
+
+.cfl-cart-suggestions__heading {
+  margin: 0 0 1.2rem;
+  font-size: calc(var(--font-heading-scale) * 2rem);
+  line-height: 1.1;
+}
+
+.cfl-cart-suggestions__heading:focus {
+  outline: none;
+}
+
+.cfl-cart-suggestions__heading:focus-visible {
+  outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
+  outline-offset: 0.3rem;
+}
+
+.cfl-cart-suggestions__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.cfl-cart-suggestions__item {
+  display: grid;
+  grid-template-columns: 6.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.1);
+}
+
+.cfl-cart-suggestions__item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.cfl-cart-suggestions__media {
+  display: block;
+  width: 6.4rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 0.6rem;
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+.cfl-cart-suggestions__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cfl-cart-suggestions__info {
+  min-width: 0;
+}
+
+.cfl-cart-suggestions__eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  /* Darkened seafoam: 5.21:1 on paper white, where the brand teal is 1.86:1. */
+  color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-cart-suggestions__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1.4rem;
+  line-height: 1.35;
+  color: rgb(var(--color-foreground));
+  text-decoration: none;
+}
+
+.cfl-cart-suggestions__title:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+.cfl-cart-suggestions__price {
+  margin: 0.2rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  /* 0.75 over the brown foreground still clears AA (6.91:1). */
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+.cfl-cart-suggestions__form {
+  margin: 0;
+}
+
+/*
+  Same correction as the other cfl- components: Studio's secondary label is
+  brand teal at 1.86:1. The label goes to the reading brown and the teal moves
+  to the border, darkened to clear 3:1 for a boundary.
+*/
+.cfl-cart-suggestions__button.button--secondary {
+  color: rgb(var(--color-foreground));
+  border-color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-cart-suggestions__button {
+  min-width: 4.4rem;
+  min-height: 4.4rem;
+  padding: 0 1.6rem;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.cfl-cart-suggestions__error {
+  max-width: 16rem;
+  margin: 0.6rem 0 0;
+  font-size: 1.2rem;
+  line-height: 1.35;
+  color: rgb(var(--color-foreground));
+}
+
+/*
+  Narrow phones: a long link label ("Pick scan options") would squeeze the
+  product name to a sliver, so the action drops under the name instead.
+*/
+@media screen and (max-width: 419px) {
+  .cfl-cart-suggestions__item {
+    grid-template-columns: 6.4rem minmax(0, 1fr);
+  }
+
+  .cfl-cart-suggestions__action {
+    grid-column: 2;
+  }
+
+  .cfl-cart-suggestions__button {
+    width: 100%;
+  }
+
+  .cfl-cart-suggestions__error {
+    max-width: none;
+  }
+}
+
+@media screen and (min-width: 750px) {
+  .cfl-cart-suggestions__panel {
+    padding: 2rem 2.4rem;
+  }
+
+  .cfl-cart-suggestions__list {
+    grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+    gap: 2rem 3.2rem;
+  }
+
+  /* Side by side, the dividers between rows no longer line up; drop them. */
+  .cfl-cart-suggestions__item {
+    padding-top: 0;
+    border-top: 0;
+  }
+}

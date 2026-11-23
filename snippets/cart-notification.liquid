@@ -35,6 +35,14 @@
         </button>
       </div>
       <div id="cart-notification-product" class="cart-notification-product"></div>
+      {%- comment -%}
+        Re-filled by assets/cart-notification.js from
+        sections/cfl-free-shipping-progress.liquid after each add; the id must
+        match that section's filename. The render gives a correct first paint.
+      {%- endcomment -%}
+      <div id="cfl-free-shipping-progress">
+        {%- render 'cfl-free-shipping-progress', context: 'notification' -%}
+      </div>
       <div class="cart-notification__links">
         <a
           href="{{ routes.cart_url }}"
@@ -50,9 +58,36 @@
         </form>
         <button type="button" class="link button-label">{{ 'general.continue_shopping' | t }}</button>
       </div>
+      {%- comment -%}
+        Filled by assets/cart-notification.js with
+        sections/cfl-cart-notification-upsell.liquid after each add. Sits below
+        the buttons so suggestions never push Checkout off a phone screen.
+        The id must match the section filename for the Section Rendering API.
+      {%- endcomment -%}
+      <div id="cfl-cart-notification-upsell"></div>
     </div>
   </div>
 </cart-notification>
+{%- comment -%}
+  The popup's suggestions add through <product-form>, which isn't loaded on
+  every template. Its define is guarded, so a second copy is harmless. Both
+  load lazily: nothing here is needed until something is added to the cart.
+{%- endcomment -%}
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+<link
+  rel="stylesheet"
+  href="{{ 'cfl-cart-notification-upsell.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<noscript>{{ 'cfl-cart-notification-upsell.css' | asset_url | stylesheet_tag }}</noscript>
+<link
+  rel="stylesheet"
+  href="{{ 'cfl-free-shipping-progress.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<noscript>{{ 'cfl-free-shipping-progress.css' | asset_url | stylesheet_tag }}</noscript>
 {% style %}
   .cart-notification {
     display: none;

@@ -1,0 +1,206 @@
+{% comment %}
+  Offers fresh film (or a disposable camera) on film-processing product pages.
+
+  Most online orders are processing only, while film sells mainly over the
+  counter. This puts a one-tap "add a roll" right under Add to Cart, matched to
+  the format the customer is sending in:
+
+    - Disposable processing → Coastal Disposable Camera designs
+    - B&W processing        → Tri-X / HP5 (120 when the service is medium format)
+    - Medium format / 120   → Gold 200, Ektacolor Pro 400 and 800 in 120
+    - 35mm colour (C-41)    → popular 35mm colour stock
+    - Any other format      → nothing (no film we can match)
+
+  Lists are in priority order. Sold-out items and anything already in the cart
+  are skipped, and the first three that remain are shown. If none remain, the
+  block renders nothing.
+
+  Never point this at the 'coastal-disposable' product: its only variant is the
+  in-store vending SKU (Vending-Dispo). 'coastal-disposable-camera' is the
+  online product.
+
+  Each item gets its own <product-form> so adds go through the theme's AJAX
+  path, same as cfl-label-upsell. A full page POST would reload the product
+  page and discard the customer's Globo Product Options selections.
+
+  Accepts:
+    - product {Object} The product being viewed. Required.
+
+  Usage, from sections/main-product.liquid after the cfl-label-upsell render:
+    {% render 'cfl-film-reload', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign show_reload = false
+  if product.tags contains 'Film Processing'
+    assign show_reload = true
+  endif
+-%}
+
+{%- if show_reload -%}
+  {%- liquid
+    comment
+      Tags vary in case across the catalogue ('medium format', 'Medium Format'),
+      so match against a lower-cased, pipe-delimited copy.
+    endcomment
+    assign tag_list = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
+    assign handle = product.handle
+
+    assign is_disposable = false
+    if handle contains 'disposable' or tag_list contains '|disposable|'
+      assign is_disposable = true
+    endif
+
+    assign is_bw = false
+    if tag_list contains '|bw|' or handle contains '-bw' or handle contains 'b-w'
+      assign is_bw = true
+    endif
+
+    assign is_medium_format = false
+    if tag_list contains '|medium format|' or handle contains '120'
+      assign is_medium_format = true
+    endif
+
+    comment
+      Only formats we stock film for. 110, APS, 127, 620, large format, E-6 and
+      ECN-2 services get no block rather than the wrong film.
+    endcomment
+    assign is_35mm = false
+    if tag_list contains '|35mm|' or handle contains '35mm' or handle contains '135'
+      assign is_35mm = true
+    endif
+    if tag_list contains '|e6|' or tag_list contains '|ecn2|' or handle contains 'e6' or handle contains 'ecn'
+      assign is_35mm = false
+      assign is_medium_format = false
+      assign is_bw = false
+    endif
+
+    assign expand_variants = false
+    assign candidate_handles = ''
+    assign heading = 'Shooting another roll?'
+    assign intro = 'Add a fresh roll to this order. Each tap adds one roll; change the quantity in your cart.'
+
+    if is_disposable
+      assign candidate_handles = 'coastal-disposable-camera'
+      assign expand_variants = true
+      assign heading = 'Need another camera?'
+      assign intro = 'Add a Coastal Disposable to this order. Each tap adds one camera in that design.'
+    elsif is_bw and is_medium_format
+      assign candidate_handles = 'ilford-hp5-120-black-and-white-negative-film,kodak-tri-x-120-black-and-white-negative-film-single-roll'
+    elsif is_bw and is_35mm
+      assign candidate_handles = 'kodak-tri-x-36exp-35mm-black-and-white-negative-film,ilford-hp5-35mm-black-white-film-36-exp,ilford-hp5-35mm-black-white-film-24-exp'
+    elsif is_medium_format
+      assign candidate_handles = 'kodak-gold-200-120-color-negative-film-single-roll,kodak-ektacolor-pro-400-120-color-negative-film,kodak-ektacolor-pro-800-120-color-negative-film'
+    elsif is_35mm
+      assign candidate_handles = 'kodak-ultramax-400-36exp-35mm-color-negative-film,kodak-gold-200-36exp-35mm-color-negative-film,kodak-ektacolor-400-35mm-color-negative-film-copy,kodak-ektar-100-35mm,kodak-professional-pro-image-100-35mm-36-exp-color-negative-film'
+    endif
+    assign candidate_handles = candidate_handles | split: ','
+
+    comment
+      Pipe-delimited ids so '|123|' can't match inside '|41234|'.
+    endcomment
+    assign cart_product_ids = '|'
+    assign cart_variant_ids = '|'
+    for item in cart.items
+      assign cart_product_ids = cart_product_ids | append: item.product_id | append: '|'
+      assign cart_variant_ids = cart_variant_ids | append: item.variant_id | append: '|'
+    endfor
+
+    assign max_items = 3
+    assign item_count = 0
+  -%}
+
+  {%- capture reload_items -%}
+    {%- for candidate_handle in candidate_handles -%}
+      {%- if item_count >= max_items -%}{%- break -%}{%- endif -%}
+      {%- liquid
+        assign film = all_products[candidate_handle]
+        if film == blank or film.available == false or film.handle == product.handle
+          continue
+        endif
+
+        assign film_product_key = '|' | append: film.id | append: '|'
+        if expand_variants == false and cart_product_ids contains film_product_key
+          continue
+        endif
+      -%}
+
+      {%- for variant in film.variants -%}
+        {%- if item_count >= max_items -%}{%- break -%}{%- endif -%}
+        {%- liquid
+          comment
+            Film is added as its first available variant. Disposables list each
+            available design as its own item.
+          endcomment
+          if expand_variants
+            unless variant.available
+              continue
+            endunless
+            assign variant_key = '|' | append: variant.id | append: '|'
+            if cart_variant_ids contains variant_key
+              continue
+            endif
+          else
+            if variant.id != film.selected_or_first_available_variant.id
+              continue
+            endif
+          endif
+
+          assign item_count = item_count | plus: 1
+          assign item_title = film.title
+          if expand_variants and film.has_only_default_variant == false
+            assign item_title = film.title | append: ' – ' | append: variant.title
+          endif
+          assign item_image = variant.featured_image | default: film.featured_image
+          assign reload_form_id = 'cfl-reload-form-' | append: variant.id
+        -%}
+        <li class="cfl-film-reload__item">
+          <product-form class="cfl-film-reload__form" data-hide-errors="false">
+            <div class="product-form__error-message-wrapper" role="alert" hidden>
+              <span class="product-form__error-message"></span>
+            </div>
+
+            {%- form 'product', film, id: reload_form_id, class: 'form cfl-film-reload__card' -%}
+              <input type="hidden" name="id" value="{{ variant.id }}">
+
+              <div class="cfl-film-reload__media">
+                {%- if item_image != blank -%}
+                  {{
+                    item_image
+                    | image_url: width: 144, height: 144, crop: 'center'
+                    | image_tag: width: 72, height: 72, loading: 'lazy', alt: ''
+                  }}
+                {%- endif -%}
+              </div>
+
+              <div class="cfl-film-reload__text">
+                <p class="cfl-film-reload__name">{{ item_title | escape }}</p>
+                <p class="cfl-film-reload__price">{{ variant.price | money }}</p>
+              </div>
+
+              <button
+                type="submit"
+                name="add"
+                class="button button--secondary cfl-film-reload__button"
+              >
+                <span>Add<span class="visually-hidden"> {{ item_title | escape }} to cart</span></span>
+                {%- render 'loading-spinner' -%}
+              </button>
+            {%- endform -%}
+          </product-form>
+        </li>
+      {%- endfor -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- if item_count > 0 -%}
+    {{ 'cfl-film-reload.css' | asset_url | stylesheet_tag }}
+    <div class="cfl-film-reload">
+      <h2 class="cfl-film-reload__title">{{ heading }}</h2>
+      <p class="cfl-film-reload__intro">{{ intro }}</p>
+      <ul class="cfl-film-reload__list list-unstyled" role="list">
+        {{ reload_items }}
+      </ul>
+    </div>
+  {%- endif -%}
+{%- endif -%}

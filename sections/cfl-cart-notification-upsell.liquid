@@ -1,0 +1,113 @@
+{% comment %}
+  "Add to your order" row inside the add-to-cart popup (snippets/cart-notification.liquid).
+
+  Never placed on a page. assets/cart-notification.js lists this section in
+  getSectionsToRender, so product-form.js asks for it with every add and the
+  popup gets it rendered against the cart that now includes the new item.
+  The schema has no presets, so it can't be added from the theme editor.
+
+  Picks come from snippets/cfl-upsell-picks.liquid, shared with the cart page:
+    add   one-tap add through <product-form>, same AJAX path as the label
+          upsell (snippets/cfl-label-upsell.liquid).
+    link  goes to the product page. Processing needs Globo Product Options
+          choices, so it is never added from here.
+
+  Prints nothing when there are no picks.
+{% endcomment %}
+
+{%- capture cfl_picks -%}{% render 'cfl-upsell-picks', limit: 2 %}{%- endcapture -%}
+{%- assign cfl_pick_list = cfl_picks | strip | split: ',' -%}
+
+{%- if cfl_pick_list.size > 0 -%}
+  {%- assign inbound_tags = 'Film Processing,scan only' | split: ',' -%}
+  <div class="cfl-cn-upsell">
+    <h3 class="cfl-cn-upsell__heading" id="cfl-cn-upsell-heading">Add to your order</h3>
+    <ul class="cfl-cn-upsell__list list-unstyled" role="list" aria-labelledby="cfl-cn-upsell-heading">
+      {%- for entry in cfl_pick_list -%}
+        {%- liquid
+          assign parts = entry | split: ':'
+          assign pick = all_products[parts[0]]
+          assign pick_mode = parts[1]
+          if pick == blank
+            continue
+          endif
+          assign pick_image = pick.featured_media.preview_image
+        -%}
+
+        {%- capture pick_media -%}
+          <span class="cfl-cn-upsell__media" aria-hidden="true">
+            {%- if pick_image -%}
+              <img
+                src="{{ pick_image | image_url: width: 112 }}"
+                alt=""
+                width="56"
+                height="56"
+                loading="lazy"
+              >
+            {%- endif -%}
+          </span>
+        {%- endcapture -%}
+
+        <li class="cfl-cn-upsell__item">
+          {%- if pick_mode == 'add' -%}
+            {%- assign pick_variant = pick.selected_or_first_available_variant -%}
+            {%- comment -%}
+              Keyed off the variant and prefixed so it can't collide with a
+              product page's own form for the same product.
+            {%- endcomment -%}
+            {%- assign pick_form_id = 'cfl-cn-upsell-form-' | append: pick_variant.id -%}
+            <product-form class="cfl-cn-upsell__card" data-hide-errors="false">
+              {{ pick_media }}
+              <span class="cfl-cn-upsell__text">
+                <span class="cfl-cn-upsell__title">{{ pick.title | escape }}</span>
+                <span class="cfl-cn-upsell__price">{{ pick_variant.price | money }}</span>
+              </span>
+              {%- form 'product', pick, id: pick_form_id, class: 'form cfl-cn-upsell__form', novalidate: 'novalidate' -%}
+                <input type="hidden" name="id" value="{{ pick_variant.id }}">
+                <button type="submit" name="add" class="button button--secondary cfl-cn-upsell__add">
+                  <span>Add<span class="visually-hidden"> {{ pick.title | escape }} to cart</span></span>
+                  {%- render 'loading-spinner' -%}
+                </button>
+              {%- endform -%}
+              <div class="product-form__error-message-wrapper cfl-cn-upsell__error" role="alert" hidden>
+                <span class="product-form__error-message"></span>
+              </div>
+            </product-form>
+          {%- else -%}
+            {%- liquid
+              assign is_processing = false
+              for inbound_tag in inbound_tags
+                if pick.tags contains inbound_tag
+                  assign is_processing = true
+                endif
+              endfor
+            -%}
+            <a href="{{ pick.url }}" class="cfl-cn-upsell__card cfl-cn-upsell__card--link">
+              {{ pick_media }}
+              <span class="cfl-cn-upsell__text">
+                {%- if is_processing -%}
+                  <span class="cfl-cn-upsell__eyebrow">Develop it with us</span>
+                {%- endif -%}
+                <span class="cfl-cn-upsell__title">{{ pick.title | escape }}</span>
+                <span class="cfl-cn-upsell__price">
+                  {%- if pick.price_varies or is_processing -%}From {% endif -%}
+                  {{- pick.price_min | money -}}
+                </span>
+              </span>
+              <span class="cfl-cn-upsell__go">
+                {%- render 'icon-arrow' -%}
+              </span>
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Cart popup suggestions",
+  "settings": []
+}
+{% endschema %}

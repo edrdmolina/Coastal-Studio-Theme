@@ -1,0 +1,231 @@
+{% comment %}
+  Cart page suggestions, shown above checkout and chosen from what is in the
+  cart. Selection lives in snippets/cfl-upsell-picks.liquid, shared with the
+  cart popup so both surfaces suggest the same things.
+
+  Two kinds of card:
+    - add:  a product with a single variant and nothing to choose. One tap adds
+            it; assets/cfl-cart-suggestions.js posts the form and re-renders the
+            cart page in place.
+    - link: processing (or anything with choices). Goes to the product page,
+            because Globo Product Options choices are made there. Never add
+            these from a card.
+
+  The outer <cfl-cart-suggestions> element is always printed, even when there
+  is nothing to suggest, so assets/cart.js has somewhere to render into when a
+  quantity change makes picks appear or disappear. Everything visible lives in
+  .cfl-cart-suggestions__contents, which is empty when there are no picks.
+
+  Without JavaScript the add forms still work: they post to /cart/add, which
+  returns to the cart.
+{% endcomment %}
+
+{{ 'cfl-cart-suggestions.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cfl-cart-suggestions.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign inbound_tags = 'Film Processing,scan only' | split: ','
+  assign heading_id = 'CflCartSuggestions-Heading-' | append: section.id
+  assign pick_list = ''
+  if cart.item_count > 0
+    capture picks
+      render 'cfl-upsell-picks', limit: section.settings.limit
+    endcapture
+    assign pick_list = picks | strip | split: ','
+  endif
+
+  comment
+    Count picks that resolve to a real product before printing the heading, so
+    a stray handle can never leave an empty "Add to your order" box.
+  endcomment
+  assign valid_picks = 0
+  for entry in pick_list
+    assign entry_handle = entry | split: ':' | first
+    if all_products[entry_handle] != blank
+      assign valid_picks = valid_picks | plus: 1
+    endif
+  endfor
+-%}
+
+<cfl-cart-suggestions id="cfl-cart-suggestions" class="cfl-cart-suggestions" data-id="{{ section.id }}">
+  {%- comment -%}
+    Outside the re-rendered contents so it survives the swap and can announce
+    what was added.
+  {%- endcomment -%}
+  <p class="visually-hidden" role="status" aria-live="polite" data-cfl-suggestions-status></p>
+
+  <div class="cfl-cart-suggestions__contents">
+    {%- if valid_picks > 0 -%}
+      <div class="color-{{ section.settings.color_scheme }} gradient">
+        <div class="page-width section-{{ section.id }}-padding">
+          <div class="cfl-cart-suggestions__panel">
+            <h2 id="{{ heading_id }}" class="cfl-cart-suggestions__heading" tabindex="-1">
+              {{- section.settings.heading | escape -}}
+            </h2>
+
+            <ul class="cfl-cart-suggestions__list list-unstyled" role="list" aria-labelledby="{{ heading_id }}">
+              {%- for entry in pick_list -%}
+                {%- liquid
+                  assign parts = entry | split: ':'
+                  assign pick = all_products[parts[0]]
+                  assign pick_mode = parts[1]
+                  if pick == blank
+                    continue
+                  endif
+
+                  assign is_processing = false
+                  for inbound_tag in inbound_tags
+                    if pick.tags contains inbound_tag
+                      assign is_processing = true
+                    endif
+                  endfor
+
+                  comment
+                    Belt and braces: the picks snippet never marks processing as
+                    add, but a one-tap add would skip the scan options, so the
+                    card refuses it too.
+                  endcomment
+                  if is_processing
+                    assign pick_mode = 'link'
+                  endif
+
+                  assign variant = pick.selected_or_first_available_variant
+                -%}
+                <li class="cfl-cart-suggestions__item">
+                  <a href="{{ pick.url }}" class="cfl-cart-suggestions__media" tabindex="-1" aria-hidden="true">
+                    {%- if pick.featured_image -%}
+                      {{
+                        pick.featured_image
+                        | image_url: width: 240
+                        | image_tag: loading: 'lazy', widths: '80, 160, 240', sizes: '80px', alt: ''
+                      }}
+                    {%- endif -%}
+                  </a>
+
+                  <div class="cfl-cart-suggestions__info">
+                    {%- if pick_mode == 'link' and is_processing -%}
+                      <p class="cfl-cart-suggestions__eyebrow">Develop it with us</p>
+                    {%- endif -%}
+                    <a href="{{ pick.url }}" class="cfl-cart-suggestions__title">{{ pick.title | escape }}</a>
+                    <p class="cfl-cart-suggestions__price">
+                      {%- if pick_mode == 'link' -%}
+                        {%- if is_processing or pick.price_varies -%}
+                          From {{ pick.price_min | money }}
+                        {%- else -%}
+                          {{ pick.price | money }}
+                        {%- endif -%}
+                      {%- else -%}
+                        {{ variant.price | money }}
+                      {%- endif -%}
+                    </p>
+                  </div>
+
+                  <div class="cfl-cart-suggestions__action">
+                    {%- if pick_mode == 'add' -%}
+                      {%- assign form_id = 'CflCartSuggestion-' | append: section.id | append: '-' | append: variant.id -%}
+                      {%- form 'product', pick, id: form_id, class: 'cfl-cart-suggestions__form' -%}
+                        <input type="hidden" name="id" value="{{ variant.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button
+                          type="submit"
+                          name="add"
+                          class="button button--secondary cfl-cart-suggestions__button"
+                          data-product-title="{{ pick.title | escape }}"
+                        >
+                          <span>Add<span class="visually-hidden"> {{ pick.title | escape }} to cart</span></span>
+                          {%- render 'loading-spinner' -%}
+                        </button>
+                        <p class="cfl-cart-suggestions__error" role="alert" hidden></p>
+                      {%- endform -%}
+                    {%- else -%}
+                      <a href="{{ pick.url }}" class="button button--secondary cfl-cart-suggestions__button">
+                        {%- if is_processing -%}
+                          Pick scan options<span class="visually-hidden"> for {{ pick.title | escape }}</span>
+                        {%- else -%}
+                          Choose options<span class="visually-hidden"> for {{ pick.title | escape }}</span>
+                        {%- endif -%}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</cfl-cart-suggestions>
+
+{% schema %}
+{
+  "name": "Cart suggestions",
+  "tag": "section",
+  "class": "section",
+  "limit": 1,
+  "enabled_on": {
+    "templates": ["cart"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Suggests products based on what is in the cart: complementary products set in Search & Discovery first, then film for processing orders, or a matching Develop & Scan page for film orders. Hidden when the cart is empty or there is nothing to suggest."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Add to your order"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Maximum suggestions",
+      "default": 3
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 24
+    }
+  ]
+}
+{% endschema %}

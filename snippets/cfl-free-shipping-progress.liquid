@@ -1,0 +1,89 @@
+{% comment %}
+  Free US Economy shipping progress message.
+
+  Mirrors the one free rate in Shopify delivery settings (verified 2026-11-23):
+  General profile → Domestic (US) zone → "Economy" is $0.00 when the order total
+  is $100 or more. That rate only covers shipping the order to the customer.
+  Inbound "Ship To Coastal" labels are never free, and international orders
+  never get free shipping, so this message is US-only and says "Economy".
+  If the threshold changes in Shopify, change free_shipping_threshold_cents.
+
+  Styles live in assets/cfl-free-shipping-progress.css. This snippet does NOT
+  load them, because its markup is also re-fetched and injected by JavaScript;
+  load the stylesheet once in the section or snippet that renders this.
+
+  Accepts:
+  - context: {String} 'page' (cart page, default) or 'notification' (add-to-cart popup)
+
+  Usage:
+  {% render 'cfl-free-shipping-progress', context: 'notification' %}
+{% endcomment %}
+
+{%- liquid
+  assign free_shipping_threshold_cents = 10000
+
+  assign fsp_context = context | default: 'page'
+
+  # localization.country falls back to the shop's country (US) when Shopify
+  # can't tell where the shopper is, so blank is treated as US: most customers
+  # are, and the message is clearly labelled "US".
+  assign fsp_country = localization.country.iso_code | default: 'US'
+
+  # The threshold is in USD. Hide it for any other presentment currency rather
+  # than compare a converted total against a dollar amount.
+  assign fsp_currency = cart.currency.iso_code | default: 'USD'
+
+  assign fsp_show = false
+  if cart.item_count > 0 and cart.requires_shipping and fsp_country == 'US' and fsp_currency == 'USD'
+    assign fsp_show = true
+  endif
+-%}
+
+{%- if fsp_show -%}
+  {%- liquid
+    assign fsp_total = cart.total_price
+    assign fsp_remaining = free_shipping_threshold_cents | minus: fsp_total
+    assign fsp_qualified = false
+    if fsp_remaining <= 0
+      assign fsp_qualified = true
+    endif
+
+    assign fsp_percent = fsp_total | times: 100 | divided_by: free_shipping_threshold_cents
+    if fsp_percent > 100
+      assign fsp_percent = 100
+    endif
+
+    assign fsp_threshold_text = free_shipping_threshold_cents | money_without_trailing_zeros
+    assign fsp_remaining_text = fsp_remaining | money
+  -%}
+  <div
+    class="cfl-fsp cfl-fsp--{{ fsp_context | escape }}{% if fsp_qualified %} cfl-fsp--qualified{% endif %}"
+    data-cfl-free-shipping-progress
+  >
+    <p class="cfl-fsp__message">
+      {%- if fsp_qualified -%}
+        <svg class="cfl-fsp__icon" aria-hidden="true" focusable="false" viewBox="0 0 16 16" width="16" height="16">
+          <path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Your order qualifies for <strong>free US Economy shipping</strong>.</span>
+      {%- else -%}
+        <span>You're <strong>{{ fsp_remaining_text }}</strong> away from free US Economy shipping.</span>
+      {%- endif -%}
+      <span class="cfl-fsp__note">Applies to shipping your order to you, on orders of {{ fsp_threshold_text }}+.</span>
+    </p>
+
+    {%- unless fsp_qualified -%}
+      <div
+        class="cfl-fsp__track"
+        role="progressbar"
+        aria-label="Progress toward free US Economy shipping"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="{{ fsp_percent }}"
+        aria-valuetext="{{ fsp_total | money }} of {{ fsp_threshold_text }}"
+      >
+        <span class="cfl-fsp__bar" style="width: {{ fsp_percent }}%;"></span>
+      </div>
+    {%- endunless -%}
+  </div>
+{%- endif -%}

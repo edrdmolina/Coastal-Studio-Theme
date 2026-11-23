@@ -1,0 +1,154 @@
+/*
+  "Add to your order" row in the add-to-cart popup.
+  Markup: sections/cfl-cart-notification-upsell.liquid.
+
+  Sits under View cart / Checkout and stays small: on a 360px phone the popup
+  content is ~290px wide, so each suggestion is one row (thumbnail, two-line
+  title, price, action) and at most two of them render.
+*/
+
+.cfl-cn-upsell {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.15);
+  text-align: left;
+}
+
+.cfl-cn-upsell__heading {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-body-family);
+  font-size: 1.3rem;
+  font-weight: var(--font-body-weight-bold, 700);
+  letter-spacing: 0.06rem;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: rgb(var(--color-foreground));
+}
+
+.cfl-cn-upsell__list {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+}
+
+.cfl-cn-upsell__card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.4rem;
+  padding: 0.6rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.15);
+  border-radius: 0.4rem;
+  color: rgb(var(--color-foreground));
+}
+
+/* The whole row is the link, so the tap target is the full card. */
+.cfl-cn-upsell__card--link {
+  text-decoration: none;
+  transition: border-color var(--duration-short, 100ms) ease;
+}
+
+.cfl-cn-upsell__card--link:hover {
+  border-color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-cn-upsell__card--link:focus-visible {
+  outline: 0.2rem solid rgb(var(--color-foreground));
+  outline-offset: 0.2rem;
+}
+
+.cfl-cn-upsell__media {
+  flex: 0 0 4.8rem;
+  width: 4.8rem;
+  height: 4.8rem;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  background: rgba(var(--color-foreground), 0.04);
+}
+
+.cfl-cn-upsell__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cfl-cn-upsell__text {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.cfl-cn-upsell__eyebrow {
+  font-size: 1.1rem;
+  letter-spacing: 0.04rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-cn-upsell__title {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 1.3rem;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.cfl-cn-upsell__price {
+  font-size: 1.3rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.cfl-cn-upsell__form {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+/* Studio buttons are 12rem minimum, too wide beside a title at 360px. */
+.cfl-cn-upsell__add.button {
+  min-width: 6.4rem;
+  min-height: 4.4rem;
+  padding: 0 1.4rem;
+  font-size: 1.4rem;
+}
+
+/* Same contrast fix as the label upsell: the theme's teal outline is 1.86:1. */
+.cfl-cn-upsell__add.button--secondary {
+  color: rgb(var(--color-foreground));
+  border-color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-cn-upsell__go {
+  display: flex;
+  flex: 0 0 4.4rem;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  color: var(--cfl-accent-dark, #00777c);
+}
+
+.cfl-cn-upsell__go .icon {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+/* Full-width under the row so a failed add doesn't squeeze the card. */
+.cfl-cn-upsell__error {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cfl-cn-upsell__card--link {
+    transition: none;
+  }
+}

@@ -29,7 +29,9 @@ class CartItems extends HTMLElement {
 
   connectedCallback() {
     this.cartUpdateUnsubscriber = subscribe(PUB_SUB_EVENTS.cartUpdate, (event) => {
-      if (event.source === 'cart-items') {
+      // These sources have already re-rendered the cart page from their own
+      // response, so fetching it again would only repeat the work.
+      if (event.source === 'cart-items' || event.source === 'cfl-cart-suggestions') {
         return;
       }
       this.onCartUpdate();
@@ -65,12 +67,14 @@ class CartItems extends HTMLElement {
           console.error(e);
         });
     } else {
-      fetch(`${routes.cart_url}?section_id=main-cart-items`)
-        .then((response) => response.text())
-        .then((responseText) => {
-          const html = new DOMParser().parseFromString(responseText, 'text/html');
-          const sourceQty = html.querySelector('cart-items');
-          this.innerHTML = sourceQty.innerHTML;
+      // Something outside the cart items changed the cart (a quick add from the
+      // collection below, say). Refresh the subtotal and suggestions along with
+      // the items, so the page never shows a total that disagrees with its list.
+      const sectionIds = [...new Set(this.getSectionsToRender().map((section) => section.section))];
+      fetch(`${routes.cart_url}?sections=${sectionIds.join(',')}`)
+        .then((response) => response.json())
+        .then((sections) => {
+          if (!this.renderCartPage(sections)) window.location.reload();
         })
         .catch((e) => {
           console.error(e);
@@ -78,8 +82,54 @@ class CartItems extends HTMLElement {
     }
   }
 
+  /**
+   * Re-renders the whole cart page from Section Rendering API output, keyed by
+   * section id. The cart items are swapped wholesale rather than through
+   * .js-contents so the empty state, title row and label nudge stay in step.
+   * Returns false if the items or footer could not be rendered, so the caller
+   * can fall back to a reload instead of leaving a half-updated page.
+   */
+  renderCartPage(sections) {
+    if (!sections) return false;
+
+    const toRender = this.getSectionsToRender();
+    const itemsSection = toRender.find((section) => section.id === 'main-cart-items');
+    const itemsHtml = itemsSection && sections[itemsSection.section];
+    const source = itemsHtml && new DOMParser().parseFromString(itemsHtml, 'text/html').querySelector('cart-items');
+    if (!source) return false;
+
+    const isEmpty = source.classList.contains('is-empty');
+    this.innerHTML = source.innerHTML;
+    this.className = source.className;
+    this.lineItemStatusElement = document.getElementById('shopping-cart-line-item-status');
+
+    const cartFooter = document.getElementById('main-cart-footer');
+    if (cartFooter) cartFooter.classList.toggle('is-empty', isEmpty);
+
+    let rendered = true;
+    toRender
+      .filter((section) => section !== itemsSection)
+      .forEach((section) => {
+        const container = document.getElementById(section.id);
+        const html = sections[section.section];
+        if (!container) return;
+        const target = container.querySelector(section.selector) || container;
+        const sourceElement = html && new DOMParser().parseFromString(html, 'text/html').querySelector(section.selector);
+        if (!sourceElement) {
+          if (section.id === 'main-cart-footer') rendered = false;
+          return;
+        }
+        target.innerHTML = sourceElement.innerHTML;
+      });
+
+    return rendered;
+  }
+
+  // The Section Rendering API takes at most five sections per cart request.
+  // With suggestions on the page this list is exactly five; anything added
+  // here has to replace an entry, not join them.
   getSectionsToRender() {
-    return [
+    const sections = [
       {
         id: 'main-cart-items',
         section: document.getElementById('main-cart-items').dataset.id,
@@ -101,6 +151,19 @@ class CartItems extends HTMLElement {
         selector: '.js-contents',
       },
     ];
+
+    // Cart suggestions (sections/cfl-cart-suggestions.liquid) depend on what is
+    // in the cart, so they re-render with every quantity change or removal.
+    const suggestions = document.getElementById('cfl-cart-suggestions');
+    if (suggestions) {
+      sections.push({
+        id: 'cfl-cart-suggestions',
+        section: suggestions.dataset.id,
+        selector: '.cfl-cart-suggestions__contents',
+      });
+    }
+
+    return sections;
   }
 
   updateQuantity(line, quantity, name, variantId) {
