@@ -1601,14 +1601,25 @@
         },
         {
           "type": "range",
-          "id": "notice_hours",
-          "label": "Minimum notice",
+          "id": "notice_days",
+          "label": "Minimum notice: days",
           "min": 0,
-          "max": 72,
+          "max": 60,
+          "step": 1,
+          "unit": "day",
+          "default": 0,
+          "info": "Added to the hours below. 2 days + 6 hr hides every time that starts less than 54 hours from now."
+        },
+        {
+          "type": "range",
+          "id": "notice_hours",
+          "label": "Minimum notice: hours",
+          "min": 0,
+          "max": 23,
           "step": 1,
           "unit": "hr",
           "default": 2,
-          "info": "Hides times that start sooner than this."
+          "info": "Hides times that start sooner than the days plus these hours."
         },
         {
           "type": "header",

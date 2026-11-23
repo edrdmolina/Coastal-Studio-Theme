@@ -92,7 +92,7 @@
       },
       "bufferMinutes": {{ bs.buffer_minutes | json }},
       "daysAhead": {{ bs.days_ahead | json }},
-      "noticeHours": {{ bs.notice_hours | json }},
+      "noticeHours": {{ bs.notice_days | default: 0 | times: 24 | plus: bs.notice_hours | json }},
       "dateHours": {{ bs.date_hours | json }},
       "hours": [
         {%- for key in day_keys -%}
