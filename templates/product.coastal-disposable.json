@@ -16,7 +16,7 @@
         "heading": "The Coastal Disposable",
         "intro": "<p>A real 35mm film camera wrapped in Florida art. Every Coastal Disposable is a recycled camera body, reloaded with Kodak 400 color film. Point, flash, wind, repeat. When the roll's done, send it back and we develop and scan every frame. That part's already paid for.</p>",
         "facts": "Kodak 400 color film\nRecycled camera body\nBuilt-in flash\nDevelop + scan included",
-        "color_scheme": "accent-2",
+        "color_scheme": "background-1",
         "pack_heading": "Pick your pack",
         "tier1_name": "Single",
         "tier2_name": "3-Pack",
@@ -30,11 +30,6 @@
         "badge_text": "TRY ALL 3",
         "design_heading": "Mix your designs",
         "design_hint": "Split your pack however you like.",
-        "label_product": "in-bound-label",
-        "label_variant": "Small Box",
-        "label_heading": "Add a prepaid return label",
-        "label_text": "Not near Tampa? We'll email you a label to mail your cameras back. One Small Box label fits a 5-pack.",
-        "note": "Pack pricing is applied automatically in your cart. Shipping is calculated at checkout.",
         "upgrade_heading": "Upgrade your rolls",
         "upgrade_hint": "Applies to every camera in your order.",
         "prints_product": "option-set-890651-select-2",
@@ -42,7 +37,12 @@
         "scans_only_label": "Digital scans",
         "xl_product": "extra-large-scans",
         "xl_heading": "Extra Large Scans",
-        "xl_text": "Bigger files for printing and cropping: 18–30MP instead of our standard 6–9MP, depending on the scanner."
+        "xl_text": "Bigger files for printing and cropping: 18–30MP instead of our standard 6–9MP, depending on the scanner.",
+        "label_product": "in-bound-label",
+        "label_variant": "Small Box",
+        "label_heading": "Add a prepaid return label",
+        "label_text": "Not near Tampa? We'll email you a label to mail your cameras back. One Small Box label fits a 5-pack.",
+        "note": "Pack pricing is applied automatically in your cart. Shipping is calculated at checkout."
       }
     },
     "details": {
@@ -108,6 +108,20 @@
             "answer": "<p>Yes. The price covers developing and scanning the film at Coastal Film Lab. The only other cost is getting the camera back to us, and that's free if you drop it off.</p>"
           }
         },
+        "faq_film": {
+          "type": "faq",
+          "settings": {
+            "question": "What film is inside?",
+            "answer": "<p>Kodak 400 color negative film, 35mm. ISO 400 handles daylight, shade and cloudy days well. Indoors or after dark, turn the flash on.</p>"
+          }
+        },
+        "faq_recycled": {
+          "type": "faq",
+          "settings": {
+            "question": "What does recycled mean here?",
+            "answer": "<p>Disposable cameras are usually thrown out after one roll. Ours are recycled camera bodies that get reloaded with Kodak 400 and wrapped in new Coastal art, so each one gets another life.</p>"
+          }
+        },
         "faq_return": {
           "type": "faq",
           "settings": {
@@ -135,20 +149,6 @@
             "question": "Any tips for better photos?",
             "answer": "<p>Turn the flash on for anything that isn't in bright sun, indoors or out. The flash works best when your subject is within about six feet. Wind the wheel all the way after every shot.</p>"
           }
-        },
-        "faq_film": {
-          "type": "faq",
-          "settings": {
-            "question": "What film is inside?",
-            "answer": "<p>Kodak 400 color negative film, 35mm. ISO 400 handles daylight, shade and cloudy days well. Indoors or after dark, turn the flash on.</p>"
-          }
-        },
-        "faq_recycled": {
-          "type": "faq",
-          "settings": {
-            "question": "What does recycled mean here?",
-            "answer": "<p>Disposable cameras are usually thrown out after one roll. Ours are recycled camera bodies that get reloaded with Kodak 400 and wrapped in new Coastal art, so each one gets another life.</p>"
-          }
         }
       },
       "block_order": [
@@ -169,15 +169,15 @@
       ],
       "settings": {
         "color_scheme": "background-1",
+        "specs_heading": "What's inside",
+        "specs_text": "<p>Same simple camera, second life. We reload recycled disposable bodies with Kodak film and wrap them in art you won't find anywhere else.</p>",
         "steps_heading": "How it works",
         "show_designs": true,
         "designs_heading": "Three Florida originals",
         "designs_text": "<p>Swamp Gator, Pink Flamingo and Pool Day. Same camera inside, different art outside. Collect all three.</p>",
         "faq_heading": "Questions",
         "cta_heading": "Go make some memories",
-        "cta_label": "Pick your pack",
-        "specs_heading": "What's inside",
-        "specs_text": "<p>Same simple camera, second life. We reload recycled disposable bodies with Kodak film and wrap them in art you won't find anywhere else.</p>"
+        "cta_label": "Pick your pack"
       }
     },
     "related": {
@@ -189,6 +189,7 @@
         "columns_desktop": 4,
         "color_scheme": "background-1",
         "image_ratio": "square",
+        "image_shape": "default",
         "show_secondary_image": false,
         "show_vendor": false,
         "show_rating": false,
