@@ -73,12 +73,13 @@
             "sat_close": "17:00",
             "sun_open": "closed",
             "sun_close": "17:00",
+            "date_hours": "",
             "slot_minutes": 30,
             "variant_lengths": "15 minute = 15\n30 minute = 30\n1 hour = 60\nOne On One Photo Class = 60\nPremium Client Color Profile = 60",
             "start_every": "30",
             "buffer_minutes": 0,
             "days_ahead": 21,
-            "notice_hours": 2,
+            "notice_hours": 72,
             "calendar_id": "c_3424f4ad3aaa7d65726c7b747a808eaee49b272383ca65172d2f2694854d2b6a@group.calendar.google.com"
           }
         },
