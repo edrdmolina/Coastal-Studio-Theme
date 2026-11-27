@@ -1,0 +1,46 @@
+{%- comment -%}
+  Black Friday 2026: which part of the sale we are in. Outputs one word and
+  nothing else: before, live or after.
+
+  The sale window lives here once, so the landing page sections and the
+  product-card badge can't drift apart. The announcement bar keeps its own
+  per-block "Show from / Show until" times in sections/header-group.json,
+  because that is how the bar is scheduled in the theme editor.
+
+    Starts: Friday Nov 27 2026, 12:00 AM America/New_York (EST, UTC-5)
+    Ends:   Tuesday Dec 1 2026, 9:00 AM America/New_York (EST, UTC-5)
+
+  Daylight saving time ended Nov 1, so both moments are -05:00.
+
+  `now` is read when Shopify renders the page. Storefront pages are cached,
+  so a switch can show up a few minutes late. The discount itself is an
+  automatic discount enforced at checkout, not by this snippet.
+
+  Accepts:
+    - preview {String} Optional. 'before', 'live' or 'after' forces that phase,
+      but only in the theme editor, so each state can be checked before Friday.
+
+  Usage:
+    {%- capture bf_phase -%}{%- render 'cfl-bf-phase' -%}{%- endcapture -%}
+    {%- assign bf_phase = bf_phase | strip -%}
+{%- endcomment -%}
+{%- liquid
+  assign bf_starts_s = '2026-11-27T00:00:00-05:00' | date: '%s' | plus: 0
+  assign bf_ends_s = '2026-12-01T09:00:00-05:00' | date: '%s' | plus: 0
+  assign bf_now_s = 'now' | date: '%s' | plus: 0
+
+  assign bf_phase = 'live'
+  if bf_now_s < bf_starts_s
+    assign bf_phase = 'before'
+  elsif bf_now_s >= bf_ends_s
+    assign bf_phase = 'after'
+  endif
+
+  if request.design_mode
+    if preview == 'before' or preview == 'live' or preview == 'after'
+      assign bf_phase = preview
+    endif
+  endif
+
+  echo bf_phase
+-%}

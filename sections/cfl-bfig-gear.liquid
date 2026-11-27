@@ -1,0 +1,329 @@
+{% comment %}
+  Gear highlights on /pages/black-friday-ig: a few products from the Black
+  Friday equipment collection, using the theme's own product card.
+
+  Nothing is hard-coded. The section takes products from the chosen
+  collection in the collection's own sort order and skips anything sold out
+  or not priced over the minimum (every variant has to be over it, so a card
+  never shows an item that wouldn't get the 15%). Most of this gear is
+  one-of-a-kind, so sold pieces drop off by themselves. If nothing qualifies
+  the section renders nothing.
+
+  Shown before and during the sale; after it ends the section renders
+  nothing. Sale window as in cfl-bfig-hero; keep the numbers in step.
+{% endcomment %}
+
+{%- liquid
+  # Sale window: Fri Nov 27 2026 12 AM ET to Tue Dec 1 2026 9 AM ET (see cfl-bfig-hero).
+  assign bfig_start = 1795755600
+  assign bfig_end = 1796133600
+  assign bfig_now = 'now' | date: '%s' | plus: 0
+  assign phase = 'live'
+  if bfig_now < bfig_start
+    assign phase = 'before'
+  elsif bfig_now >= bfig_end
+    assign phase = 'ended'
+  endif
+
+  assign gear = section.settings.collection
+  assign threshold = section.settings.min_price | times: 100
+  assign shown = 0
+
+  assign render_section = true
+  if phase == 'ended' and request.design_mode == false
+    assign render_section = false
+  endif
+  if gear == blank
+    assign render_section = false
+  endif
+-%}
+
+{%- if render_section -%}
+  {%- capture cards -%}
+    {%- for product in gear.products -%}
+      {%- if shown >= section.settings.products_to_show -%}{%- break -%}{%- endif -%}
+      {%- unless product.available -%}{%- continue -%}{%- endunless -%}
+      {%- if product.price_min <= threshold -%}{%- continue -%}{%- endif -%}
+      {%- assign shown = shown | plus: 1 -%}
+      <li class="bfig-gear__item">
+        {% render 'card-product',
+          card_product: product,
+          media_aspect_ratio: 'square',
+          image_shape: 'default',
+          show_secondary_image: false,
+          show_vendor: false,
+          show_rating: false,
+          show_quick_add: section.settings.quick_add,
+          section_id: section.id
+        %}
+        {%- if phase == 'before' and section.settings.label_before != blank -%}
+          <p class="bfig-gear__label" data-bfig-when="before">{{ section.settings.label_before }}</p>
+        {%- endif -%}
+        {%- if section.settings.label_live != blank -%}
+          <p
+            class="bfig-gear__label"
+            data-bfig-when="live"
+            {% unless phase == 'live' %}
+              hidden
+            {% endunless %}
+          >
+            {{ section.settings.label_live }}
+          </p>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- if shown > 0 -%}
+    {{ 'cfl-bfig.css' | asset_url | stylesheet_tag }}
+    {{ 'component-card.css' | asset_url | stylesheet_tag }}
+    {{ 'component-price.css' | asset_url | stylesheet_tag }}
+    {%- if section.settings.quick_add -%}
+      {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+      <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+      <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- style -%}
+      .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+        padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+      }
+
+      @media screen and (min-width: 750px) {
+        .section-{{ section.id }}-padding {
+          padding-top: {{ section.settings.padding_top }}px;
+          padding-bottom: {{ section.settings.padding_bottom }}px;
+        }
+      }
+    {%- endstyle -%}
+
+    <div
+      class="bfig color-{{ section.settings.color_scheme }} gradient"
+      data-bfig-when="before live"
+      {% if phase == 'ended' %}
+        hidden
+      {% endif %}
+    >
+      <div class="bfig-gear page-width section-{{ section.id }}-padding" id="{{ section.settings.anchor | default: 'bfig-gear' | handleize }}">
+        {%- assign is_scroll = false -%}
+        {%- if section.settings.layout == 'scroll' -%}{%- assign is_scroll = true -%}{%- endif -%}
+        {%- assign grid_id = 'BfigGrid-' | append: section.id -%}
+        <div class="bfig-gear__head">
+          <div class="bfig-gear__head-row">
+            {%- if section.settings.heading != blank -%}
+              <h2 class="bfig-h2" id="{{ grid_id }}-heading">{{ section.settings.heading }}</h2>
+            {%- endif -%}
+            {%- if is_scroll -%}
+              <div class="bfig-gear__arrows" data-bfig-arrows>
+                <button type="button" class="bfig-gear__arrow" data-bfig-scroll="-1" aria-controls="{{ grid_id }}" aria-label="Previous products">&larr;</button>
+                <button type="button" class="bfig-gear__arrow" data-bfig-scroll="1" aria-controls="{{ grid_id }}" aria-label="More products">&rarr;</button>
+              </div>
+            {%- endif -%}
+          </div>
+          {%- if phase == 'before' and section.settings.text_before != blank -%}
+            <p class="bfig-lead" data-bfig-when="before">{{ section.settings.text_before }}</p>
+          {%- endif -%}
+          {%- if section.settings.text_live != blank -%}
+            <p
+              class="bfig-lead"
+              data-bfig-when="live"
+              {% unless phase == 'live' %}
+                hidden
+              {% endunless %}
+            >
+              {{ section.settings.text_live }}
+            </p>
+          {%- endif -%}
+        </div>
+
+        <ul
+          class="bfig-gear__grid{% if is_scroll %} bfig-gear__grid--scroll{% endif %}"
+          id="{{ grid_id }}"
+          role="list"
+          {% if is_scroll %}
+            tabindex="0"
+            {% if section.settings.heading != blank %}aria-labelledby="{{ grid_id }}-heading"{% endif %}
+          {% endif %}
+        >
+          {{ cards }}
+        </ul>
+        {%- if is_scroll -%}
+          <script>
+            (function () {
+              var grid = document.getElementById('{{ grid_id }}');
+              if (!grid) return;
+              var wrap = grid.parentNode.querySelector('[data-bfig-arrows]');
+              if (!wrap) return;
+              var prev = wrap.querySelector('[data-bfig-scroll="-1"]');
+              var next = wrap.querySelector('[data-bfig-scroll="1"]');
+              var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+              function update() {
+                var max = grid.scrollWidth - grid.clientWidth;
+                wrap.classList.toggle('bfig-gear__arrows--active', max > 4);
+                prev.disabled = grid.scrollLeft <= 4;
+                next.disabled = grid.scrollLeft >= max - 4;
+              }
+              wrap.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-bfig-scroll]');
+                if (!btn) return;
+                var dir = parseInt(btn.getAttribute('data-bfig-scroll'), 10);
+                grid.scrollBy({ left: dir * grid.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
+              });
+              grid.addEventListener('scroll', update, { passive: true });
+              window.addEventListener('resize', update, { passive: true });
+              update();
+            })();
+          </script>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank -%}
+          <a class="bfig-btn bfig-btn--secondary bfig-gear__more" href="{{ section.settings.button_link | default: gear.url }}">
+            {{- section.settings.button_label -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- elsif request.design_mode -%}
+    <div class="page-width">
+      <p>BF Instagram gear: choose a collection with available products priced over the minimum to show cards here.</p>
+    </div>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "BF IG: gear",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shown before and during the sale. Hidden once it ends, and whenever no product qualifies."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "The Black Friday equipment collection."
+    },
+    {
+      "type": "number",
+      "id": "min_price",
+      "label": "Only show items priced over (dollars)",
+      "info": "Every variant must be over this. Sold-out items are always skipped.",
+      "default": 300
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_add",
+      "label": "Add-to-cart buttons on cards",
+      "info": "Leave off for processing products: Globo's required options (Negative Condition, Scan Size, Rush) are only on the product page.",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Anchor ID",
+      "info": "Lets other sections link here with #anchor. Must be unique on the page.",
+      "default": "bfig-gear"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "scroll", "label": "One row, swipe for more" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 12,
+      "step": 2,
+      "label": "Products to show",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Gear $299.99 and up, 15% off"
+    },
+    {
+      "type": "textarea",
+      "id": "text_before",
+      "label": "Text before the sale",
+      "default": "Cameras, lenses and gear from the sale collection. Most are one-of-a-kind used pieces. 15% comes off at checkout from Friday 12 AM ET."
+    },
+    {
+      "type": "textarea",
+      "id": "text_live",
+      "label": "Text during the sale",
+      "default": "Cameras, lenses and gear from the sale collection. Most are one-of-a-kind used pieces. 15% comes off automatically at checkout."
+    },
+    {
+      "type": "text",
+      "id": "label_before",
+      "label": "Card label before the sale",
+      "default": "15% off from Friday"
+    },
+    {
+      "type": "text",
+      "id": "label_live",
+      "label": "Card label during the sale",
+      "default": "15% off at checkout"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "info": "Links to the collection unless a link is set below.",
+      "default": "See all sale gear"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "Optional. Defaults to the collection."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF IG: gear"
+    }
+  ]
+}
+{% endschema %}

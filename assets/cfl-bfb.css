@@ -1,0 +1,726 @@
+/*
+  Black Friday 2026 sale page: gallery carousels on colour blocks.
+  Used only by sections/cfl-bfb-develop.liquid and sections/cfl-bfb-cameras.liquid
+  (templates/page.black-friday.json), so nothing here reaches other pages.
+
+  Layout idea from the "gallery4" carousel: heading and arrow buttons above a
+  row of tall image cards that starts on the page margin and runs off the
+  right edge, text over a gradient at the foot of each image, a "read more"
+  link with an arrow that nudges on hover, and position dots underneath.
+  Native scroll-snap; assets/cfl-bfb.js adds arrows and dots.
+
+  Sizes are in px because this theme's 1rem is 13px.
+
+  2025 palette and the text/background pairs used (WCAG 2.x contrast):
+    Emulsion Tide Teal #00777C  Canister Gold #E8AF22  Seafoam Frontier #7DCCBA
+    Safelight Amber #DD6A26     Noritsu Cream #FFF8EF  Blank Negative #301E18
+
+    #FFF8EF on #00777C  develop block: heading, lead, arrows     5.07:1  AA
+    #FFF8EF on #301E18  format card text (on >=90% scrim),
+                        SLR block text, Add to cart buttons     15.04:1  AA
+    #301E18 on #7DCCBA  C-41 / B&W links, SLR card body          8.47:1  AA
+    #301E18 on #E8AF22  point-and-shoot block, "10% off" badge   7.99:1  AA
+    #E8AF22 on #301E18  kicker chip on the gold block            7.99:1  AA
+    #301E18 on #FFF8EF  point-and-shoot card body               15.04:1  AA
+    #DD6A26 on #301E18  SLR kicker and current dot               4.65:1  AA
+    #301E18 on #DD6A26  SLR "see all" card                       4.65:1  AA
+
+  Not used for text: #FFF8EF on #DD6A26 (3.23:1, large text only),
+  #E8AF22 on #00777C (2.69:1), #FFF8EF on #7DCCBA (1.78:1),
+  #301E18 on #00777C (2.97:1).
+*/
+
+.bfb {
+  --bfb-teal: #00777c;
+  --bfb-gold: #e8af22;
+  --bfb-sea: #7dccba;
+  --bfb-amber: #dd6a26;
+  --bfb-cream: #fff8ef;
+  --bfb-neg: #301e18;
+  --bfb-gutter: max(1.5rem, calc((100% - var(--page-width, 160rem)) / 2 + 1.5rem));
+  --bfb-card-w: 78%;
+  --bfb-gap: 14px;
+  --bfb-radius: 16px;
+
+  /* Default tone: teal */
+  --bfb-bg: var(--bfb-teal);
+  --bfb-fg: var(--bfb-cream);
+  --bfb-kicker-bg: var(--bfb-cream);
+  --bfb-kicker-fg: var(--bfb-neg);
+  --bfb-card-bg: var(--bfb-cream);
+  --bfb-card-fg: var(--bfb-neg);
+  --bfb-btn-bg: var(--bfb-neg);
+  --bfb-btn-fg: var(--bfb-cream);
+  --bfb-more-bg: var(--bfb-cream);
+  --bfb-more-fg: var(--bfb-neg);
+  --bfb-dot: var(--bfb-cream);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--bfb-bg);
+  color: var(--bfb-fg);
+}
+
+.bfb--gold {
+  --bfb-bg: var(--bfb-gold);
+  --bfb-fg: var(--bfb-neg);
+  --bfb-kicker-bg: var(--bfb-neg);
+  --bfb-kicker-fg: var(--bfb-gold);
+  --bfb-card-bg: var(--bfb-cream);
+  --bfb-card-fg: var(--bfb-neg);
+  --bfb-btn-bg: var(--bfb-neg);
+  --bfb-btn-fg: var(--bfb-cream);
+  --bfb-more-bg: var(--bfb-neg);
+  --bfb-more-fg: var(--bfb-cream);
+  --bfb-dot: var(--bfb-neg);
+}
+
+.bfb--negative {
+  --bfb-bg: var(--bfb-neg);
+  --bfb-fg: var(--bfb-cream);
+  --bfb-kicker-bg: var(--bfb-amber);
+  --bfb-kicker-fg: var(--bfb-neg);
+  --bfb-card-bg: var(--bfb-sea);
+  --bfb-card-fg: var(--bfb-neg);
+  --bfb-btn-bg: var(--bfb-neg);
+  --bfb-btn-fg: var(--bfb-cream);
+  --bfb-more-bg: var(--bfb-amber);
+  --bfb-more-fg: var(--bfb-neg);
+  --bfb-dot: var(--bfb-amber);
+}
+
+/* Phase-gated copy: the theme gives some elements a display value that would beat the hidden attribute. */
+.bfb [data-bfig-when][hidden],
+.bfb [hidden] {
+  display: none !important;
+}
+
+.bfb a:focus-visible,
+.bfb button:focus-visible,
+.bfb-gallery__track:focus-visible {
+  outline: 3px solid var(--bfb-fg);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+
+/* ---------- Head: kicker, heading, lead, arrows ---------- */
+
+.bfb-gallery {
+  display: block;
+}
+
+.bfb-gallery__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 var(--bfb-gutter);
+  margin-bottom: 24px;
+}
+
+.bfb-gallery__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.bfb-kicker {
+  margin: 0;
+  padding: 5px 10px 4px;
+  border-radius: 4px;
+  background: var(--bfb-kicker-bg);
+  color: var(--bfb-kicker-fg);
+  font-family: var(--font-subheading-family);
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bfb-h2 {
+  margin: 0;
+  color: var(--bfb-fg);
+  font-family: var(--font-heading-family);
+  font-weight: normal;
+  font-size: 38px;
+  line-height: 1.02;
+}
+
+.bfb-lead {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--bfb-fg);
+  font-family: var(--font-body-family);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.bfb-gallery__arrows {
+  display: none;
+  flex: none;
+  gap: 10px;
+}
+
+.bfb-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 2px solid var(--bfb-fg);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--bfb-fg);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.bfb-arrow:hover:not(:disabled) {
+  background: var(--bfb-fg);
+  color: var(--bfb-bg);
+}
+
+.bfb-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------- Track ---------- */
+
+.bfb-gallery__track {
+  position: relative;
+  display: flex;
+  gap: var(--bfb-gap);
+  margin: 0;
+  padding: 6px var(--bfb-gutter) 10px;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--bfb-gutter);
+  scrollbar-width: none;
+}
+
+.bfb-gallery__track::-webkit-scrollbar {
+  display: none;
+}
+
+.bfb-slide {
+  display: flex;
+  flex: 0 0 var(--bfb-card-w);
+  min-width: 0;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.bfb-slide--cam {
+  --bfb-card-w: 72%;
+}
+
+/* ---------- Dots ---------- */
+
+.bfb-gallery__dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 18px;
+  padding: 0 var(--bfb-gutter);
+}
+
+.bfb-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.bfb-dot::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background: var(--bfb-fg);
+  opacity: 0.3;
+  transition: width 0.25s ease, opacity 0.25s ease, background-color 0.25s ease;
+}
+
+.bfb-dot.is-current::before {
+  width: 20px;
+  background: var(--bfb-dot);
+  opacity: 1;
+}
+
+/* ---------- Format card (development): full-bleed tall image ---------- */
+
+.bfb-format {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  min-height: 440px;
+  overflow: hidden;
+  border-radius: var(--bfb-radius);
+  background: var(--bfb-neg);
+  color: var(--bfb-cream);
+  isolation: isolate;
+}
+
+.bfb-format__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+}
+
+.bfb-format__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.bfb-format:hover .bfb-format__img {
+  transform: scale(1.05);
+}
+
+/* The gallery4 "multiply" tint, kept light so the film stays recognisable. */
+.bfb-format__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(48, 30, 24, 0.12) 0%, rgba(48, 30, 24, 0) 30%);
+  pointer-events: none;
+}
+
+.bfb-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  margin: 0;
+  padding: 6px 10px 5px;
+  border-radius: 6px;
+  background: var(--bfb-gold);
+  color: var(--bfb-neg);
+  font-family: var(--font-subheading-family);
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(48, 30, 24, 0.25);
+}
+
+/*
+  The gradient lives on the text block itself: it starts transparent above
+  the block and is at least 90% Blank Negative by the time the first line
+  of text begins, so cream text keeps >= 12:1 over any photo.
+*/
+.bfb-format__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 84px 16px 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(48, 30, 24, 0) 0,
+    rgba(48, 30, 24, 0.9) 72px,
+    var(--bfb-neg) 100%
+  );
+  pointer-events: none;
+}
+
+.bfb-format__body a {
+  pointer-events: auto;
+}
+
+.bfb-format__title {
+  margin: 0;
+  color: var(--bfb-cream);
+  font-family: var(--font-heading-family);
+  font-weight: normal;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.bfb-format__note {
+  margin: 0 0 8px;
+  color: var(--bfb-cream);
+  font-family: var(--font-body-family);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.bfb-format__links {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bfb-process,
+.bfb-readmore {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--bfb-sea);
+  color: var(--bfb-neg);
+  font-family: var(--font-subheading-family);
+  font-size: 16px;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.bfb-process:hover,
+.bfb-readmore:hover {
+  background: var(--bfb-cream);
+  color: var(--bfb-neg);
+}
+
+.bfb-process__name {
+  flex: 1 1 auto;
+}
+
+.bfb-process__price {
+  flex: none;
+  font-family: var(--font-body-family);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bfb-process__arrow,
+.bfb-readmore svg {
+  flex: none;
+  transition: transform 0.2s ease;
+}
+
+.bfb-readmore {
+  justify-content: space-between;
+}
+
+.bfb-process:hover .bfb-process__arrow,
+.bfb-readmore:hover svg {
+  transform: translateX(4px);
+}
+
+.bfb .bfb-format a:focus-visible {
+  outline-color: var(--bfb-gold);
+}
+
+/* ---------- Camera card: image fades into the card body ---------- */
+
+.bfb-cam,
+.bfb-more {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--bfb-radius);
+  background: var(--bfb-card-bg);
+  color: var(--bfb-card-fg);
+  isolation: isolate;
+}
+
+.bfb-cam__media {
+  position: relative;
+  z-index: -1;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.bfb-cam__img,
+.bfb-more__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.bfb-cam:hover .bfb-cam__img {
+  transform: scale(1.05);
+}
+
+.bfb-cam__fade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, var(--bfb-card-bg) 92%);
+  pointer-events: none;
+}
+
+.bfb-cam__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: -10px;
+  padding: 0 16px 16px;
+}
+
+.bfb-cam__title {
+  margin: 0;
+  font-family: var(--font-subheading-family);
+  font-weight: normal;
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+}
+
+.bfb-cam__link {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: var(--bfb-card-fg);
+  text-decoration: none;
+}
+
+/* The title link covers the whole card; the Add to cart button sits above it. */
+.bfb-cam__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: var(--bfb-radius);
+}
+
+.bfb-cam .bfb-cam__link:focus-visible {
+  outline: none;
+}
+
+.bfb-cam .bfb-cam__link:focus-visible::after {
+  outline: 3px solid var(--bfb-fg);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 6px var(--bfb-card-bg), inset 0 0 0 8px var(--bfb-card-fg);
+}
+
+.bfb-cam__price {
+  margin: 0;
+  font-family: var(--font-body-family);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.bfb-cam__add {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.bfb-cam__add .quick-add-modal {
+  z-index: 101;
+}
+
+.bfb-add {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 2px solid var(--bfb-btn-bg);
+  border-radius: 10px;
+  background: var(--bfb-btn-bg);
+  color: var(--bfb-btn-fg);
+  font-family: var(--font-subheading-family);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.bfb-add:hover {
+  background: transparent;
+  color: var(--bfb-card-fg);
+}
+
+.bfb .bfb-cam .bfb-add:focus-visible {
+  outline-color: var(--bfb-card-fg);
+  outline-offset: 2px;
+}
+
+.bfb-add.loading > span:not(.loading__spinner) {
+  visibility: hidden;
+}
+
+.bfb-add .loading__spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bfb-add .loading__spinner.hidden {
+  display: none;
+}
+
+.bfb-add .spinner {
+  width: 20px;
+  height: 20px;
+}
+
+.bfb-add .path {
+  stroke: currentColor;
+}
+
+/* Last card: "see all" on the block's accent colour. */
+.bfb-more {
+  background: var(--bfb-more-bg);
+  color: var(--bfb-more-fg);
+}
+
+.bfb-more__img {
+  opacity: 0.92;
+}
+
+.bfb-more__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 16px 16px;
+}
+
+.bfb-more__count {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: 30px;
+  line-height: 1.05;
+}
+
+.bfb-more__link {
+  background: var(--bfb-more-fg);
+  color: var(--bfb-more-bg);
+}
+
+.bfb-more__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.bfb-more__link:hover {
+  background: var(--bfb-more-fg);
+  color: var(--bfb-more-bg);
+}
+
+.bfb .bfb-more .bfb-more__link:focus-visible {
+  outline-color: var(--bfb-more-fg);
+}
+
+/* ---------- Larger screens ---------- */
+
+@media screen and (min-width: 750px) {
+  .bfb {
+    --bfb-gutter: max(5rem, calc((100% - var(--page-width, 160rem)) / 2 + 5rem));
+    --bfb-card-w: 320px;
+    --bfb-gap: 20px;
+  }
+
+  .bfb-slide--cam {
+    --bfb-card-w: 290px;
+  }
+
+  .bfb-gallery__head {
+    margin-bottom: 32px;
+  }
+
+  .bfb-gallery__arrows {
+    display: flex;
+  }
+
+  .bfb-h2 {
+    font-size: 56px;
+  }
+
+  .bfb-lead {
+    font-size: 18px;
+  }
+
+  .bfb-format {
+    min-height: 500px;
+  }
+
+  .bfb-format__body {
+    padding: 96px 22px 22px;
+  }
+
+  .bfb-format__title {
+    font-size: 40px;
+  }
+
+  .bfb-gallery__dots {
+    margin-top: 28px;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .bfb {
+    --bfb-card-w: 360px;
+  }
+
+  .bfb-slide--cam {
+    --bfb-card-w: 310px;
+  }
+
+  .bfb-h2 {
+    font-size: 64px;
+  }
+
+  .bfb-format {
+    min-height: 540px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bfb *,
+  .bfb *::before,
+  .bfb *::after {
+    transition: none !important;
+  }
+
+  .bfb-format:hover .bfb-format__img,
+  .bfb-cam:hover .bfb-cam__img,
+  .bfb-process:hover .bfb-process__arrow,
+  .bfb-readmore:hover svg {
+    transform: none;
+  }
+}
+
+/*
+  Seamless colour blocks. The theme puts a gap of page background between
+  sections ("Section spacing" in theme settings, 20px), which showed as white
+  strips between the coloured blocks. On any page that uses these sections,
+  the blocks sit flush and each section's own padding provides the spacing.
+  Scoped with :has(), so other pages keep the theme's normal gap.
+*/
+#MainContent:has(.bfb) > .section + .section {
+  margin-top: 0;
+}

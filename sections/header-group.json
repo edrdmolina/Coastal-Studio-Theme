@@ -14,6 +14,24 @@
     "announcement_bar_Y7TRWm": {
       "type": "announcement-bar",
       "blocks": {
+        "announcement_bf_teaser": {
+          "type": "announcement",
+          "settings": {
+            "text": "Black Friday starts Friday: 10% off film developing, 15% off gear $299.99 and up",
+            "link": "/pages/black-friday",
+            "starts_at": "",
+            "ends_at": "2026-11-27T00:00:00-05:00"
+          }
+        },
+        "announcement_bf_live": {
+          "type": "announcement",
+          "settings": {
+            "text": "Black Friday: 10% off film developing, 15% off gear $299.99 and up. No code needed",
+            "link": "/pages/black-friday",
+            "starts_at": "2026-11-27T00:00:00-05:00",
+            "ends_at": "2026-12-01T09:00:00-05:00"
+          }
+        },
         "announcement_PURbWW": {
           "type": "announcement",
           "settings": {
@@ -34,6 +52,8 @@
         }
       },
       "block_order": [
+        "announcement_bf_teaser",
+        "announcement_bf_live",
         "announcement_PURbWW",
         "announcement_DBGYrE"
       ],

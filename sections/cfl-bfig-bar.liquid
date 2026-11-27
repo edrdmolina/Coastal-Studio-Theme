@@ -1,0 +1,307 @@
+{% comment %}
+  Sticky action bar on /pages/black-friday-ig. A page-specific copy of
+  sections/cfl-order-bar.liquid (same look, reveal and dismiss behaviour),
+  added to this template instead of changing the shared bar, which lives in
+  footer-group and is hidden on this page by cfl-bfig.css. Left alone it would
+  promote the 35mm product at full price.
+
+  It appears once the visitor scrolls past most of the first screen, steps
+  aside when the footer comes into view, and stays closed for the session
+  once dismissed.
+
+    before  "Starts Friday 12 AM ET" and a button to browse the gear.
+    live    both paths. On phones the two buttons fill the bar on their own.
+    ended   "The sale has ended" and a normal development button.
+
+  Sale window as in cfl-bfig-hero; keep the numbers in step. The hero's
+  script swaps the phase in the browser if the cached HTML is out of date.
+{% endcomment %}
+
+{%- liquid
+  # Sale window: Fri Nov 27 2026 12 AM ET to Tue Dec 1 2026 9 AM ET (see cfl-bfig-hero).
+  assign bfig_start = 1795755600
+  assign bfig_end = 1796133600
+  assign bfig_now = 'now' | date: '%s' | plus: 0
+  assign phase = 'live'
+  if bfig_now < bfig_start
+    assign phase = 'before'
+  elsif bfig_now >= bfig_end
+    assign phase = 'ended'
+  endif
+
+  assign close_label = 'accessibility.close' | t
+-%}
+
+{%- if section.settings.enabled -%}
+  {{ 'cfl-bfig.css' | asset_url | stylesheet_tag }}
+
+  <aside
+    class="bfig bfig-bar"
+    id="BfigBar"
+    data-reveal-at="{{ section.settings.reveal_at }}"
+    aria-label="{{ section.settings.aria_label | escape }}"
+  >
+    {%- if phase == 'before' -%}
+      <div class="bfig-bar__inner" data-bfig-when="before">
+        <div class="bfig-bar__text">
+          <p class="bfig-bar__heading">{{ section.settings.before_heading }}</p>
+          {%- if section.settings.before_sub != blank -%}
+            <p class="bfig-bar__sub">{{ section.settings.before_sub }}</p>
+          {%- endif -%}
+        </div>
+        <div class="bfig-bar__actions">
+          <a class="bfig-bar__btn" href="{{ section.settings.gear_link }}">{{ section.settings.before_button }}</a>
+        </div>
+        <button type="button" class="bfig-bar__dismiss" data-bfig-bar-dismiss aria-controls="BfigBar">
+          <span class="visually-hidden">{{ close_label }}</span>
+          {% render 'icon-close' %}
+        </button>
+      </div>
+    {%- endif -%}
+
+    {%- if phase != 'ended' -%}
+      <div
+        class="bfig-bar__inner bfig-bar__inner--live"
+        data-bfig-when="live"
+        {% unless phase == 'live' %}
+          hidden
+        {% endunless %}
+      >
+        <div class="bfig-bar__text">
+          <p class="bfig-bar__heading">{{ section.settings.live_heading }}</p>
+          {%- if section.settings.live_sub != blank -%}
+            <p class="bfig-bar__sub">{{ section.settings.live_sub }}</p>
+          {%- endif -%}
+        </div>
+        <div class="bfig-bar__actions">
+          <a class="bfig-bar__btn" href="{{ section.settings.develop_link }}">
+            {{- section.settings.develop_label }}
+            <small>{{ section.settings.develop_badge }}</small>
+          </a>
+          <a class="bfig-bar__btn bfig-bar__btn--secondary" href="{{ section.settings.gear_link }}">
+            {{- section.settings.gear_label }}
+            <small>{{ section.settings.gear_badge }}</small>
+          </a>
+        </div>
+        <button type="button" class="bfig-bar__dismiss" data-bfig-bar-dismiss aria-controls="BfigBar">
+          <span class="visually-hidden">{{ close_label }}</span>
+          {% render 'icon-close' %}
+        </button>
+      </div>
+    {%- endif -%}
+
+    <div
+      class="bfig-bar__inner"
+      data-bfig-when="ended"
+      {% unless phase == 'ended' %}
+        hidden
+      {% endunless %}
+    >
+      <div class="bfig-bar__text">
+        <p class="bfig-bar__heading">{{ section.settings.ended_heading }}</p>
+      </div>
+      <div class="bfig-bar__actions">
+        <a class="bfig-bar__btn" href="{{ section.settings.develop_link }}">{{ section.settings.ended_button }}</a>
+      </div>
+      <button type="button" class="bfig-bar__dismiss" data-bfig-bar-dismiss aria-controls="BfigBar">
+        <span class="visually-hidden">{{ close_label }}</span>
+        {% render 'icon-close' %}
+      </button>
+    </div>
+  </aside>
+
+  <script>
+    (function () {
+      var KEY = 'cfl-bfig-bar-dismissed';
+      var bar = document.getElementById('BfigBar');
+      if (!bar) return;
+
+      try {
+        if (window.sessionStorage.getItem(KEY) === '1') {
+          bar.remove();
+          return;
+        }
+      } catch (e) {
+        // Private browsing can throw on access; show the bar rather than fail.
+      }
+
+      // Step aside once the footer is well on screen, as cfl-order-bar does.
+      var footerVisible = false;
+      var footer = document.querySelector('.footer');
+      var observed = footer && 'IntersectionObserver' in window;
+      if (observed) {
+        new IntersectionObserver(
+          function (entries) {
+            footerVisible = entries[0].isIntersecting;
+            update();
+          },
+          { rootMargin: '0px 0px -320px 0px' }
+        ).observe(footer);
+      }
+
+      var revealAt = parseFloat(bar.dataset.revealAt);
+      if (isNaN(revealAt)) revealAt = 60;
+
+      function update() {
+        var y = window.scrollY || window.pageYOffset;
+        bar.classList.toggle('bfig-bar--show', y > window.innerHeight * (revealAt / 100) && !footerVisible);
+      }
+
+      var buttons = bar.querySelectorAll('[data-bfig-bar-dismiss]');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener('click', function () {
+          try {
+            window.sessionStorage.setItem(KEY, '1');
+          } catch (e) {
+            // Non-fatal: the bar still goes away for this page view.
+          }
+          bar.classList.remove('bfig-bar--show');
+          window.setTimeout(function () {
+            bar.remove();
+          }, 400);
+        });
+      }
+
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+
+      // The observer reports once after layout and calls update() itself.
+      if (!observed) update();
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "BF IG: action bar",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Sticky bar for this page only. The site-wide order bar is hidden here. Switches with the sale by itself."
+    },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "aria_label",
+      "label": "Name for screen readers",
+      "default": "Black Friday shortcuts"
+    },
+    {
+      "type": "range",
+      "id": "reveal_at",
+      "label": "Reveal after scrolling",
+      "info": "Percent of one screen height. The two paths are already on the first screen, so the bar waits until they scroll away.",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 70
+    },
+    {
+      "type": "url",
+      "id": "develop_link",
+      "label": "Develop link"
+    },
+    {
+      "type": "url",
+      "id": "gear_link",
+      "label": "Gear link"
+    },
+    {
+      "type": "header",
+      "content": "Before the sale"
+    },
+    {
+      "type": "text",
+      "id": "before_heading",
+      "label": "Heading",
+      "default": "Starts Friday 12 AM ET"
+    },
+    {
+      "type": "text",
+      "id": "before_sub",
+      "label": "Subheading",
+      "default": "10% off developing, 15% off gear $299.99 and up"
+    },
+    {
+      "type": "text",
+      "id": "before_button",
+      "label": "Button label",
+      "info": "Links to the gear.",
+      "default": "Browse the gear"
+    },
+    {
+      "type": "header",
+      "content": "During the sale"
+    },
+    {
+      "type": "text",
+      "id": "live_heading",
+      "label": "Heading",
+      "info": "Hidden on phones, where the two buttons fill the bar.",
+      "default": "Black Friday at the lab"
+    },
+    {
+      "type": "text",
+      "id": "live_sub",
+      "label": "Subheading",
+      "default": "Ends Tuesday 9 AM ET. No code needed."
+    },
+    {
+      "type": "text",
+      "id": "develop_label",
+      "label": "Develop button label",
+      "default": "Develop film"
+    },
+    {
+      "type": "text",
+      "id": "develop_badge",
+      "label": "Develop button note",
+      "default": "10% off"
+    },
+    {
+      "type": "text",
+      "id": "gear_label",
+      "label": "Gear button label",
+      "default": "Shop gear"
+    },
+    {
+      "type": "text",
+      "id": "gear_badge",
+      "label": "Gear button note",
+      "default": "15% off $299.99+"
+    },
+    {
+      "type": "header",
+      "content": "After the sale"
+    },
+    {
+      "type": "text",
+      "id": "ended_heading",
+      "label": "Heading",
+      "default": "Black Friday has ended"
+    },
+    {
+      "type": "text",
+      "id": "ended_button",
+      "label": "Button label",
+      "info": "Links to the develop link.",
+      "default": "Develop your film"
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF IG: action bar"
+    }
+  ]
+}
+{% endschema %}

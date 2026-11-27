@@ -82,16 +82,16 @@
         "f_more"
       ],
       "settings": {
-        "tag": "New customers",
-        "heading": "Mail us your film. Your first roll is on us.",
-        "offer": "$20 off your first order of $50 or more. Shipping not included.",
-        "discount_code": "FIRSTROLLFREE",
+        "tag": "",
+        "heading": "Mail us your film.",
+        "offer": "",
+        "discount_code": "",
         "code_note": "Code [code] is added for you when you pick your film.",
         "rating": "4.9",
         "review_count": 182,
         "reviews_url": "https://g.page/r/CbRDmCb9Ug2OEAE",
         "cards_heading": "What are you sending?",
-        "cards_note": "Per roll, developed and scanned. Any three rolls reach the $50 minimum.",
+        "cards_note": "Per roll, developed and scanned.",
         "hide_menu": true,
         "mouseflow_id": "",
         "color_scheme": "accent-2",
@@ -293,7 +293,7 @@
         "example_title": "Three rolls of 35mm color, mailed in",
         "example_product": "develop-and-scan-35mm-c41",
         "example_rolls": 3,
-        "discount_amount": 20,
+        "discount_amount": 0,
         "label_product": "in-bound-label",
         "return_price": "9.99",
         "color_scheme": "accent-2",
@@ -322,6 +322,7 @@
       "blocks": {
         "q_discount": {
           "type": "collapsible_row",
+          "disabled": true,
           "settings": {
             "heading": "Who can use the first-order discount?",
             "icon": "question_mark",
@@ -402,7 +403,7 @@
       "type": "cfl-mail-in-closing",
       "settings": {
         "heading": "Got a few rolls lying around?",
-        "text": "Send three and take $20 off your first order.",
+        "text": "",
         "button_label": "Start your order",
         "button_link": "#film",
         "padding_top": 24,

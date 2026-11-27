@@ -34,6 +34,29 @@
     if ratio == 0 or ratio == null
       assign ratio = 1
     endif
+
+    comment
+      Black Friday 2026: badge for in-stock items $299.99 and up in the
+      black-friday-equipment collection, only during the sale window set in
+      snippets/cfl-bf-phase.liquid. Shopify applies the discount itself; this
+      is only the label. Remove this block and the two cfl_bf_badge branches
+      below to take it out.
+    endcomment
+    assign cfl_bf_badge = false
+    if card_product.available and card_product.price >= 29999
+      capture cfl_bf_phase
+        render 'cfl-bf-phase'
+      endcapture
+      assign cfl_bf_phase = cfl_bf_phase | strip
+      if cfl_bf_phase == 'live'
+        for cfl_bf_collection in card_product.collections
+          if cfl_bf_collection.handle == 'black-friday-equipment'
+            assign cfl_bf_badge = true
+            break
+          endif
+        endfor
+      endif
+    endif
   -%}
   <div class="card-wrapper product-card-wrapper underline-links-hover">
     <div
@@ -126,6 +149,13 @@
                 class="badge badge--bottom-left color-{{ settings.sold_out_badge_color_scheme }}"
               >
                 {{- 'products.product.sold_out' | t -}}
+              </span>
+            {%- elsif cfl_bf_badge -%}
+              <span
+                id="NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}"
+                class="badge badge--bottom-left color-accent-1"
+              >
+                Black Friday 15% off
               </span>
             {%- elsif card_product.compare_at_price > card_product.price and card_product.available -%}
               <span
@@ -311,6 +341,13 @@
               class="badge badge--bottom-left color-{{ settings.sold_out_badge_color_scheme }}"
             >
               {{- 'products.product.sold_out' | t -}}
+            </span>
+          {%- elsif cfl_bf_badge -%}
+            <span
+              id="Badge-{{ section_id }}-{{ card_product.id }}"
+              class="badge badge--bottom-left color-accent-1"
+            >
+              Black Friday 15% off
             </span>
           {%- elsif card_product.compare_at_price > card_product.price and card_product.available -%}
             <span

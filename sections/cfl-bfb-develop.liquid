@@ -1,0 +1,360 @@
+{% comment %}
+  Black Friday 2026 sale page: film development as a gallery carousel.
+
+  Modelled on the "gallery4" carousel (heading and arrows above a row of
+  tall image cards, text over a gradient at the foot of each image, dots
+  underneath). Styles in assets/cfl-bfb.css, carousel script in
+  assets/cfl-bfb.js.
+
+  One tall card per film format, built from the chosen development
+  collection the same way snippets/cfl-format-grid.liquid does it: products
+  tagged 'Film Processing' are bucketed by format tag (35mm, medium format,
+  disposable, 110, aps), and each process the format has (c41, bw) becomes
+  its own link straight to that product, with its own "From" price. Nothing
+  is hard-coded; unlisting a product removes its link, and the last product
+  of a format removes the card. No add to cart: Globo puts the required
+  options (Negative Condition, Scan Size, Rush) on the product page.
+
+  An optional last card links to a second collection (Develop Only).
+
+  Sale window as in cfl-bfig-hero / cfl-bfig-gear; keep the numbers in step.
+  The discount wording is phase-gated with [data-bfig-when], so the hero's
+  script corrects it if the page is served from cache across a boundary.
+{% endcomment %}
+
+{%- liquid
+  # Sale window: Fri Nov 27 2026 12 AM ET to Tue Dec 1 2026 9 AM ET (see cfl-bfig-hero).
+  assign bfig_start = 1795755600
+  assign bfig_end = 1796133600
+  assign bfig_now = 'now' | date: '%s' | plus: 0
+  assign phase = 'live'
+  if bfig_now < bfig_start
+    assign phase = 'before'
+  elsif bfig_now >= bfig_end
+    assign phase = 'ended'
+  endif
+
+  assign dev = section.settings.collection
+  assign format_keys = '35mm,medium format,disposable,110,aps' | split: ','
+  assign format_labels = '35mm,Medium format,Disposable,110,APS' | split: ','
+  assign format_notes = '135 film|120 film|Single-use cameras|110 cartridges|APS cartridges' | split: '|'
+  assign process_keys = 'c41,bw' | split: ','
+  assign process_labels = 'C-41,B&W' | split: ','
+  assign service_tag = 'Film Processing'
+
+  assign present = ''
+  if dev != blank
+    for key in format_keys
+      assign format_key = key | strip
+      for product in dev.products
+        if product.tags contains service_tag and product.tags contains format_key
+          assign present = present | append: forloop.parentloop.index0 | append: ','
+          break
+        endif
+      endfor
+    endfor
+  endif
+  assign present_indexes = present | split: ','
+  assign track_id = 'BfbTrack-' | append: section.id
+-%}
+
+{%- if present_indexes.size > 0 -%}
+  {{ 'cfl-bfb.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'cfl-bfb.js' | asset_url }}" defer="defer"></script>
+
+  {%- style -%}
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    }
+    @media screen and (min-width: 750px) {
+      .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top }}px;
+        padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+    }
+  {%- endstyle -%}
+
+  <div class="bfb bfb--teal section-{{ section.id }}-padding" id="{{ section.settings.anchor | default: 'bfb-develop' | handleize }}">
+    <bfb-carousel class="bfb-gallery">
+      <div class="bfb-gallery__head">
+        <div class="bfb-gallery__intro">
+          {%- if section.settings.kicker != blank -%}
+            <p class="bfb-kicker">{{ section.settings.kicker }}</p>
+          {%- endif -%}
+          <h2 class="bfb-h2" id="{{ track_id }}-heading">{{ section.settings.heading }}</h2>
+          {%- if phase == 'before' and section.settings.text_before != blank -%}
+            <p class="bfb-lead" data-bfig-when="before">{{ section.settings.text_before }}</p>
+          {%- endif -%}
+          {%- if section.settings.text_live != blank -%}
+            <p class="bfb-lead" data-bfig-when="live" {% unless phase == 'live' %}hidden{% endunless %}>
+              {{ section.settings.text_live }}
+            </p>
+          {%- endif -%}
+          {%- if section.settings.text_ended != blank -%}
+            <p class="bfb-lead" data-bfig-when="ended" {% unless phase == 'ended' %}hidden{% endunless %}>
+              {{ section.settings.text_ended }}
+            </p>
+          {%- endif -%}
+        </div>
+        <div class="bfb-gallery__arrows" data-bfb-arrows hidden>
+          <button type="button" class="bfb-arrow" data-bfb-dir="-1" aria-controls="{{ track_id }}" aria-label="Previous formats">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path d="M19 12H5M11 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="bfb-arrow" data-bfb-dir="1" aria-controls="{{ track_id }}" aria-label="Next formats">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <ul
+        class="bfb-gallery__track"
+        id="{{ track_id }}"
+        role="list"
+        tabindex="0"
+        aria-labelledby="{{ track_id }}-heading"
+        data-bfb-track
+      >
+        {%- for index_string in present_indexes -%}
+          {%- liquid
+            assign i = index_string | plus: 0
+            assign format_key = format_keys[i] | strip
+            assign label = format_labels[i]
+            assign note = format_notes[i]
+            assign primary = blank
+            for product in dev.products
+              if product.tags contains service_tag and product.tags contains format_key
+                if primary == blank or product.tags contains 'c41'
+                  assign primary = product
+                endif
+              endif
+            endfor
+          -%}
+          <li class="bfb-slide" data-bfb-slide>
+            <article class="bfb-format">
+              <a class="bfb-format__media" href="{{ primary.url }}" tabindex="-1" aria-hidden="true">
+                {%- if primary.featured_image -%}
+                  {{
+                    primary.featured_image
+                    | image_url: width: 900
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '400, 600, 750, 900',
+                      sizes: '(min-width: 990px) 360px, 80vw',
+                      alt: '',
+                      class: 'bfb-format__img'
+                  }}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'bfb-format__img' }}
+                {%- endif -%}
+              </a>
+              <span class="bfb-format__scrim" aria-hidden="true"></span>
+
+              {%- if section.settings.badge_before != blank and phase == 'before' -%}
+                <p class="bfb-badge" data-bfig-when="before">{{ section.settings.badge_before }}</p>
+              {%- endif -%}
+              {%- if section.settings.badge_live != blank -%}
+                <p class="bfb-badge" data-bfig-when="live" {% unless phase == 'live' %}hidden{% endunless %}>{{ section.settings.badge_live }}</p>
+              {%- endif -%}
+
+              <div class="bfb-format__body">
+                <h3 class="bfb-format__title">{{ label }}</h3>
+                <p class="bfb-format__note">{{ note }}</p>
+                <ul class="bfb-format__links" role="list">
+                  {%- for process_key in process_keys -%}
+                    {%- assign process_label = process_labels[forloop.index0] -%}
+                    {%- for product in dev.products -%}
+                      {%- if product.tags contains service_tag
+                          and product.tags contains format_key
+                          and product.tags contains process_key
+                      -%}
+                        <li>
+                          <a class="bfb-process" href="{{ product.url }}">
+                            <span class="bfb-process__name">
+                              {{- process_label -}}
+                              <span class="visually-hidden"> {{ label }} development</span>
+                            </span>
+                            <span class="bfb-process__price">
+                              {%- assign from_price = product.price_min | money -%}
+                              {{- 'products.product.price.from_price_html' | t: price: from_price -}}
+                            </span>
+                            <svg class="bfb-process__arrow" aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          </a>
+                        </li>
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </article>
+          </li>
+        {%- endfor -%}
+
+        {%- assign extra = section.settings.extra_collection -%}
+        {%- if extra != blank and section.settings.extra_title != blank -%}
+          <li class="bfb-slide" data-bfb-slide>
+            <article class="bfb-format bfb-format--extra">
+              <a class="bfb-format__media" href="{{ extra.url }}" tabindex="-1" aria-hidden="true">
+                {%- assign extra_image = extra.products.first.featured_image | default: extra.featured_image -%}
+                {%- if extra_image -%}
+                  {{
+                    extra_image
+                    | image_url: width: 900
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '400, 600, 750, 900',
+                      sizes: '(min-width: 990px) 360px, 80vw',
+                      alt: '',
+                      class: 'bfb-format__img'
+                  }}
+                {%- endif -%}
+              </a>
+              <span class="bfb-format__scrim" aria-hidden="true"></span>
+
+              {%- comment -%} Develop Only gets the same 10% as the format cards. {%- endcomment -%}
+              {%- if section.settings.badge_before != blank and phase == 'before' -%}
+                <p class="bfb-badge" data-bfig-when="before">{{ section.settings.badge_before }}</p>
+              {%- endif -%}
+              {%- if section.settings.badge_live != blank -%}
+                <p class="bfb-badge" data-bfig-when="live" {% unless phase == 'live' %}hidden{% endunless %}>{{ section.settings.badge_live }}</p>
+              {%- endif -%}
+
+              <div class="bfb-format__body">
+                <h3 class="bfb-format__title">{{ section.settings.extra_title }}</h3>
+                {%- if section.settings.extra_text != blank -%}
+                  <p class="bfb-format__note">{{ section.settings.extra_text }}</p>
+                {%- endif -%}
+                <a class="bfb-readmore" href="{{ extra.url }}">
+                  {{- section.settings.extra_label | default: extra.title -}}
+                  <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+              </div>
+            </article>
+          </li>
+        {%- endif -%}
+      </ul>
+
+      <div class="bfb-gallery__dots" data-bfb-dots aria-hidden="true"></div>
+    </bfb-carousel>
+  </div>
+{%- elsif request.design_mode -%}
+  <div class="page-width">
+    <p>BF alt B: choose the development collection to show format cards here.</p>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "BF B: develop gallery",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Development collection",
+      "info": "One card per format tag; C-41 and B&W link to their own products."
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Anchor ID",
+      "default": "bfb-develop"
+    },
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Kicker",
+      "default": "Black Friday at the lab"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Develop your film, 10% off"
+    },
+    {
+      "type": "textarea",
+      "id": "text_before",
+      "label": "Text before the sale"
+    },
+    {
+      "type": "textarea",
+      "id": "text_live",
+      "label": "Text during the sale"
+    },
+    {
+      "type": "textarea",
+      "id": "text_ended",
+      "label": "Text after the sale"
+    },
+    {
+      "type": "text",
+      "id": "badge_before",
+      "label": "Card badge before the sale",
+      "default": "10% off from Friday"
+    },
+    {
+      "type": "text",
+      "id": "badge_live",
+      "label": "Card badge during the sale",
+      "default": "10% off at checkout"
+    },
+    {
+      "type": "header",
+      "content": "Last card"
+    },
+    {
+      "type": "collection",
+      "id": "extra_collection",
+      "label": "Collection",
+      "info": "For example Develop Only. Leave empty to skip the card."
+    },
+    {
+      "type": "text",
+      "id": "extra_title",
+      "label": "Title",
+      "default": "Develop only"
+    },
+    {
+      "type": "text",
+      "id": "extra_text",
+      "label": "Text"
+    },
+    {
+      "type": "text",
+      "id": "extra_label",
+      "label": "Link label"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF B: develop gallery"
+    }
+  ]
+}
+{% endschema %}

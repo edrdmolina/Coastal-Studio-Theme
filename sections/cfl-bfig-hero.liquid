@@ -1,0 +1,577 @@
+{% comment %}
+  First screen of /pages/black-friday-ig, the Black Friday 2026 landing page
+  for Instagram visitors (bio link and story link stickers). Template
+  page.bf-instagram. Modelled on the mail-in landing hero (cfl-mail-in-hero).
+
+  Two paths, both visible on a 390x844 phone without scrolling: develop film
+  (10% off) and gear $299.99 and up (15% off). Both discounts are automatic, so
+  the links go straight to the collections. No discount code is applied.
+
+  Sale phases. The window is fixed:
+    starts  Fri Nov 27 2026, 12:00 AM ET  = 1795755600 (UTC epoch)
+    ends    Tue Dec 1 2026,   9:00 AM ET  = 1796133600 (UTC epoch)
+  Both dates fall in EST (UTC-5). The same two numbers appear in every
+  cfl-bfig section that changes with the sale; keep them in step.
+
+    before  "Starts Friday 12 AM": the develop card explains the timing
+            instead of opening the order flow at full price; gear can be
+            browsed.
+    live    both paths link to their collections.
+    ended   a short "sale has ended" note and a normal development button.
+
+  Liquid picks the phase when the page is rendered. Shopify can serve that
+  HTML from cache for a while, so a small script re-checks the phase in the
+  browser and swaps every [data-bfig-when] element on the page. It only ever
+  moves the phase forward (before -> live -> ended), so a visitor whose clock
+  is behind never sees an earlier phase than the server rendered. Copy for
+  later phases is in the HTML with the hidden attribute so it can be shown
+  without a reload; copy for phases already over is left out.
+
+  The site menu and search are hidden on this template, as on the mail-in
+  page: logo, account and cart stay, and the footer keeps every link.
+{% endcomment %}
+
+{{ 'cfl-bfig.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  # Sale window (see the comment at the top).
+  assign bfig_start = 1795755600
+  assign bfig_end = 1796133600
+  assign bfig_now = 'now' | date: '%s' | plus: 0
+
+  assign real_index = 1
+  if bfig_now < bfig_start
+    assign real_index = 0
+  elsif bfig_now >= bfig_end
+    assign real_index = 2
+  endif
+
+  assign phase_index = real_index
+  assign forced = false
+  if request.design_mode and section.settings.preview_phase != 'auto'
+    assign forced = true
+    case section.settings.preview_phase
+      when 'before'
+        assign phase_index = 0
+      when 'live'
+        assign phase_index = 1
+      when 'ended'
+        assign phase_index = 2
+    endcase
+    assign real_index = 0
+  endif
+
+  assign phases = 'before,live,ended' | split: ','
+  assign phase = phases[phase_index]
+-%}
+
+{%- style -%}
+  {%- if section.settings.hide_menu -%}
+    .header header-drawer,
+    .header .header__inline-menu,
+    .header .header__search {
+      display: none;
+    }
+
+    /* Same header fix as the mail-in page: logo left, account and cart right, 44px targets. */
+    @media screen and (max-width: 749px) {
+      .header-wrapper .header {
+        grid-template-areas: 'heading icons';
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 10px 12px 10px 20px;
+      }
+
+      .header-wrapper .header__heading-link {
+        margin: 0;
+        padding: 0;
+      }
+
+      .header-wrapper .header__heading-logo {
+        width: auto;
+        height: 36px;
+      }
+
+      .header-wrapper .header__icons .header__icon,
+      .header-wrapper .header__icon--cart .icon {
+        width: 44px;
+        height: 44px;
+      }
+
+      .header-wrapper .header__icon--account {
+        display: flex !important;
+      }
+    }
+  {%- endif -%}
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- capture arrow -%}
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+{%- endcapture -%}
+
+<div
+  class="bfig color-{{ section.settings.color_scheme }} gradient"
+  data-bfig-clock
+  data-start="{{ bfig_start }}"
+  data-end="{{ bfig_end }}"
+  data-phase="{{ phase }}"
+  data-forced="{{ forced }}"
+>
+  {%- comment -%} Before and during the sale: offer and two paths. {%- endcomment -%}
+  {%- if real_index <= 1 -%}
+    <div
+      class="bfig-hero__inner page-width section-{{ section.id }}-padding"
+      data-bfig-when="before live"
+      {% if phase == 'ended' %}
+        hidden
+      {% endif %}
+    >
+      <div class="bfig-hero__intro">
+        {%- if real_index == 0 and section.settings.tag_before != blank -%}
+          <p
+            class="bfig-tag"
+            data-bfig-when="before"
+            {% unless phase == 'before' %}
+              hidden
+            {% endunless %}
+          >
+            {{ section.settings.tag_before }}
+          </p>
+        {%- endif -%}
+        {%- if section.settings.tag_live != blank -%}
+          <p
+            class="bfig-tag"
+            data-bfig-when="live"
+            {% unless phase == 'live' %}
+              hidden
+            {% endunless %}
+          >
+            {{ section.settings.tag_live }}
+          </p>
+        {%- endif -%}
+
+        <h1 class="bfig-hero__title">{{ section.settings.heading }}</h1>
+
+        {%- if real_index == 0 -%}
+          <p
+            class="bfig-lead"
+            data-bfig-when="before"
+            {% unless phase == 'before' %}
+              hidden
+            {% endunless %}
+          >
+            {{ section.settings.text_before }}
+          </p>
+        {%- endif -%}
+        <p
+          class="bfig-lead"
+          data-bfig-when="live"
+          {% unless phase == 'live' %}
+            hidden
+          {% endunless %}
+        >
+          {{ section.settings.text_live }}
+        </p>
+      </div>
+
+      <div class="bfig-hero__choose">
+        <h2 class="visually-hidden">{{ section.settings.paths_heading }}</h2>
+        <ul class="bfig-paths" role="list">
+          <li>
+            {%- if real_index == 0 -%}
+              <a
+                class="bfig-path bfig-path--develop"
+                href="#bfig-how"
+                data-bfig-when="before"
+                {% unless phase == 'before' %}
+                  hidden
+                {% endunless %}
+              >
+                <span class="bfig-path__title">{{ section.settings.develop_title }}</span>
+                <span class="bfig-path__badge">{{ section.settings.develop_badge }}</span>
+                <span class="bfig-path__text">{{ section.settings.develop_text_before }}</span>
+                <span class="bfig-path__go">{{ section.settings.develop_go_before }}{{ arrow }}</span>
+              </a>
+            {%- endif -%}
+            <a
+              class="bfig-path bfig-path--develop"
+              href="{{ section.settings.develop_link }}"
+              data-bfig-when="live"
+              {% unless phase == 'live' %}
+                hidden
+              {% endunless %}
+            >
+              <span class="bfig-path__title">{{ section.settings.develop_title }}</span>
+              <span class="bfig-path__badge">{{ section.settings.develop_badge }}</span>
+              <span class="bfig-path__text">{{ section.settings.develop_text }}</span>
+              <span class="bfig-path__go">{{ section.settings.develop_go }}{{ arrow }}</span>
+            </a>
+          </li>
+          <li>
+            <a class="bfig-path bfig-path--gear" href="{{ section.settings.gear_link }}">
+              <span class="bfig-path__title">{{ section.settings.gear_title }}</span>
+              <span class="bfig-path__badge">{{ section.settings.gear_badge }}</span>
+              {%- if real_index == 0 -%}
+                <span
+                  class="bfig-path__text"
+                  data-bfig-when="before"
+                  {% unless phase == 'before' %}
+                    hidden
+                  {% endunless %}
+                >
+                  {{- section.settings.gear_text_before -}}
+                </span>
+              {%- endif -%}
+              <span
+                class="bfig-path__text"
+                data-bfig-when="live"
+                {% unless phase == 'live' %}
+                  hidden
+                {% endunless %}
+              >
+                {{- section.settings.gear_text -}}
+              </span>
+              <span class="bfig-path__go">{{ section.settings.gear_go }}{{ arrow }}</span>
+            </a>
+          </li>
+        </ul>
+
+        {%- if section.settings.develop_only_link != blank and section.settings.develop_only_text != blank -%}
+          <p
+            class="bfig-hero__aside bfig-muted"
+            data-bfig-when="live"
+            {% unless phase == 'live' %}
+              hidden
+            {% endunless %}
+          >
+            {{ section.settings.develop_only_text }}
+            <a href="{{ section.settings.develop_only_link }}">{{ section.settings.develop_only_label }}</a>
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} After the sale. {%- endcomment -%}
+  <div
+    class="bfig-hero__inner bfig-hero__inner--single page-width section-{{ section.id }}-padding"
+    data-bfig-when="ended"
+    {% unless phase == 'ended' %}
+      hidden
+    {% endunless %}
+  >
+    <div class="bfig-hero__intro">
+      <h1 class="bfig-hero__title">{{ section.settings.ended_heading }}</h1>
+      {%- if section.settings.ended_text != blank -%}
+        <p class="bfig-lead">{{ section.settings.ended_text }}</p>
+      {%- endif -%}
+      {%- if section.settings.ended_button_label != blank -%}
+        <div class="bfig-hero__ended">
+          <a class="bfig-btn" href="{{ section.settings.ended_button_link | default: section.settings.develop_link }}">
+            {{- section.settings.ended_button_label -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var clock = document.querySelector('[data-bfig-clock]');
+    if (!clock) return;
+
+    var PHASES = ['before', 'live', 'ended'];
+    var start = Number(clock.dataset.start) * 1000;
+    var end = Number(clock.dataset.end) * 1000;
+    var rendered = PHASES.indexOf(clock.dataset.phase);
+    var forced = clock.dataset.forced === 'true';
+
+    function apply() {
+      var now = Date.now();
+      var index = rendered;
+      if (!forced) {
+        var actual = now < start ? 0 : now < end ? 1 : 2;
+        // Forward only: cached HTML can be behind, a slow device clock can too.
+        index = Math.max(actual, rendered);
+      }
+
+      var phase = PHASES[index];
+      var nodes = document.querySelectorAll('[data-bfig-when]');
+      for (var i = 0; i < nodes.length; i++) {
+        var when = nodes[i].getAttribute('data-bfig-when').split(' ');
+        nodes[i].hidden = when.indexOf(phase) === -1;
+      }
+
+      // A page left open across a boundary switches over at that moment.
+      if (!forced && index < 2) {
+        var wait = (index === 0 ? start : end) - now;
+        if (wait > 0 && wait < 86400000) window.setTimeout(apply, wait + 1000);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', apply);
+    } else {
+      apply();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "BF IG: hero",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Sale window is fixed in the code: Fri Nov 27, 12 AM ET to Tue Dec 1, 9 AM ET. The copy below switches by itself."
+    },
+    {
+      "type": "select",
+      "id": "preview_phase",
+      "label": "Preview in the theme editor",
+      "info": "Only affects the theme editor. Visitors always see the phase for the current time.",
+      "options": [
+        { "value": "auto", "label": "Current time" },
+        { "value": "before", "label": "Before the sale" },
+        { "value": "live", "label": "During the sale" },
+        { "value": "ended", "label": "After the sale" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "header",
+      "content": "Before and during the sale"
+    },
+    {
+      "type": "text",
+      "id": "tag_before",
+      "label": "Tag before the sale",
+      "default": "Starts Friday 12 AM ET"
+    },
+    {
+      "type": "text",
+      "id": "tag_live",
+      "label": "Tag during the sale",
+      "default": "On now until Tuesday 9 AM ET"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Black Friday at the lab"
+    },
+    {
+      "type": "textarea",
+      "id": "text_before",
+      "label": "Text before the sale",
+      "default": "10% off film development and 15% off cameras, lenses and gear $299.99 and up. Starts Friday, Nov 27 at 12 AM ET and runs until Tuesday, Dec 1 at 9 AM ET."
+    },
+    {
+      "type": "textarea",
+      "id": "text_live",
+      "label": "Text during the sale",
+      "default": "10% off film development and 15% off cameras, lenses and gear $299.99 and up. It comes off at checkout, no code needed. Ends Tuesday, Dec 1 at 9 AM ET."
+    },
+    {
+      "type": "text",
+      "id": "paths_heading",
+      "label": "Heading for the two cards",
+      "info": "Read by screen readers only.",
+      "default": "Choose what you're here for"
+    },
+    {
+      "type": "header",
+      "content": "Develop card"
+    },
+    {
+      "type": "text",
+      "id": "develop_title",
+      "label": "Title",
+      "default": "Develop your film"
+    },
+    {
+      "type": "text",
+      "id": "develop_badge",
+      "label": "Badge",
+      "default": "10% off"
+    },
+    {
+      "type": "text",
+      "id": "develop_text",
+      "label": "Text during the sale",
+      "default": "Develop & Scan or Develop Only, every format."
+    },
+    {
+      "type": "text",
+      "id": "develop_go",
+      "label": "Link text during the sale",
+      "default": "Start your order"
+    },
+    {
+      "type": "url",
+      "id": "develop_link",
+      "label": "Link during the sale",
+      "info": "The development order flow."
+    },
+    {
+      "type": "text",
+      "id": "develop_text_before",
+      "label": "Text before the sale",
+      "info": "Before the sale the card scrolls to How it works instead of opening the order flow at full price.",
+      "default": "Orders placed from Friday 12 AM ET get 10% off. Before then it's regular price."
+    },
+    {
+      "type": "text",
+      "id": "develop_go_before",
+      "label": "Link text before the sale",
+      "default": "How the weekend works"
+    },
+    {
+      "type": "text",
+      "id": "develop_only_text",
+      "label": "Develop Only line",
+      "default": "Just need it developed, no scans?"
+    },
+    {
+      "type": "text",
+      "id": "develop_only_label",
+      "label": "Develop Only link text",
+      "default": "Order Develop Only"
+    },
+    {
+      "type": "url",
+      "id": "develop_only_link",
+      "label": "Develop Only link"
+    },
+    {
+      "type": "header",
+      "content": "Gear card"
+    },
+    {
+      "type": "text",
+      "id": "gear_title",
+      "label": "Title",
+      "default": "Shop gear $299.99 and up"
+    },
+    {
+      "type": "text",
+      "id": "gear_badge",
+      "label": "Badge",
+      "default": "15% off"
+    },
+    {
+      "type": "text",
+      "id": "gear_text",
+      "label": "Text during the sale",
+      "default": "Cameras, lenses and gear. Mostly one-of-a-kind used pieces."
+    },
+    {
+      "type": "text",
+      "id": "gear_text_before",
+      "label": "Text before the sale",
+      "default": "Have a look now. 15% comes off from Friday 12 AM ET."
+    },
+    {
+      "type": "text",
+      "id": "gear_go",
+      "label": "Link text",
+      "default": "See the sale gear"
+    },
+    {
+      "type": "url",
+      "id": "gear_link",
+      "label": "Link",
+      "info": "The Black Friday equipment collection."
+    },
+    {
+      "type": "header",
+      "content": "After the sale"
+    },
+    {
+      "type": "text",
+      "id": "ended_heading",
+      "label": "Heading",
+      "default": "Our Black Friday sale has ended"
+    },
+    {
+      "type": "textarea",
+      "id": "ended_text",
+      "label": "Text",
+      "default": "Thanks to everyone who sent film our way. Development is back to regular prices, and you can still order online any time."
+    },
+    {
+      "type": "text",
+      "id": "ended_button_label",
+      "label": "Button label",
+      "default": "Develop your film"
+    },
+    {
+      "type": "url",
+      "id": "ended_button_link",
+      "label": "Button link",
+      "info": "Defaults to the develop card link."
+    },
+    {
+      "type": "header",
+      "content": "Page"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_menu",
+      "label": "Hide the site menu and search",
+      "info": "Logo, account and cart stay. The footer keeps every link.",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "accent-2"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF IG: hero"
+    }
+  ]
+}
+{% endschema %}

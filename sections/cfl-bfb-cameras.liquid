@@ -1,0 +1,340 @@
+{% comment %}
+  Black Friday 2026 sale page: a camera collection as a gallery carousel.
+
+  Modelled on the "gallery4" carousel (heading and arrows above a row of
+  tall image cards, text over a gradient at the foot of each image, dots
+  underneath). Styles in assets/cfl-bfb.css, carousel script in
+  assets/cfl-bfb.js.
+
+  Products come from the chosen collection in its own sort order; sold-out
+  products are skipped. Every card links to its product and has a quick
+  Add to cart, using the same product-form / quick-add-modal pattern as
+  snippets/card-product.liquid (one variant: adds straight to the cart;
+  several variants: opens the theme's quick-add modal). No sale wording or
+  compare-at prices are shown here, except a "15% off" tag on cameras that
+  are in the black-friday-equipment collection and priced $299.99 or more (the gear
+  discount). Liquid only sees published collections, so the tag appears once
+  that collection is published at launch. If nothing is available the section
+  renders nothing. An optional last card links to the full collection.
+{% endcomment %}
+
+{%- liquid
+  assign cams = section.settings.collection
+  assign shown = 0
+  assign track_id = 'BfbTrack-' | append: section.id
+  capture bf_phase
+    render 'cfl-bf-phase'
+  endcapture
+  assign bf_phase = bf_phase | strip
+-%}
+
+{%- if cams != blank -%}
+  {%- capture slides -%}
+    {%- for product in cams.products -%}
+      {%- if shown >= section.settings.products_to_show -%}{%- break -%}{%- endif -%}
+      {%- unless product.available -%}{%- continue -%}{%- endunless -%}
+      {%- assign shown = shown | plus: 1 -%}
+      {%- liquid
+        assign form_id = 'bfb-add-' | append: section.id | append: '-' | append: product.id
+        assign title_id = 'bfb-title-' | append: section.id | append: '-' | append: product.id
+        assign variant = product.selected_or_first_available_variant
+        assign qty_rules = false
+        if variant.quantity_rule.min > 1 or variant.quantity_rule.max != null or variant.quantity_rule.increment > 1
+          assign qty_rules = true
+        endif
+        assign on_sale = false
+        if bf_phase != 'after' and product.price_min >= 29999
+          for c in product.collections
+            if c.handle == 'black-friday-equipment'
+              assign on_sale = true
+              break
+            endif
+          endfor
+        endif
+      -%}
+      <li class="bfb-slide bfb-slide--cam" data-bfb-slide>
+        <article class="bfb-cam">
+          <div class="bfb-cam__media">
+            {%- if on_sale -%}
+              <p class="bfb-badge">
+                {%- if bf_phase == 'before' -%}15% off from Friday{%- else -%}15% off at checkout{%- endif -%}
+              </p>
+            {%- endif -%}
+            {%- if product.featured_media -%}
+              {%- assign cam_alt = product.featured_media.alt | default: product.title -%}
+              {{
+                product.featured_media
+                | image_url: width: 800
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '360, 540, 720, 800',
+                  sizes: '(min-width: 990px) 340px, 76vw',
+                  alt: cam_alt,
+                  class: 'bfb-cam__img'
+              }}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'bfb-cam__img' }}
+            {%- endif -%}
+            <span class="bfb-cam__fade" aria-hidden="true"></span>
+          </div>
+          <div class="bfb-cam__body">
+            <h3 class="bfb-cam__title" id="{{ title_id }}">
+              <a class="bfb-cam__link" href="{{ product.url }}">{{ product.title | escape }}</a>
+            </h3>
+            <p class="bfb-cam__price">
+              {%- if product.price_varies -%}
+                {%- assign from_price = product.price_min | money -%}
+                {{- 'products.product.price.from_price_html' | t: price: from_price -}}
+              {%- else -%}
+                {{- product.price | money -}}
+              {%- endif -%}
+            </p>
+
+            {%- if section.settings.quick_add -%}
+              <div class="bfb-cam__add quick-add no-js-hidden">
+                {%- if product.variants.size > 1 or qty_rules -%}
+                  <modal-opener data-modal="#QuickAdd-{{ product.id }}">
+                    <button
+                      id="{{ form_id }}-submit"
+                      type="submit"
+                      name="add"
+                      class="bfb-add"
+                      aria-haspopup="dialog"
+                      aria-labelledby="{{ form_id }}-submit {{ title_id }}"
+                      data-product-url="{{ product.url }}"
+                    >
+                      <span>{{ 'products.product.choose_options' | t }}</span>
+                      {%- render 'loading-spinner' -%}
+                    </button>
+                  </modal-opener>
+                  <quick-add-modal id="QuickAdd-{{ product.id }}" class="quick-add-modal">
+                    <div
+                      role="dialog"
+                      aria-label="{{ 'products.product.choose_product_options' | t: product_name: product.title | escape }}"
+                      aria-modal="true"
+                      class="quick-add-modal__content global-settings-popup"
+                      tabindex="-1"
+                    >
+                      <button id="ModalClose-{{ product.id }}" type="button" class="quick-add-modal__toggle" aria-label="{{ 'accessibility.close' | t }}">
+                        {% render 'icon-close' %}
+                      </button>
+                      <div id="QuickAddInfo-{{ product.id }}" class="quick-add-modal__content-info"></div>
+                    </div>
+                  </quick-add-modal>
+                {%- else -%}
+                  <product-form data-section-id="{{ section.id }}">
+                    {%- form 'product', product, id: form_id, class: 'form', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+                      <input type="hidden" name="id" value="{{ variant.id }}" class="product-variant-id">
+                      <button
+                        id="{{ form_id }}-submit"
+                        type="submit"
+                        name="add"
+                        class="bfb-add"
+                        aria-labelledby="{{ form_id }}-submit {{ title_id }}"
+                        aria-live="polite"
+                        data-sold-out-message="true"
+                      >
+                        <span>{{ 'products.product.add_to_cart' | t }}</span>
+                        <span class="sold-out-message hidden">{{ 'products.product.sold_out' | t }}</span>
+                        {%- render 'loading-spinner' -%}
+                      </button>
+                    {%- endform -%}
+                  </product-form>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        </article>
+      </li>
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- if shown > 0 -%}
+    {{ 'cfl-bfb.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'cfl-bfb.js' | asset_url }}" defer="defer"></script>
+    {%- if section.settings.quick_add -%}
+      {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+      <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+      <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- style -%}
+      .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+        padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+      }
+      @media screen and (min-width: 750px) {
+        .section-{{ section.id }}-padding {
+          padding-top: {{ section.settings.padding_top }}px;
+          padding-bottom: {{ section.settings.padding_bottom }}px;
+        }
+      }
+    {%- endstyle -%}
+
+    <div class="bfb bfb--{{ section.settings.tone }} section-{{ section.id }}-padding" id="{{ section.settings.anchor | default: 'bfb-cameras' | handleize }}">
+      <bfb-carousel class="bfb-gallery">
+        <div class="bfb-gallery__head">
+          <div class="bfb-gallery__intro">
+            {%- if section.settings.kicker != blank -%}
+              <p class="bfb-kicker">{{ section.settings.kicker }}</p>
+            {%- endif -%}
+            <h2 class="bfb-h2" id="{{ track_id }}-heading">{{ section.settings.heading }}</h2>
+            {%- if section.settings.text != blank -%}
+              <p class="bfb-lead">{{ section.settings.text }}</p>
+            {%- endif -%}
+          </div>
+          <div class="bfb-gallery__arrows" data-bfb-arrows hidden>
+            <button type="button" class="bfb-arrow" data-bfb-dir="-1" aria-controls="{{ track_id }}" aria-label="Previous cameras">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path d="M19 12H5M11 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="bfb-arrow" data-bfb-dir="1" aria-controls="{{ track_id }}" aria-label="Next cameras">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="22" height="22"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <ul
+          class="bfb-gallery__track"
+          id="{{ track_id }}"
+          role="list"
+          tabindex="0"
+          aria-labelledby="{{ track_id }}-heading"
+          data-bfb-track
+        >
+          {{ slides }}
+          {%- if section.settings.button_label != blank -%}
+            <li class="bfb-slide bfb-slide--cam" data-bfb-slide>
+              <article class="bfb-more">
+                {%- assign more_image = cams.featured_image -%}
+                {%- if more_image -%}
+                  {{
+                    more_image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '360, 540, 720, 800',
+                      sizes: '(min-width: 990px) 340px, 76vw',
+                      alt: '',
+                      class: 'bfb-more__img'
+                  }}
+                {%- endif -%}
+                <div class="bfb-more__body">
+                  <p class="bfb-more__count">{{ cams.title | escape }}</p>
+                  <a class="bfb-readmore bfb-more__link" href="{{ cams.url }}">
+                    {{- section.settings.button_label -}}
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                </div>
+              </article>
+            </li>
+          {%- endif -%}
+        </ul>
+
+        <div class="bfb-gallery__dots" data-bfb-dots aria-hidden="true"></div>
+      </bfb-carousel>
+    </div>
+  {%- elsif request.design_mode -%}
+    <div class="page-width">
+      <p>BF alt B: choose a collection with available products to show cards here.</p>
+    </div>
+  {%- endif -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "BF B: camera gallery",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Sold-out products are skipped."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 16,
+      "step": 1,
+      "label": "Products to show",
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_add",
+      "label": "Add-to-cart buttons on cards",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "tone",
+      "label": "Colour block",
+      "options": [
+        { "value": "gold", "label": "Canister Gold" },
+        { "value": "negative", "label": "Blank Negative" },
+        { "value": "teal", "label": "Emulsion Tide Teal" }
+      ],
+      "default": "gold"
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Anchor ID",
+      "default": "bfb-cameras"
+    },
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Kicker"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Point-and-shoots"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Last card link label",
+      "info": "Links to the collection. Leave empty to skip the card.",
+      "default": "See all"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF B: camera gallery"
+    }
+  ]
+}
+{% endschema %}

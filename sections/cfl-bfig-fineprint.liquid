@@ -1,0 +1,180 @@
+{% comment %}
+  The fine print on /pages/black-friday-ig: dates, what's in and out, and a
+  link to the full details on /pages/black-friday. During the sale it ends
+  with both paths again, for visitors who read to the bottom.
+
+  Shown before and during the sale; after it ends the section renders
+  nothing. Sale window as in cfl-bfig-hero; keep the numbers in step.
+{% endcomment %}
+
+{%- liquid
+  # Sale window: Fri Nov 27 2026 12 AM ET to Tue Dec 1 2026 9 AM ET (see cfl-bfig-hero).
+  assign bfig_start = 1795755600
+  assign bfig_end = 1796133600
+  assign bfig_now = 'now' | date: '%s' | plus: 0
+  assign phase = 'live'
+  if bfig_now < bfig_start
+    assign phase = 'before'
+  elsif bfig_now >= bfig_end
+    assign phase = 'ended'
+  endif
+-%}
+
+{%- if phase != 'ended' or request.design_mode -%}
+  {{ 'cfl-bfig.css' | asset_url | stylesheet_tag }}
+
+  {%- style -%}
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    }
+
+    @media screen and (min-width: 750px) {
+      .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top }}px;
+        padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+    }
+  {%- endstyle -%}
+
+  <div
+    class="bfig color-{{ section.settings.color_scheme }} gradient"
+    data-bfig-when="before live"
+    {% if phase == 'ended' %}
+      hidden
+    {% endif %}
+  >
+    <div class="page-width section-{{ section.id }}-padding">
+      <div class="bfig-fine">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="bfig-h2">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.text != blank -%}
+          <div class="bfig-fine__body">{{ section.settings.text }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.details_link != blank and section.settings.details_label != blank -%}
+          <p class="bfig-fine__more">
+            <a href="{{ section.settings.details_link }}">{{ section.settings.details_label }}</a>
+          </p>
+        {%- endif -%}
+
+        {%- if section.settings.develop_label != blank or section.settings.gear_label != blank -%}
+          <div
+            class="bfig-fine__actions"
+            data-bfig-when="live"
+            {% unless phase == 'live' %}
+              hidden
+            {% endunless %}
+          >
+            {%- if section.settings.develop_label != blank and section.settings.develop_link != blank -%}
+              <a class="bfig-btn" href="{{ section.settings.develop_link }}">{{ section.settings.develop_label }}</a>
+            {%- endif -%}
+            {%- if section.settings.gear_label != blank and section.settings.gear_link != blank -%}
+              <a class="bfig-btn bfig-btn--secondary" href="{{ section.settings.gear_link }}">
+                {{- section.settings.gear_label -}}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "BF IG: fine print",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shown before and during the sale. Hidden once it ends. The buttons show during the sale only."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The fine print"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "text",
+      "id": "details_label",
+      "label": "Full details link text",
+      "default": "Full sale details"
+    },
+    {
+      "type": "url",
+      "id": "details_link",
+      "label": "Full details link"
+    },
+    {
+      "type": "header",
+      "content": "Buttons during the sale"
+    },
+    {
+      "type": "text",
+      "id": "develop_label",
+      "label": "Develop button label",
+      "default": "Develop your film, 10% off"
+    },
+    {
+      "type": "url",
+      "id": "develop_link",
+      "label": "Develop button link"
+    },
+    {
+      "type": "text",
+      "id": "gear_label",
+      "label": "Gear button label",
+      "default": "Shop gear $299.99 and up, 15% off"
+    },
+    {
+      "type": "url",
+      "id": "gear_link",
+      "label": "Gear button link"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "accent-2"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF IG: fine print"
+    }
+  ]
+}
+{% endschema %}

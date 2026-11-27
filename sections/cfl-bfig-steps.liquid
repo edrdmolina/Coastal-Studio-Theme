@@ -1,0 +1,161 @@
+{% comment %}
+  "How it works" on /pages/black-friday-ig: the ways to get film to the lab
+  over the sale weekend (drop box, mail-in, in store), one block each, plus a
+  note on when the order has to be placed.
+
+  The hero's develop card links here (#bfig-how) before the sale starts.
+
+  Shown before and during the sale; after it ends the section renders
+  nothing. Sale window as in cfl-bfig-hero; keep the two numbers in step.
+{% endcomment %}
+
+{%- liquid
+  # Sale window: Fri Nov 27 2026 12 AM ET to Tue Dec 1 2026 9 AM ET (see cfl-bfig-hero).
+  assign bfig_end = 1796133600
+  assign bfig_now = 'now' | date: '%s' | plus: 0
+  assign ended = false
+  if bfig_now >= bfig_end
+    assign ended = true
+  endif
+-%}
+
+{%- if ended == false or request.design_mode -%}
+  {{ 'cfl-bfig.css' | asset_url | stylesheet_tag }}
+
+  {%- style -%}
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    }
+
+    @media screen and (min-width: 750px) {
+      .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top }}px;
+        padding-bottom: {{ section.settings.padding_bottom }}px;
+      }
+    }
+  {%- endstyle -%}
+
+  <div
+    class="bfig color-{{ section.settings.color_scheme }} gradient"
+    data-bfig-when="before live"
+    {% if ended %}
+      hidden
+    {% endif %}
+  >
+    <div class="bfig-how page-width section-{{ section.id }}-padding" id="bfig-how">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="bfig-h2">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.intro != blank -%}
+        <p class="bfig-lead">{{ section.settings.intro }}</p>
+      {%- endif -%}
+
+      <ul class="bfig-ways" role="list">
+        {%- for block in section.blocks -%}
+          <li class="bfig-way" {{ block.shopify_attributes }}>
+            {%- if block.settings.kicker != blank -%}
+              <p class="bfig-way__kicker">{{ block.settings.kicker }}</p>
+            {%- endif -%}
+            <h3 class="bfig-way__title">{{ block.settings.title }}</h3>
+            <div class="bfig-way__text">{{ block.settings.text }}</div>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.note != blank -%}
+        <p class="bfig-note">{{ section.settings.note }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "BF IG: how it works",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shown before and during the sale. Hidden once it ends."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Getting your film to us"
+    },
+    {
+      "type": "text",
+      "id": "intro",
+      "label": "Intro"
+    },
+    {
+      "type": "textarea",
+      "id": "note",
+      "label": "Note under the cards",
+      "default": "To get 10% off, place your development order online between Friday 12 AM ET and Tuesday 9 AM ET."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "way",
+      "name": "Way to send film",
+      "settings": [
+        {
+          "type": "text",
+          "id": "kicker",
+          "label": "Small label above",
+          "info": "e.g. All weekend"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "BF IG: how it works"
+    }
+  ]
+}
+{% endschema %}
