@@ -4,8 +4,10 @@
   page.black-friday. Modelled on the mail-in landing hero (cfl-mail-in-hero).
 
   Phone: offer and both paths fit on a 390x844 screen without scrolling.
-  From 750px a row of sale facts appears, and from 990px a lab photo fills
-  the right-hand column.
+  From 750px a row of sale facts appears, and from 990px the right-hand
+  column shows a photo in the 35mm film frame from the home page hero
+  (cfl-hero): the same .cfl-hero__film class from cfl-components.css, which
+  theme.liquid loads on every page.
 
   Two paths, both visible on a 390x844 phone without scrolling: develop film
   (10% off) and gear $299.99 and up (15% off). Both discounts are automatic, so
@@ -281,24 +283,19 @@
       </div>
       </div>
 
-      {%- if section.settings.show_photo -%}
+      {%- if section.settings.show_photo and section.settings.photo != blank -%}
         <div class="bfig-hero__photo">
-          {%- if section.settings.photo != blank -%}
+          <div class="cfl-hero__film">
             {{
               section.settings.photo
-              | image_url: width: 1000
-              | image_tag: loading: 'lazy', widths: '500, 750, 1000', sizes: '(min-width: 990px) 40vw, 1px', alt: section.settings.photo.alt, class: 'bfig-hero__img'
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'lazy',
+                widths: '550, 700, 900, 1100, 1400',
+                sizes: '(min-width: 1532px) 600px, (min-width: 990px) 38vw, 1px',
+                alt: section.settings.photo_alt
             }}
-          {%- else -%}
-            <img
-              class="bfig-hero__img"
-              src="{{ 'cfl-bf-hero-lighttable.jpg' | asset_url }}"
-              width="1000"
-              height="1500"
-              loading="lazy"
-              alt="A lab tech in white gloves lays strips of colour negatives on a light table"
-            >
-          {%- endif -%}
+          </div>
         </div>
       {%- endif -%}
     </div>
@@ -458,7 +455,12 @@
       "type": "image_picker",
       "id": "photo",
       "label": "Photo",
-      "info": "Leave empty to use the lab light-table photo."
+      "info": "Shown in a frame of 35mm film, like the home page hero. A landscape scan works best."
+    },
+    {
+      "type": "text",
+      "id": "photo_alt",
+      "label": "Photo alt text"
     },
     {
       "type": "text",

@@ -332,22 +332,13 @@
     gap: 32px;
   }
 
+  /* The film frame itself is .cfl-hero__film from cfl-components.css (home page hero). */
   .bfig-hero__photo {
     display: block;
-    position: relative;
-    min-height: 420px;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 2px 2px 5px rgba(48, 30, 23, 0.1);
-  }
-
-  .bfig-hero__img {
-    position: absolute;
-    inset: 0;
+    align-self: center;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 45%;
+    max-width: 600px;
+    justify-self: end;
   }
 
   .bfig-hero__inner--single {
