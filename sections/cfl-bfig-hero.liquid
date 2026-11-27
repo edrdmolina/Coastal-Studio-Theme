@@ -1,7 +1,11 @@
 {% comment %}
-  First screen of /pages/black-friday-ig, the Black Friday 2026 landing page
-  for Instagram visitors (bio link and story link stickers). Template
-  page.bf-instagram. Modelled on the mail-in landing hero (cfl-mail-in-hero).
+  First screen of /pages/black-friday, the Black Friday 2026 sale page. The
+  same page is the Instagram bio link and story link sticker target. Template
+  page.black-friday. Modelled on the mail-in landing hero (cfl-mail-in-hero).
+
+  Phone: offer and both paths fit on a 390x844 screen without scrolling.
+  From 750px a row of sale facts appears, and from 990px a lab photo fills
+  the right-hand column.
 
   Two paths, both visible on a 390x844 phone without scrolling: develop film
   (10% off) and gear $299.99 and up (15% off). Both discounts are automatic, so
@@ -139,6 +143,7 @@
         hidden
       {% endif %}
     >
+      <div class="bfig-hero__main">
       <div class="bfig-hero__intro">
         {%- if real_index == 0 and section.settings.tag_before != blank -%}
           <p
@@ -185,6 +190,18 @@
         >
           {{ section.settings.text_live }}
         </p>
+
+        {%- capture facts -%}
+          {%- for i in (1..3) -%}
+            {%- assign fact_key = 'fact_' | append: i -%}
+            {%- if section.settings[fact_key] != blank -%}
+              <li class="bfig-fact">{{ section.settings[fact_key] }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+        {%- if facts != blank -%}
+          <ul class="bfig-facts" role="list">{{ facts }}</ul>
+        {%- endif -%}
       </div>
 
       <div class="bfig-hero__choose">
@@ -262,6 +279,28 @@
           </p>
         {%- endif -%}
       </div>
+      </div>
+
+      {%- if section.settings.show_photo -%}
+        <div class="bfig-hero__photo">
+          {%- if section.settings.photo != blank -%}
+            {{
+              section.settings.photo
+              | image_url: width: 1000
+              | image_tag: loading: 'lazy', widths: '500, 750, 1000', sizes: '(min-width: 990px) 40vw, 1px', alt: section.settings.photo.alt, class: 'bfig-hero__img'
+            }}
+          {%- else -%}
+            <img
+              class="bfig-hero__img"
+              src="{{ 'cfl-bf-hero-lighttable.jpg' | asset_url }}"
+              width="1000"
+              height="1500"
+              loading="lazy"
+              alt="A lab tech in white gloves lays strips of colour negatives on a light table"
+            >
+          {%- endif -%}
+        </div>
+      {%- endif -%}
     </div>
   {%- endif -%}
 
@@ -390,6 +429,36 @@
       "id": "text_live",
       "label": "Text during the sale",
       "default": "10% off film development and 15% off cameras, lenses and gear $299.99 and up. It comes off at checkout, no code needed. Ends Tuesday, Dec 1 at 9 AM ET."
+    },
+    {
+      "type": "text",
+      "id": "fact_1",
+      "label": "Fact 1 (750px and up)",
+      "default": "No code needed"
+    },
+    {
+      "type": "text",
+      "id": "fact_2",
+      "label": "Fact 2",
+      "default": "Online and in store through Cyber Monday"
+    },
+    {
+      "type": "text",
+      "id": "fact_3",
+      "label": "Fact 3",
+      "default": "Drop box open all weekend"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_photo",
+      "label": "Show photo (990px and up)",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "photo",
+      "label": "Photo",
+      "info": "Leave empty to use the lab light-table photo."
     },
     {
       "type": "text",

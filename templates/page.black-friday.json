@@ -87,22 +87,19 @@
       }
     },
     "gear": {
-      "type": "cfl-bfig-gear",
+      "type": "cfl-bfb-cameras",
       "settings": {
         "collection": "black-friday-equipment",
-        "min_price": 299,
-        "products_to_show": 8,
-        "heading": "Gear $299.99 and up, 15% off",
-        "text_before": "Cameras, lenses and gear from the sale collection. Most are one-of-a-kind used pieces. 15% comes off at checkout from Friday 12 AM ET.",
-        "text_live": "Cameras, lenses and gear from the sale collection. Most are one-of-a-kind used pieces. 15% comes off automatically at checkout.",
-        "label_before": "15% off from Friday",
-        "label_live": "",
-        "button_label": "See all sale gear",
-        "color_scheme": "accent-2",
-        "padding_top": 36,
-        "padding_bottom": 36,
+        "products_to_show": 16,
         "quick_add": true,
-        "anchor": "bfig-gear"
+        "tone": "teal",
+        "anchor": "bfig-gear",
+        "kicker": "Black Friday gear sale",
+        "heading": "Gear $299.99 and up, 15% off",
+        "text": "Cameras, lenses and gear from the sale collection, mostly one-of-a-kind used pieces. 15% comes off automatically at checkout, Friday 12 AM ET to Tuesday 9 AM ET.",
+        "button_label": "See all sale gear",
+        "padding_top": 56,
+        "padding_bottom": 48
       }
     },
     "fine_print": {

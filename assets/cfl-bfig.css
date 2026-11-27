@@ -1,6 +1,6 @@
 /*
-  /pages/black-friday-ig: the Black Friday 2026 landing page for Instagram
-  visitors (bio link and story link stickers). Used only by the
+  /pages/black-friday: the Black Friday 2026 sale page, which is also the
+  Instagram bio link and story link sticker target. Used only by the
   sections/cfl-bfig-* sections, so nothing here reaches other templates.
 
   Built from the mail-in landing page (cfl-mail-in.css) and designed at 390px
@@ -120,6 +120,17 @@
   display: grid;
   gap: 20px;
   align-items: center;
+}
+
+.bfig-hero__main {
+  display: grid;
+  gap: 20px;
+  align-content: center;
+}
+
+.bfig-facts,
+.bfig-hero__photo {
+  display: none;
 }
 
 .bfig-hero__intro {
@@ -259,6 +270,34 @@
     font-size: 56px;
   }
 
+  .bfig-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bfig-fact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 1px solid rgba(48, 30, 23, 0.22);
+    border-radius: 999px;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .bfig-fact::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bfig-action);
+  }
+
   .bfig-paths {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
@@ -284,8 +323,31 @@
 
 @media screen and (min-width: 990px) {
   .bfig-hero__inner {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: 56px;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: stretch;
+    gap: 48px;
+  }
+
+  .bfig-hero__main {
+    gap: 32px;
+  }
+
+  .bfig-hero__photo {
+    display: block;
+    position: relative;
+    min-height: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 2px 2px 5px rgba(48, 30, 23, 0.1);
+  }
+
+  .bfig-hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 45%;
   }
 
   .bfig-hero__inner--single {
@@ -298,21 +360,21 @@
   }
 
   .bfig-paths {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media screen and (min-width: 1200px) {
-  .bfig-paths {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .bfig-path {
-    min-height: 220px;
+    min-height: 200px;
   }
 
   .bfig-path__go {
     align-self: end;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .bfig-hero__title {
+    font-size: 76px;
   }
 }
 
@@ -401,146 +463,6 @@
   .bfig-way__text,
   .bfig-note {
     font-size: 16px;
-  }
-}
-
-/* ---------- Gear highlights ---------- */
-
-.bfig-gear {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.bfig-gear__head {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bfig-gear__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.bfig-gear__item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* The theme card stretches to fill a grid row; let the label sit right under it. */
-.bfig-gear__item .card-wrapper {
-  height: auto;
-}
-
-.bfig-gear__label {
-  align-self: flex-start;
-  margin: 0;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--bfig-mustard);
-  color: var(--bfig-brown);
-  font-family: var(--font-subheading-family);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.bfig-gear__more {
-  align-self: stretch;
-}
-
-@media screen and (min-width: 750px) {
-  .bfig-gear__grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 24px;
-  }
-
-  .bfig-gear__more {
-    align-self: flex-start;
-  }
-}
-
-/* Swipe row: one row of cards that scrolls sideways (layout setting "scroll"). */
-.bfig-gear__head-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.bfig-gear__arrows {
-  display: none;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.bfig-gear__arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 2px solid var(--bfig-brown);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--bfig-brown);
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.bfig-gear__arrow:hover:not(:disabled) {
-  background: var(--bfig-brown);
-  color: var(--bfig-cream);
-}
-
-.bfig-gear__arrow:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.bfig-gear__arrow:focus-visible,
-.bfig-gear__grid--scroll:focus-visible {
-  outline: 2px solid var(--bfig-action);
-  outline-offset: 3px;
-}
-
-.bfig-gear__grid--scroll {
-  grid-template-columns: none;
-  grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 12px) / 2.25);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scroll-padding-left: 0;
-  padding-bottom: 12px;
-  scrollbar-width: thin;
-}
-
-.bfig-gear__grid--scroll > li {
-  scroll-snap-align: start;
-}
-
-@media screen and (min-width: 750px) {
-  .bfig-gear__grid--scroll {
-    grid-template-columns: none;
-    grid-auto-columns: calc((100% - 72px) / 4);
-  }
-
-  .bfig-gear__arrows--active {
-    display: flex;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bfig-gear__grid--scroll {
-    scroll-behavior: auto;
   }
 }
 
